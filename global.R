@@ -1,0 +1,7 @@
+source("one-way_anova.r", encoding = "utf-8")
+source("kruskal-wallis.r", encoding = "utf-8")
+source("independent_t.r", encoding = "utf-8")
+source("mann-whitney.r", encoding = "utf-8")
+source("parametric_descriptives.r", encoding = "utf-8")
+source("nonparametric_descriptives.r", encoding = "utf-8")
+source("shapiro-wilk.r", encoding = "utf-8")
