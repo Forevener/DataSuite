@@ -18,7 +18,7 @@ ds.onewayanova <- function(in_data, ind_var)
 		if (is.numeric(in_data[[index]]))
 		{
 			means <- aggregate(in_data[[index]], by = list(factors), FUN = "mean", na.rm = TRUE)
-			result = summary(aov(in_data[[index]] ~ in_data[[ind_var]], data = in_data))
+			result = summary(aov(in_data[[index]] ~ in_data[[ind_var]], data = in_data, na.rm = TRUE))
 			for (y in 1:length(levels(factors)))
 				out_data[i, y] = sprintf(round(means[y, 2], 2), fmt = '%#.2f')
 

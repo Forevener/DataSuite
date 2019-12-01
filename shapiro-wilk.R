@@ -8,7 +8,7 @@ ds.shapirowilk = function(in_data)
 	{
 		if (is.numeric(in_data[[index]]))
 		{
-			result = shapiro.test(in_data[[index]])
+			result = shapiro.test(in_data[[index]], na.rm = TRUE)
 			out_data[index, 1] = sprintf(round(result$statistic, 5), fmt = '%#.5f')
 			out_data[index, 2] = sprintf(round(result$p.value, 6), fmt = '%#.6f')
 			out_data[index, 3] = ifelse(result$p.value > 0.05, "Нормальное", "Отличается от нормального")

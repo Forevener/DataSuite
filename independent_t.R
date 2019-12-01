@@ -13,7 +13,7 @@ ds.independent_ttest = function(in_data, ind_var)
 		if (is.numeric(in_data[[index]]))
 		{
 			means <- aggregate(in_data[[index]], by = list(factors), FUN = "mean", na.rm = TRUE)
-			result = t.test(in_data[[index]] ~ in_data[[ind_var]], data = in_data)
+			result = t.test(in_data[[index]] ~ in_data[[ind_var]], data = in_data, na.rm = TRUE)
 			out_data[i, 1] = sprintf(round(means[1, 2], 2), fmt = '%#.2f')
 			out_data[i, 2] = sprintf(round(means[2, 2], 2), fmt = '%#.2f')
 			out_data[i, 3] = sprintf(round(result$statistic[[1]], 4), fmt = '%#.4f')

@@ -18,7 +18,7 @@ ds.kruskalwallis = function(in_data, ind_var)
 		if (is.numeric(in_data[[index]]))
 		{
 			medians <- aggregate(in_data[[index]], by = list(factors), FUN = "median", na.rm = TRUE)
-			result = kruskal.test(in_data[[index]] ~ in_data[[ind_var]], data = in_data)
+			result = kruskal.test(in_data[[index]] ~ in_data[[ind_var]], data = in_data, na.rm = TRUE)
 			for (y in 1:length(levels(factors)))
 				out_data[i, y] = medians[y, 2]
 

@@ -13,7 +13,7 @@ ds.mannwhitney = function(in_data, ind_var)
 		if (is.numeric(in_data[[index]]))
 		{
 			medians <- aggregate(in_data[[index]], by = list(factors), FUN = "median", na.rm = TRUE)
-			result = wilcox.test(in_data[[index]] ~ in_data[[ind_var]], data = in_data, correct = FALSE)
+			result = wilcox.test(in_data[[index]] ~ in_data[[ind_var]], data = in_data, correct = FALSE, na.rm = TRUE)
 			out_data[i, 1] = medians[1, 2]
 			out_data[i, 2] = medians[2, 2]
 			out_data[i, 3] = sprintf(round(result$statistic[[1]], 3), fmt = '%#.3f')
