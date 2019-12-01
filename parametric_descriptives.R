@@ -1,5 +1,11 @@
-ds.parametric_descriptives = function(in_data)
+ds.parametric_descriptives = function()
 {
+	if (is.null(in_data))
+	{
+		showNotification("Не загружены данные для обработки!")
+		return(NULL)
+	}
+
 	num_vars = ncol(in_data)
 	names = list(colnames(in_data), c("Минимум", "Нижняя граница нормы", "Среднее", "Верхняя граница нормы", "Максимум", "Стандартное отклонение"))
 	out_data = matrix(nrow = num_vars, ncol = 6, dimnames = names)
@@ -28,5 +34,6 @@ ds.parametric_descriptives = function(in_data)
 		}
 	}
 
-	return(out_data)
+	output$out_table <- renderTable(out_data, rownames = TRUE)
+	updateTabsetPanel(session, "mainTabs", selected = "Tab2")
 }

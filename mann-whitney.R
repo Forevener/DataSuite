@@ -1,6 +1,18 @@
-ds.mannwhitney = function(in_data, ind_var)
+ds.mannwhitney = function()
 {
+	if (is.null(in_data))
+	{
+		showNotification("Не загружены данные для обработки!")
+		return(NULL)
+	}
+	if (indep_var_ctis() == "0")
+	{
+		showNotification("Нет подходящих независимых переменных для данного вида анализа")
+		return(NULL)
+	}
+
 	num_vars = ncol(in_data)
+	ind_var = strtoi(indep_var_ctis())
 	factors <- factor(in_data[[ind_var]])
 	names = list(colnames(in_data[, ind_var * -1]), c(paste("Медиана ", levels(factors)[1]), paste("Медиана ", levels(factors)[2]), "U", "p", "Различия"))
 	out_data = matrix(nrow = num_vars - 1, ncol = 5, dimnames = names)
@@ -30,5 +42,29 @@ ds.mannwhitney = function(in_data, ind_var)
 		}
 	}
 
-	return(out_data)
+	removeUI(
+		selector = "div[id^='tab4_plot']",
+		multiple = TRUE)
+
+	for (index in 1:num_vars)
+	{
+		if (is.numeric(in_data[[index]]))
+		{
+			n = paste0("plot_", index)
+			insertUI(
+				selector = "#tab4bottom",
+				ui = tags$div(id = paste0("tab4_plot", index), tags$p(colnames(in_data)[index]), plotOutput(n)))
+			local({
+				l = index
+				output[[n]] = renderPlot({
+					ggplot(in_data, aes(in_data[[ind_var]], in_data[[l]])) +
+						geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) +
+						labs(x = colnames(in_data[ind_var]), y = "Значение")
+				})
+			})
+		}
+	}
+
+	output$out_table <- renderTable(out_data, rownames = TRUE)
+	updateTabsetPanel(session, "mainTabs", selected = "Tab2")
 }

@@ -1,5 +1,11 @@
-ds.nonparametric_descriptives = function(in_data)
+ds.nonparametric_descriptives = function()
 {
+	if (is.null(in_data))
+	{
+		showNotification("Не загружены данные для обработки!")
+		return(NULL)
+	}
+
 	num_vars = ncol(in_data)
 	names = list(colnames(in_data), c("Минимум", "Нижний квартиль", "Медиана", "Верхний квартиль", "Максимум"))
 	out_data = matrix(nrow = num_vars, ncol = 5, dimnames = names)
@@ -25,5 +31,6 @@ ds.nonparametric_descriptives = function(in_data)
 		}
 	}
 
-	return(out_data)
+	output$out_table <- renderTable(out_data, rownames = TRUE)
+	updateTabsetPanel(session, "mainTabs", selected = "Tab2")
 }

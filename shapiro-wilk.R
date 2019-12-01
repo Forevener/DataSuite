@@ -1,5 +1,11 @@
-ds.shapirowilk = function(in_data)
+ds.shapirowilk = function()
 {
+	if (is.null(in_data))
+	{
+		showNotification("Не загружены данные для обработки!")
+		return(NULL)
+	}
+
 	num_vars = ncol(in_data)
 	names = list(colnames(in_data), c("W", "p", "Распределение"))
 	out_data = matrix(nrow = num_vars, ncol = 3, dimnames = names)
@@ -8,7 +14,7 @@ ds.shapirowilk = function(in_data)
 	{
 		if (is.numeric(in_data[[index]]))
 		{
-			result = shapiro.test(in_data[[index]], na.rm = TRUE)
+			result = shapiro.test(in_data[[index]])
 			out_data[index, 1] = sprintf(round(result$statistic, 5), fmt = '%#.5f')
 			out_data[index, 2] = sprintf(round(result$p.value, 6), fmt = '%#.6f')
 			out_data[index, 3] = ifelse(result$p.value > 0.05, "Нормальное", "Отличается от нормального")
@@ -21,5 +27,6 @@ ds.shapirowilk = function(in_data)
 		}
 	}
 
-	return(out_data)
+	output$out_table <- renderTable(out_data, rownames = TRUE)
+	updateTabsetPanel(session, "mainTabs", selected = "Tab2")
 }
