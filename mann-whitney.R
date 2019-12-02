@@ -11,6 +11,10 @@ ds.mannwhitney = function()
 		return(NULL)
 	}
 
+	removeUI(
+		selector = "div[id^='tab4_plot']",
+		multiple = TRUE)
+
 	num_vars = ncol(in_data)
 	ind_var = strtoi(indep_var_ctis())
 	factors <- factor(in_data[[ind_var]])
@@ -31,25 +35,7 @@ ds.mannwhitney = function()
 			out_data[i, 3] = sprintf(round(result$statistic[[1]], 3), fmt = '%#.3f')
 			out_data[i, 4] = sprintf(round(result$p.value, 6), fmt = '%#.6f')
 			out_data[i, 5] = ifelse(result$p.value > 0.05, "Отсутствуют", "Присутствуют")
-		}
-		else
-		{
-			out_data[i, 1] = "-"
-			out_data[i, 2] = "-"
-			out_data[i, 3] = "-"
-			out_data[i, 4] = "-"
-			out_data[i, 5] = "Переменная не является числовой"
-		}
-	}
 
-	removeUI(
-		selector = "div[id^='tab4_plot']",
-		multiple = TRUE)
-
-	for (index in 1:num_vars)
-	{
-		if (is.numeric(in_data[[index]]))
-		{
 			n = paste0("plot_", index)
 			insertUI(
 				selector = "#tab4bottom",
@@ -62,6 +48,14 @@ ds.mannwhitney = function()
 						labs(x = colnames(in_data[ind_var]), y = "Значение")
 				})
 			})
+		}
+		else
+		{
+			out_data[i, 1] = "-"
+			out_data[i, 2] = "-"
+			out_data[i, 3] = "-"
+			out_data[i, 4] = "-"
+			out_data[i, 5] = "Переменная не является числовой"
 		}
 	}
 

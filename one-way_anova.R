@@ -11,6 +11,13 @@ ds.onewayanova <- function()
 		return(NULL)
 	}
 
+	removeUI(
+		selector = "div[id^='tab3_table']",
+		multiple = TRUE)
+	removeUI(
+		selector = "div[id^='tab4_plot']",
+		multiple = TRUE)
+
 	num_vars = ncol(in_data)
 	ind_var = strtoi(indep_var_cmis())
 	factors <- factor(in_data[[ind_var]])
@@ -25,14 +32,40 @@ ds.onewayanova <- function()
 		index = series[i]
 		if (is.numeric(in_data[[index]]))
 		{
+			# Calculating one-way ANOVA results and means
 			means <- aggregate(in_data[[index]], by = list(factors), FUN = "mean", na.rm = TRUE)
-			result = summary(aov(in_data[[index]] ~ in_data[[ind_var]], data = in_data))
+			result = oneway.test(in_data[[index]] ~ in_data[[ind_var]], data = in_data)
 			for (y in 1:length(levels(factors)))
 				out_data[i, y] = sprintf(round(means[y, 2], 2), fmt = '%#.2f')
 
-			out_data[i, y + 1] = sprintf(round(result[[1]][1, 4], 4), fmt = '%#.4f')
-			out_data[i, y + 2] = sprintf(round(result[[1]][1, 5], 6), fmt = '%#.6f')
-			out_data[i, y + 3] = ifelse(result[[1]][1, 5] > 0.05, "Отсутствуют", "Присутствуют")
+			out_data[i, y + 1] = sprintf(round(result$statistic, 4), fmt = '%#.4f')
+			out_data[i, y + 2] = sprintf(round(result$p.value, 6), fmt = '%#.6f')
+			out_data[i, y + 3] = ifelse(result$p.value > 0.05, "Отсутствуют", "Присутствуют")
+
+			# Building detailed tables
+			n = paste0("table_", index)
+			insertUI(
+				selector = "#tab3bottom",
+				ui = tags$div(id = paste0("tab3_table", index), tags$p(colnames(in_data)[index]), tableOutput(n)))
+			local({
+				l = index
+				output[[n]] = renderTable(pairwise.t.test(in_data[[l]], in_data[[ind_var]], p.adjust.method = "BH")$p.value, rownames = TRUE)
+			})
+
+			# Drawing violin plots
+			n = paste0("plot_", index)
+			insertUI(
+				selector = "#tab4bottom",
+				ui = tags$div(id = paste0("tab4_plot", index), tags$p(colnames(in_data)[index]), plotOutput(n)))
+			local({
+				l = index
+				output[[n]] = renderPlot({
+					ggplot(in_data, aes(as.character(in_data[[ind_var]]), in_data[[l]])) +
+						geom_violin() +
+						stat_summary(fun.y=mean, geom="point", size=2) +
+						labs(x = colnames(in_data[ind_var]), y = "Значение")
+				})
+			})
 		}
 		else
 		{
@@ -42,30 +75,6 @@ ds.onewayanova <- function()
 			out_data[i, y + 1] = "-"
 			out_data[i, y + 2] = "-"
 			out_data[i, y + 3] = "Переменная не является числовой"
-		}
-	}
-
-	removeUI(
-		selector = "div[id^='tab4_plot']",
-		multiple = TRUE)
-
-	for (index in 1:num_vars)
-	{
-		if (is.numeric(in_data[[index]]))
-		{
-			n = paste0("plot_", index)
-			insertUI(
-				selector = "#tab4bottom",
-				ui = tags$div(id = paste0("tab4_plot", index), tags$p(colnames(in_data)[index]), plotOutput(n)))
-			local({
-				l = index
-				output[[n]] = renderPlot({
-					ggplot(in_data, aes(in_data[[ind_var]], in_data[[l]])) +
-						geom_violin() +
-						stat_summary(fun.y=mean, geom="point", size=2) +
-						labs(x = colnames(in_data[ind_var]), y = "Значение")
-				})
-			})
 		}
 	}
 

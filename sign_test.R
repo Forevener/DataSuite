@@ -39,7 +39,7 @@ ds.signtest = function()
 		selector = "div[id^='tab4_plot']",
 		multiple = TRUE)
 
-	for (index in 2:num_vars)
+	for (index in 2:(num_vars / 2))
 	{
 		n = paste0("plot_", index - 1)
 		insertUI(
