@@ -25,3 +25,38 @@ custom.melt = function(dataset, times)
 		warning("Argument 'times' is not integer")
 	}
 }
+
+extract = function(dataset, column_n, measures)
+{
+	result = matrix(nrow = nrow(dataset), ncol = measures)
+	columns = ncol(dataset) / measures
+
+	for (index in 0:(measures - 1))
+	{
+		result[, index + 1] = dataset[[column_n + index * columns]]
+	}
+
+	return(result)
+}
+
+last = function(x)
+{
+	return (x[length(x)])
+}
+
+strong.p = function(data, level)
+{
+	lapply(data, function(x) {
+		if (!is.na(x) && is.numeric(x))
+		{
+			if (x <= level)
+				return(paste0("<strong>", sprintf(round(x, 5), fmt = '%#.5f'), "</strong>"))
+			else
+				return(sprintf(round(x, 5), fmt = '%#.5f'))
+		}
+		else
+		{
+			return(x)
+		}
+	})
+}

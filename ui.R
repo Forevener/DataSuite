@@ -36,10 +36,25 @@ shinyUI(
       actionButton("kw", "H-критерий Краскела-Уоллиса"),
       actionButton("ff", "Однофакторный дисперсионный анализ"),
       hr(),
+      helpText("Сравнение независимых выборок по нескольким критериям:"),
+      selectInput("vars_manova", h5("Независимые переменные"), choices = list("-" = 0), multiple = TRUE, selected = "-"),
+      actionButton("mav", "Многофакторный дисперсионный анализ"),
+      hr(),
       helpText("Сравнение двух зависимых выборок:"),
       actionButton("td", "t-критерий Стьюдента"),
       actionButton("st", "Критерий знаков"),
-      actionButton("wmp", "W-критерий Уилкоксона")
+      actionButton("wmp", "W-критерий Уилкоксона"),
+      hr(),
+      helpText("Сравнение нескольких зависимых выборок:"),
+      numericInput("measures_number", h5("Количество замеров"), value = 3, min = 3),
+      actionButton("fd", "Критерий Фридмана"),
+      actionButton("rma", "Анализ повторяющихся наблюдений"),
+      hr(),
+      helpText("Выявление взаимосвязи:"),
+      selectInput("cl1_dropdown", h5("Строки матрицы"), choices = list("-" = 0), multiple = TRUE, selected = "-"),
+      selectInput("cl2_dropdown", h5("Столбцы матрицы"), choices = list("-" = 0), multiple = TRUE, selected = "-"),
+      actionButton("cp", "r-критерий Пирсона"),
+      actionButton("cs", "ρ-критерий Спирмена")
     ),
 
     mainPanel(
