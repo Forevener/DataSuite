@@ -5,9 +5,6 @@ shinyUI(
   fluidPage(
     tags$head(
       tags$style(HTML("hr {border-top: 1px solid #000000;}")),
-      tags$style(HTML("th {text-align: center;}")),
-      tags$style(HTML("td {padding: 2px;}")),
-      tags$style(HTML("td {min-width: 50px;}"))
     ),
   titlePanel("Анализ данных"),
 

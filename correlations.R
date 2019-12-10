@@ -5,9 +5,9 @@ ds.correlations = function(method)
 		showNotification("Не загружены данные для обработки!")
 		return(NULL)
 	}
-	if (indep_var_ctis() == "0")
+	if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1))
 	{
-		showNotification("Нет подходящих независимых переменных для данного вида анализа")
+		showNotification("Не выбраны переменные для анализа")
 		return(NULL)
 	}
 
