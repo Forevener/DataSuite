@@ -7,7 +7,7 @@ ds.dependent_ttest = function()
 	}
 
 	num_vars = ncol(in_data) / 2
-	names = list(colnames(in_data)[1:num_vars], c("Медиана до", "Медиана после", "H", "p", "Различия"))
+	names = list(colnames(in_data)[1:num_vars], c("Среднее до", "Среднее после", "t", "p", "Различия"))
 	out_data = matrix(nrow = num_vars, ncol = 5, dimnames = names)
 
 	for (index in 1:num_vars)
@@ -37,7 +37,7 @@ ds.dependent_ttest = function()
 		selector = "div[id^='tab4_plot']",
 		multiple = TRUE)
 
-	for (index in 2:(num_vars / 2))
+	for (index in 2:(num_vars + 1))
 	{
 		n = paste0("plot_", index - 1)
 		insertUI(
