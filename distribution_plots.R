@@ -1,5 +1,8 @@
 ds.distributionplots = function()
 {
+	in_data = get_data()
+	data_names = get_names()
+
 	if (is.null(in_data))
 	{
 		showNotification("Не загружены данные для обработки!")
@@ -19,7 +22,7 @@ ds.distributionplots = function()
 			n = paste0("plot_", index)
 			insertUI(
 				selector = "#tab4bottom",
-				ui = tags$div(id = paste0("tab4_plot", index), tags$p(colnames(in_data)[index]), plotOutput(n)))
+				ui = tags$div(id = paste0("tab4_plot", index), tags$p(data_names[index]), plotOutput(n)))
 			local({
 				l = index
 				fact = levels(factor(in_data[[l]]))

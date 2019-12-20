@@ -1,5 +1,8 @@
 ds.manova <- function()
 {
+	in_data = get_data()
+	data_names = get_names()
+
 	if (is.null(in_data))
 	{
 		showNotification("Не загружены данные для обработки!")
@@ -20,6 +23,13 @@ ds.manova <- function()
 
 	num_vars = ncol(in_data)
 	ind_vars_i = strtoi(indep_vars_css())
+	for (i in 1:length(ind_vars_i))
+	{
+		x = ind_vars_i[i]
+		if (is.numeric(in_data[[x]]))
+			in_data[[x]] = as.factor(in_data[[x]])
+	}
+
 	ind_vars_n = colnames(in_data)[ind_vars_i]
 
 	comm = paste0(ind_vars_n[1])
@@ -43,14 +53,14 @@ ds.manova <- function()
 			insertUI(
 				selector = "#tab3bottom",
 				ui = tags$div(id = paste0("tab3_table", index, "A"),
-							  tags$p(colnames(in_data)[index]),
+							  tags$p(data_names[index]),
 							  tags$p("Общая таблица"),
 							  tableOutput(n1),
 							  tags$p("Попарные сравнения"),
 							  tableOutput(n2)))
 			insertUI(
 				selector = "#tab4bottom",
-				ui = tags$div(id = paste0("tab4_plot", index), tags$p(colnames(in_data)[index]), plotOutput(np)))
+				ui = tags$div(id = paste0("tab4_plot", index), tags$p(data_names[index]), plotOutput(np)))
 			local({
 				l = index
 				lform = form
@@ -66,7 +76,7 @@ ds.manova <- function()
 
 				# Drawing design plots
 				output[[np]] = renderPlot({
-					plot.design(lform, data = in_data, xlab = "Факторы", ylab = colnames(in_data)[l])
+					plot.design(lform, data = in_data, xlab = "Факторы", ylab = data_names[l])
 				})
 			})
 		}

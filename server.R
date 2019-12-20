@@ -1,21 +1,5 @@
-library(shiny)
-library(rhandsontable)
-library(xlsx)
-library(rcompanion)
-library(questionr)
-library(ggplot2)
-
 shinyServer(function(input, output, session) {
-	enc = reactive({input$radio})
-	indep_var_ctis = reactive({input$ctis_dropdown})
-	indep_var_cmis = reactive({input$cmis_dropdown})
-	indep_vars_css = reactive({input$vars_manova})
-	measures_input = reactive({input$measures_number})
-	corr1_var_list = reactive({input$cl1_dropdown})
-	corr2_var_list = reactive({input$cl2_dropdown})
-
-	in_data = NULL
-
+	source("fill_dropdowns.R", encoding = "utf-8", local = TRUE)
 	source("parametric_descriptives.R", encoding = "utf-8", local = TRUE)
 	source("nonparametric_descriptives.R", encoding = "utf-8", local = TRUE)
 	source("frequency_tables.R", encoding = "utf-8", local = TRUE)
@@ -36,6 +20,31 @@ shinyServer(function(input, output, session) {
 	#source("cluster.R", encoding = "utf-8", local = TRUE)
 	#source("regression.R", encoding = "utf-8", local = TRUE)
 
+	enc = reactive({input$radio})
+	indep_var_ctis = reactive({input$ctis_dropdown})
+	indep_var_cmis = reactive({input$cmis_dropdown})
+	indep_vars_css = reactive({input$vars_manova})
+	measures_input = reactive({input$measures_number})
+	corr1_var_list = reactive({input$cl1_dropdown})
+	corr2_var_list = reactive({input$cl2_dropdown})
+	excluded_vars = reactive({input$exclude_vars})
+
+	get_data = reactive({
+		if (length(excluded_vars()) > 0)
+			base_data[input$in_table_rows_all, -strtoi(excluded_vars())]
+		else
+			base_data[input$in_table_rows_all, ]
+	})
+	get_names = reactive({
+		if (length(excluded_vars()) > 0)
+			base_names[-strtoi(excluded_vars())]
+		else
+			base_names
+	})
+
+	base_data = NULL
+	base_names = NULL
+
 	observeEvent(input$upload, {
 
 		in_file <- input$upload
@@ -43,26 +52,38 @@ shinyServer(function(input, output, session) {
 		if (is.null(in_file))
 			return(NULL)
 
-		in_data <<- read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc())
+		base_data <<- read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc())
+		base_names <<- colnames(read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc(), rowIndex = c(1, 2), check.names = FALSE))
 
 		selections_tis = list()
 		selections_mis = list()
 		selections_cor = list()
-		for (index in 1:ncol(in_data))
+		for (index in 1:ncol(base_data))
 		{
-			names(index) = colnames(in_data[index])
-			if (length(levels(factor(in_data[[index]]))) == 2)
-				selections_tis = append(selections_tis, index)
-			selections_mis = append(selections_mis, index)
-			if (is.numeric(in_data[[index]]))
-				selections_cor = append(selections_cor, index)
+			if (all(is.na(base_data[index])))
+			{
+				base_data <<- base_data[-index]
+				if (index <= length(base_names))
+					base_names <<- base_names[-index]
+			}
+			else
+			{
+				names(index) = base_names[index]
+				if (length(levels(factor(base_data[[index]]))) == 2)
+					selections_tis = append(selections_tis, index)
+				selections_mis = append(selections_mis, index)
+				if (is.numeric(base_data[[index]]))
+					selections_cor = append(selections_cor, index)
+			}
 		}
+
 		if (length(selections_tis) >= 1)
 			updateSelectInput(session, "ctis_dropdown", choices = selections_tis, selected = selections_tis[1])
 		if (length(selections_mis) >= 1)
 		{
 			updateSelectInput(session, "cmis_dropdown", choices = selections_mis, selected = selections_mis[1])
 			updateSelectInput(session, "vars_manova", choices = selections_mis)
+			updateSelectInput(session, "exclude_vars", choices = selections_mis)
 		}
 		if (length(selections_cor) >= 1)
 		{
@@ -70,8 +91,13 @@ shinyServer(function(input, output, session) {
 			updateSelectInput(session, "cl2_dropdown", choices = selections_cor)
 		}
 
-		output$in_table <- renderRHandsontable({rhandsontable(in_data)})
+		output$in_table <- renderDT(base_data, filter = list(position = "top"), options = list(scrollX = TRUE))
 		showNotification("Файл успешно загружен!")
+	})
+
+	observeEvent(input$exclude_vars, {
+		if (!is.null(base_data))
+			fill.dropdowns()
 	})
 
 	observeEvent(input$dp, {

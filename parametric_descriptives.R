@@ -1,5 +1,8 @@
 ds.parametric_descriptives = function()
 {
+	in_data = get_data()
+	data_names = get_names()
+
 	if (is.null(in_data))
 	{
 		showNotification("Не загружены данные для обработки!")
@@ -7,7 +10,7 @@ ds.parametric_descriptives = function()
 	}
 
 	num_vars = ncol(in_data)
-	names = list(colnames(in_data), c("Минимум", "Нижняя граница нормы", "Среднее", "Верхняя граница нормы", "Максимум", "Стандартное отклонение"))
+	names = list(data_names, c("Минимум", "Нижняя граница нормы", "Среднее", "Верхняя граница нормы", "Максимум", "Стандартное отклонение"))
 	out_data = matrix(nrow = num_vars, ncol = 6, dimnames = names)
 
 	for (index in 1:num_vars)

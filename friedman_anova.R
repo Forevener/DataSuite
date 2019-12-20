@@ -1,8 +1,16 @@
 ds.friedman = function()
 {
+	in_data = get_data()
+	measures = strtoi(measures_input())
+
 	if (is.null(in_data))
 	{
 		showNotification("Не загружены данные для обработки!")
+		return(NULL)
+	}
+	if (ncol(in_data) %% measures != 0)
+	{
+		showNotification("Количество столбцов не делится на количество замеров - проверьте наличие нужных данных и отсутствие лишних")
 		return(NULL)
 	}
 
@@ -13,12 +21,12 @@ ds.friedman = function()
 		selector = "div[id^='tab4_plot']",
 		multiple = TRUE)
 
-	measures = strtoi(measures_input())
 	new_data = custom.melt(in_data, measures)
 	num_vars = ncol(new_data) - 1
+	data_names = get_names()[1:num_vars]
 	factors = factor(as.character(new_data[[1]]))
 	colname = lapply(1:measures, function(x) paste0("Медиана по замеру #", x))
-	names = list(colnames(new_data)[-1], append(colname, c("F", "p", "Различия")))
+	names = list(data_names, append(colname, c("F", "p", "Различия")))
 	out_data = data.frame(matrix(nrow = num_vars, ncol = length(names[[2]]), dimnames = names))
 
 	for (index in 2:(num_vars + 1))
@@ -42,10 +50,10 @@ ds.friedman = function()
 			n2 = paste0("plot_", i)
 			insertUI(
 				selector = "#tab3bottom",
-				ui = tags$div(id = paste0("tab3_table", i), tags$p(colnames(new_data)[index]), tableOutput(n1)))
+				ui = tags$div(id = paste0("tab3_table", i), tags$p(data_names[i]), tableOutput(n1)))
 			insertUI(
 				selector = "#tab4bottom",
-				ui = tags$div(id = paste0("tab4_plot", i), tags$p(colnames(new_data)[index]), plotOutput(n2)))
+				ui = tags$div(id = paste0("tab4_plot", i), tags$p(data_names[i]), plotOutput(n2)))
 			local({
 				l = index
 				p_table = pairwise.wilcox.test(new_data[[l]], new_data[[1]], p.adjust.method = "BH")$p.value

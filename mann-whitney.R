@@ -1,5 +1,8 @@
 ds.mannwhitney = function()
 {
+	in_data = get_data()
+	data_names = get_names()
+
 	if (is.null(in_data))
 	{
 		showNotification("Не загружены данные для обработки!")
@@ -18,7 +21,7 @@ ds.mannwhitney = function()
 	num_vars = ncol(in_data)
 	ind_var = strtoi(indep_var_ctis())
 	factors <- factor(in_data[[ind_var]])
-	names = list(colnames(in_data[, ind_var * -1]), c(paste("Медиана ", levels(factors)[1]), paste("Медиана ", levels(factors)[2]), "U", "p", "Различия"))
+	names = list(data_names[-ind_var], c(paste("Медиана ", levels(factors)[1]), paste("Медиана ", levels(factors)[2]), "U", "p", "Различия"))
 	out_data = matrix(nrow = num_vars - 1, ncol = 5, dimnames = names)
 
 	series = 1:num_vars
@@ -39,13 +42,13 @@ ds.mannwhitney = function()
 			n = paste0("plot_", index)
 			insertUI(
 				selector = "#tab4bottom",
-				ui = tags$div(id = paste0("tab4_plot", index), tags$p(colnames(in_data)[index]), plotOutput(n)))
+				ui = tags$div(id = paste0("tab4_plot", index), tags$p(data_names[index]), plotOutput(n)))
 			local({
 				l = index
 				output[[n]] = renderPlot({
 					ggplot(in_data, aes(in_data[[ind_var]], in_data[[l]])) +
 						geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) +
-						labs(x = colnames(in_data[ind_var]), y = "Значение")
+						labs(x = data_names[ind_var], y = "Значение")
 				})
 			})
 		}

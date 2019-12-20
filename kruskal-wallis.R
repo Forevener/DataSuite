@@ -1,5 +1,8 @@
 ds.kruskalwallis = function()
 {
+	in_data = get_data()
+	data_names = get_names()
+
 	if (is.null(in_data))
 	{
 		showNotification("Не загружены данные для обработки!")
@@ -22,7 +25,7 @@ ds.kruskalwallis = function()
 	ind_var = strtoi(indep_var_cmis())
 	factors <- factor(in_data[[ind_var]])
 	colname = lapply(levels(factors), function(x) paste0("Медиана ", x))
-	names = list(colnames(in_data[, ind_var * -1]), append(colname, c("H", "p", "Различия")))
+	names = list(data_names[-ind_var], append(colname, c("H", "p", "Различия")))
 	out_data = matrix(nrow = num_vars - 1, ncol = length(levels(factors)) + 3, dimnames = names)
 
 	series = 1:num_vars
@@ -46,23 +49,25 @@ ds.kruskalwallis = function()
 			n = paste0("table_", index)
 			insertUI(
 				selector = "#tab3bottom",
-				ui = tags$div(id = paste0("tab3_table", index), tags$p(colnames(in_data)[index]), tableOutput(n)))
+				ui = tags$div(id = paste0("tab3_table", index), tags$p(data_names[index]), tableOutput(n)))
 			local({
 				l = index
-				output[[n]] = renderTable(pairwise.wilcox.test(in_data[[l]], in_data[[ind_var]], p.adjust.method = "BH")$p.value, rownames = TRUE)
+				pwc = pairwise.wilcox.test(in_data[[l]], in_data[[ind_var]], p.adjust.method = "BH")$p.value
+				pwc[] = unlist(strong.p(pwc, 0.05))
+				output[[n]] = renderTable(pwc, rownames = TRUE, sanitize.text.function = function (x) {x})
 			})
 
 			# Drawing violin plots
 			n = paste0("plot_", i)
 			insertUI(
 				selector = "#tab4bottom",
-				ui = tags$div(id = paste0("tab4_plot", i), tags$p(colnames(in_data)[index]), plotOutput(n)))
+				ui = tags$div(id = paste0("tab4_plot", i), tags$p(data_names[index]), plotOutput(n)))
 			local({
 				l = index
 				output[[n]] = renderPlot({
 					ggplot(in_data, aes(as.character(in_data[[ind_var]]), in_data[[l]])) +
 						geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) +
-						labs(x = colnames(in_data[ind_var]), y = "Значение")
+						labs(x = data_names[ind_var], y = "Значение")
 				})
 			})
 		}

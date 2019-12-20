@@ -1,5 +1,8 @@
 ds.correlations = function(method)
 {
+	in_data = get_data()
+	data_names = get_names()
+
 	if (is.null(in_data))
 	{
 		showNotification("Не загружены данные для обработки!")
@@ -21,7 +24,7 @@ ds.correlations = function(method)
 	vars1 = strtoi(corr1_var_list())
 	vars2 = strtoi(corr2_var_list())
 
-	names = list(colnames(in_data[vars1]), colnames(in_data[vars2]))
+	names = list(data_names[vars1], data_names[vars2])
 	out_data_r = matrix(nrow = length(vars1), ncol = length(vars2), dimnames = names)
 	out_data_p = matrix(nrow = length(vars1), ncol = length(vars2), dimnames = names)
 
@@ -50,7 +53,7 @@ ds.correlations = function(method)
 			n = paste0("plot_", i, "-", j)
 			insertUI(
 				selector = "#tab4bottom",
-				ui = tags$div(id = paste0("tab4_plot", i, "-", j), tags$p(paste(colnames(in_data)[x], " & ", colnames(in_data)[y])), plotOutput(n)))
+				ui = tags$div(id = paste0("tab4_plot", i, "-", j), tags$p(paste(data_names[x], " & ", data_names[y])), plotOutput(n)))
 			local({
 				l_x = x
 				l_y = y
@@ -58,7 +61,7 @@ ds.correlations = function(method)
 					ggplot(in_data, aes(in_data[[l_x]], in_data[[l_y]])) +
 						geom_point() +
 						geom_smooth() +
-						labs(x = colnames(in_data[l_x]), y = colnames(in_data[l_y]))
+						labs(x = data_names[l_x], y = data_names[l_y])
 				})
 			})
 		}

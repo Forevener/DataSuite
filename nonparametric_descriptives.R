@@ -1,5 +1,8 @@
 ds.nonparametric_descriptives = function()
 {
+	in_data = get_data()
+	data_names = get_names()
+
 	if (is.null(in_data))
 	{
 		showNotification("Не загружены данные для обработки!")
@@ -7,7 +10,7 @@ ds.nonparametric_descriptives = function()
 	}
 
 	num_vars = ncol(in_data)
-	names = list(colnames(in_data), c("Минимум", "Нижний квартиль", "Медиана", "Верхний квартиль", "Максимум"))
+	names = list(data_names, c("Минимум", "Нижний квартиль", "Медиана", "Верхний квартиль", "Максимум"))
 	out_data = matrix(nrow = num_vars, ncol = 5, dimnames = names)
 
 	for (index in 1:num_vars)
