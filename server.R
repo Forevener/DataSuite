@@ -31,19 +31,29 @@ shinyServer(function(input, output, session) {
 
 	get_data = reactive({
 		if (length(excluded_vars()) > 0)
-			base_data[input$in_table_rows_all, -strtoi(excluded_vars())]
+			base_data()[input$in_table_rows_all, -strtoi(excluded_vars())]
 		else
-			base_data[input$in_table_rows_all, ]
-	})
-	get_names = reactive({
-		if (length(excluded_vars()) > 0)
-			base_names[-strtoi(excluded_vars())]
-		else
-			base_names
+			base_data()[input$in_table_rows_all, ]
 	})
 
-	base_data = NULL
-	base_names = NULL
+	get_names = reactive({
+		if (length(excluded_vars()) > 0)
+			base_names()[-strtoi(excluded_vars())]
+		else
+			base_names()
+	})
+
+	output$data_info = renderText({
+		paste0(
+			"Количество переменных: ",
+			ifelse(is.null(base_data()), 0, ncol(base_data()) - length(excluded_vars())),
+			"\r\nКоличество испытуемых: ",
+			length(input$in_table_rows_all)
+		)
+	})
+
+	base_data = reactiveVal()
+	base_names = reactiveVal()
 
 	observeEvent(input$upload, {
 
@@ -52,52 +62,54 @@ shinyServer(function(input, output, session) {
 		if (is.null(in_file))
 			return(NULL)
 
-		base_data <<- read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc())
-		base_names <<- colnames(read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc(), rowIndex = c(1, 2), check.names = FALSE))
+		temp_data = read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc())
+		temp_names = colnames(read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc(), rowIndex = c(1, 2), check.names = FALSE))
 
-		selections_tis = list()
-		selections_mis = list()
-		selections_cor = list()
-		for (index in 1:ncol(base_data))
+		selections = list()
+
+		index = 1
+		repeat
 		{
-			if (all(is.na(base_data[index])))
+			if (index > ncol(temp_data))
+				break
+			if (all(is.na(temp_data[index])))
 			{
-				base_data <<- base_data[-index]
-				if (index <= length(base_names))
-					base_names <<- base_names[-index]
+				temp_data = temp_data[-index]
+				if (index <= length(temp_names))
+					temp_names = temp_names[-index]
 			}
 			else
 			{
-				names(index) = base_names[index]
-				if (length(levels(factor(base_data[[index]]))) == 2)
-					selections_tis = append(selections_tis, index)
-				selections_mis = append(selections_mis, index)
-				if (is.numeric(base_data[[index]]))
-					selections_cor = append(selections_cor, index)
+				names(index) = temp_names[index]
+				selections = append(selections, index)
+				index = index + 1
 			}
 		}
 
-		if (length(selections_tis) >= 1)
-			updateSelectInput(session, "ctis_dropdown", choices = selections_tis, selected = selections_tis[1])
-		if (length(selections_mis) >= 1)
-		{
-			updateSelectInput(session, "cmis_dropdown", choices = selections_mis, selected = selections_mis[1])
-			updateSelectInput(session, "vars_manova", choices = selections_mis)
-			updateSelectInput(session, "exclude_vars", choices = selections_mis)
-		}
-		if (length(selections_cor) >= 1)
-		{
-			updateSelectInput(session, "cl1_dropdown", choices = selections_cor)
-			updateSelectInput(session, "cl2_dropdown", choices = selections_cor)
-		}
+		updateSelectInput(session, "exclude_vars", choices = selections)
+		base_data(temp_data)
+		base_names(temp_names)
 
-		output$in_table <- renderDT(base_data, filter = list(position = "top"), options = list(scrollX = TRUE))
-		showNotification("Файл успешно загружен!")
+		removeUI(
+			selector = "div[id^='tab3_table']",
+			multiple = TRUE)
+		removeUI(
+			selector = "div[id^='tab4_plot']",
+			multiple = TRUE)
+		output$out_table <- renderTable(NULL)
+
+		output$in_table <- renderDT(base_data(), filter = list(position = "top"), options = list(scrollX = TRUE))
+		showNotification("Файл успешно загружен!", type = "message")
 	})
 
-	observeEvent(input$exclude_vars, {
-		if (!is.null(base_data))
-			fill.dropdowns()
+	observeEvent(input$navbar, {
+		if (req(input$navbar) == "Обработка данных")
+		{
+			if (!is.null(base_data()))
+				fill.dropdowns()
+			else
+				showNotification("Не загружены данные для обработки", type = "warning")
+		}
 	})
 
 	observeEvent(input$dp, {

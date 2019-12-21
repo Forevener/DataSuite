@@ -3,9 +3,14 @@ fill.dropdowns = function()
 	in_data = get_data()
 	data_names = get_names()
 
-	if ((is.null(ncol(in_data))) || (ncol(in_data) < 1))
+		if ((is.null(ncol(in_data))) || (ncol(in_data) < 1))
 	{
-		showNotification("Исключено слишком много переменных!")
+		showModal(
+			modalDialog(
+				title = "Ошибка",
+				"Исключено слишком много переменных, анализ невозможен"
+			)
+		)
 		return(NULL)
 	}
 
@@ -13,7 +18,6 @@ fill.dropdowns = function()
 	selections_mis = list()
 	selections_cor = list()
 
-	print(ncol(in_data))
 	for (index in 1:ncol(in_data))
 	{
 		names(index) = data_names[index]

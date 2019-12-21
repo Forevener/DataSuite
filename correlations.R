@@ -5,12 +5,12 @@ ds.correlations = function(method)
 
 	if (is.null(in_data))
 	{
-		showNotification("Не загружены данные для обработки!")
+		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)
 	}
 	if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1))
 	{
-		showNotification("Не выбраны переменные для анализа")
+		showNotification("Не выбраны переменные для анализа", type = "warning")
 		return(NULL)
 	}
 

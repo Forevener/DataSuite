@@ -5,12 +5,12 @@ ds.onewayanova <- function()
 
 	if (is.null(in_data))
 	{
-		showNotification("Не загружены данные для обработки!")
+		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)
 	}
 	if (indep_var_cmis() == "0")
 	{
-		showNotification("Не выбрана независимая переменная!")
+		showNotification("Не выбрана независимая переменная!", type = "error")
 		return(NULL)
 	}
 

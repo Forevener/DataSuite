@@ -5,12 +5,12 @@ ds.mannwhitney = function()
 
 	if (is.null(in_data))
 	{
-		showNotification("Не загружены данные для обработки!")
+		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)
 	}
 	if (indep_var_ctis() == "0")
 	{
-		showNotification("Нет подходящих независимых переменных для данного вида анализа")
+		showNotification("Нет подходящих независимых переменных для данного вида анализа", type = "error")
 		return(NULL)
 	}
 

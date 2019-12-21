@@ -4,12 +4,12 @@ ds.wilcoxonmatchedpairs = function()
 
 	if (is.null(in_data))
 	{
-		showNotification("Не загружены данные для обработки!")
+		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)
 	}
 	if (ncol(in_data) %% 2 != 0)
 	{
-		showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних")
+		showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних", type = "error")
 		return(NULL)
 	}
 

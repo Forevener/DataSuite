@@ -4,19 +4,17 @@ ds.dependent_ttest = function()
 
 	if (is.null(in_data))
 	{
-		showNotification("Не загружены данные для обработки!")
+		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)
 	}
 	if (ncol(in_data) %% 2 != 0)
 	{
-		showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних")
+		showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних", type = "error")
 		return(NULL)
 	}
 
-	View(get_names())
 	num_vars = ncol(in_data) / 2
 	data_names = get_names()[1:num_vars]
-	View(data_names)
 	names = list(data_names, c("Среднее до", "Среднее после", "t", "p", "Различия"))
 	out_data = matrix(nrow = num_vars, ncol = 5, dimnames = names)
 

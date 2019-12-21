@@ -1,6 +1,7 @@
 shinyUI(
   navbarPage(
-    "Анализ данных",
+    id = "navbar",
+    title = "Анализ данных",
     header = tags$head(
       tags$style(HTML("hr {border-top: 1px solid #000000;}")),
     ),
@@ -13,7 +14,8 @@ shinyUI(
       ),
       inputPanel(
         helpText("Если требуется исключить некоторые переменные из анализа (например, группирующие переменные при сравнении зависимых выборок), укажите их в следующем списке"),
-        selectInput("exclude_vars", h5("Исключить переменные"), choices = NULL, multiple = TRUE)
+        selectInput("exclude_vars", h5("Исключить переменные"), choices = NULL, multiple = TRUE),
+        verbatimTextOutput("data_info")
       ),
       DTOutput("in_table")
     ),
@@ -26,9 +28,9 @@ shinyUI(
           actionButton("dp", "Параметрическая"),
           actionButton("dnp", "Непараметрическая"),
           actionButton("ft", "Частоты встречаемости"),
-          actionButton("distplots", "Графики распределения"),
           hr(),
           helpText("Проверка распределения:"),
+          actionButton("distplots", "Графики распределения"),
           actionButton("sw", "Критерий Шапиро-Уилка"),
           hr(),
           helpText("Сравнение двух независимых выборок:"),

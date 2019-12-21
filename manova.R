@@ -5,12 +5,12 @@ ds.manova <- function()
 
 	if (is.null(in_data))
 	{
-		showNotification("Не загружены данные для обработки!")
+		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)
 	}
 	if (length(indep_vars_css()) < 1)
 	{
-		showNotification("Не выбрана независимая переменная!")
+		showNotification("Не выбрана независимая переменная!", type = "error")
 		return(NULL)
 	}
 
