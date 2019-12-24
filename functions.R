@@ -60,3 +60,45 @@ strong.p = function(data, level)
 		}
 	})
 }
+
+fa.plot.data = function(real, simulated, resampled)
+{
+	factors = length(real)
+	series = 1:factors
+
+	if (length(resampled) > 0)
+	{
+		plot_data = data.frame(
+			"Фактор" = rep(series, 3),
+			"СобственноеЗначение" = c(real, simulated, resampled),
+			"Категория" = factor(c(rep("Реальные данные", factors), rep("Данные симуляции", factors), rep("Данные ресэмплинга", factors)), levels = c("Реальные данные", "Данные симуляции", "Данные ресэмплинга"), ordered = TRUE)
+		)
+	}
+	else
+	{
+		plot_data = data.frame(
+			"Фактор" = rep(series, 2),
+			"СобственноеЗначение" = c(real, simulated),
+			"Категория" = factor(c(rep("Реальные данные", factors), rep("Данные симуляции", factors)), levels = c("Реальные данные", "Данные симуляции"), ordered = TRUE)
+		)
+	}
+
+	return(data.frame(plot_data))
+}
+
+scree.ggplot = function(plot_data, axis.title = "Факторы")
+{
+	ggplot(data = plot_data, aes(Фактор, СобственноеЗначение, colour = Категория, linetype = Категория)) +
+		geom_line() +
+		geom_hline(yintercept = 1) +
+		geom_point(aes(alpha = Категория), shape = 0, size = 2) +
+		scale_alpha_manual(values = c(1, 0, 0)) +
+		scale_color_manual(values = c("blue", "red", "orange")) +
+		labs(x = axis.title, y = "Собственные значения") +
+		theme(
+			legend.title = element_blank(),
+			legend.justification = c(1, 1),
+			legend.position = c(1, 1),
+			legend.margin = margin(6, 6, 6, 6)
+		)
+}

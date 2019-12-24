@@ -16,9 +16,10 @@ shinyServer(function(input, output, session) {
 	source("friedman_anova.R", encoding = "utf-8", local = TRUE)
 	source("repeated_anova.R", encoding = "utf-8", local = TRUE)
 	source("correlations.R", encoding = "utf-8", local = TRUE)
-	#source("factor.R", encoding = "utf-8", local = TRUE)
+	source("factor.R", encoding = "utf-8", local = TRUE)
 	#source("cluster.R", encoding = "utf-8", local = TRUE)
 	#source("regression.R", encoding = "utf-8", local = TRUE)
+	#source("alpha.R", encoding = "utf-8", local = TRUE)
 
 	enc = reactive({input$radio})
 	indep_var_ctis = reactive({input$ctis_dropdown})
@@ -28,6 +29,7 @@ shinyServer(function(input, output, session) {
 	corr1_var_list = reactive({input$cl1_dropdown})
 	corr2_var_list = reactive({input$cl2_dropdown})
 	excluded_vars = reactive({input$exclude_vars})
+	factors_limit = reactive({input$factors_number})
 
 	get_data = reactive({
 		if (length(excluded_vars()) > 0)
@@ -67,6 +69,7 @@ shinyServer(function(input, output, session) {
 
 		selections = list()
 
+		# Removing empty columns
 		index = 1
 		repeat
 		{
@@ -86,17 +89,28 @@ shinyServer(function(input, output, session) {
 			}
 		}
 
+		# Removing empty rows
+		index = 1
+		repeat
+		{
+			if (index > nrow(temp_data))
+				break
+			if (all(is.na(temp_data[index, ])))
+			{
+				temp_data = temp_data[-index, ]
+			}
+			else
+			{
+				index = index + 1
+			}
+		}
+
 		updateSelectInput(session, "exclude_vars", choices = selections)
 		base_data(temp_data)
 		base_names(temp_names)
 
-		removeUI(
-			selector = "div[id^='tab3_table']",
-			multiple = TRUE)
-		removeUI(
-			selector = "div[id^='tab4_plot']",
-			multiple = TRUE)
-		output$out_table <- renderTable(NULL)
+		# Clear all results
+		clear.ui()
 
 		output$in_table <- renderDT(base_data(), filter = list(position = "top"), options = list(scrollX = TRUE))
 		showNotification("Файл успешно загружен!", type = "message")
@@ -178,5 +192,13 @@ shinyServer(function(input, output, session) {
 
 	observeEvent(input$cs, {
 		ds.correlations("spearman")
+	})
+
+	observeEvent(input$sp, {
+		ds.screeplot()
+	})
+
+	observeEvent(input$fa, {
+		ds.factoranalysis()
 	})
 })

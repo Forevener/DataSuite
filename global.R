@@ -4,5 +4,7 @@ library(xlsx)
 library(rcompanion)
 library(questionr)
 library(ggplot2)
+library(DescTools)
+library(psych)
 
 source("functions.R", encoding = "utf-8")

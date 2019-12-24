@@ -2,8 +2,9 @@ fill.dropdowns = function()
 {
 	in_data = get_data()
 	data_names = get_names()
+	num_vars = ncol(in_data)
 
-		if ((is.null(ncol(in_data))) || (ncol(in_data) < 1))
+	if ((is.null(num_vars)) || (num_vars < 1))
 	{
 		showModal(
 			modalDialog(
@@ -18,7 +19,7 @@ fill.dropdowns = function()
 	selections_mis = list()
 	selections_cor = list()
 
-	for (index in 1:ncol(in_data))
+	for (index in 1:num_vars)
 	{
 		names(index) = data_names[index]
 		if (length(levels(factor(in_data[[index]]))) == 2)
@@ -33,4 +34,16 @@ fill.dropdowns = function()
 	updateSelectInput(session, "vars_manova", choices = selections_mis)
 	updateSelectInput(session, "cl1_dropdown", choices = selections_cor)
 	updateSelectInput(session, "cl2_dropdown", choices = selections_cor)
+	updateNumericInput(session, "factors_number", max = ncol(Filter(is.numeric, get_data())))
+}
+
+clear.ui = function()
+{
+	removeUI(
+		selector = "div[id^='tab3_table']",
+		multiple = TRUE)
+	removeUI(
+		selector = "div[id^='tab4_plot']",
+		multiple = TRUE)
+	output$out_table <- renderTable(NULL)
 }

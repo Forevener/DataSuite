@@ -61,7 +61,12 @@ shinyUI(
           selectInput("cl1_dropdown", h5("Строки матрицы"), choices = list("-" = 0), multiple = TRUE, selected = "-"),
           selectInput("cl2_dropdown", h5("Столбцы матрицы"), choices = list("-" = 0), multiple = TRUE, selected = "-"),
           actionButton("cp", "r-критерий Пирсона"),
-          actionButton("cs", "ρ-критерий Спирмена")
+          actionButton("cs", "ρ-критерий Спирмена"),
+          hr(),
+          helpText("Сокращение размерности:"),
+          actionButton("sp", "График осыпи"),
+          numericInput("factors_number", h5("Количество факторов"), value = 1, min = 1),
+          actionButton("fa", "Факторный анализ")
         ),
 
         mainPanel(

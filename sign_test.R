@@ -1,5 +1,3 @@
-library(DescTools)
-
 ds.signtest = function()
 {
 	in_data = get_data()
