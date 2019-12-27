@@ -1,5 +1,5 @@
 shinyServer(function(input, output, session) {
-	source("fill_dropdowns.R", encoding = "utf-8", local = TRUE)
+	source("layout.R", encoding = "utf-8", local = TRUE)
 	source("parametric_descriptives.R", encoding = "utf-8", local = TRUE)
 	source("nonparametric_descriptives.R", encoding = "utf-8", local = TRUE)
 	source("frequency_tables.R", encoding = "utf-8", local = TRUE)
@@ -17,7 +17,7 @@ shinyServer(function(input, output, session) {
 	source("repeated_anova.R", encoding = "utf-8", local = TRUE)
 	source("correlations.R", encoding = "utf-8", local = TRUE)
 	source("factor.R", encoding = "utf-8", local = TRUE)
-	#source("cluster.R", encoding = "utf-8", local = TRUE)
+	source("cluster.R", encoding = "utf-8", local = TRUE)
 	#source("regression.R", encoding = "utf-8", local = TRUE)
 	#source("alpha.R", encoding = "utf-8", local = TRUE)
 
@@ -28,27 +28,22 @@ shinyServer(function(input, output, session) {
 	measures_input = reactive({input$measures_number})
 	corr1_var_list = reactive({input$cl1_dropdown})
 	corr2_var_list = reactive({input$cl2_dropdown})
-	excluded_vars = reactive({input$exclude_vars})
+	included_vars = reactive({input$include_vars})
 	factors_limit = reactive({input$factors_number})
+	clusters_num = reactive({input$clusters_number})
 
 	get_data = reactive({
-		if (length(excluded_vars()) > 0)
-			base_data()[input$in_table_rows_all, -strtoi(excluded_vars())]
-		else
-			base_data()[input$in_table_rows_all, ]
+		base_data()[input$in_table_rows_all, strtoi(included_vars())]
 	})
 
 	get_names = reactive({
-		if (length(excluded_vars()) > 0)
-			base_names()[-strtoi(excluded_vars())]
-		else
-			base_names()
+		base_names()[strtoi(included_vars())]
 	})
 
 	output$data_info = renderText({
 		paste0(
 			"Количество переменных: ",
-			ifelse(is.null(base_data()), 0, ncol(base_data()) - length(excluded_vars())),
+			ifelse(is.null(base_data()), 0, length(included_vars())),
 			"\r\nКоличество испытуемых: ",
 			length(input$in_table_rows_all)
 		)
@@ -105,7 +100,7 @@ shinyServer(function(input, output, session) {
 			}
 		}
 
-		updateSelectInput(session, "exclude_vars", choices = selections)
+		updatePickerInput(session, "include_vars", choices = selections, selected = selections)
 		base_data(temp_data)
 		base_names(temp_names)
 
@@ -200,5 +195,13 @@ shinyServer(function(input, output, session) {
 
 	observeEvent(input$fa, {
 		ds.factoranalysis()
+	})
+
+	observeEvent(input$hc, {
+		ds.dendro()
+	})
+
+	observeEvent(input$ca, {
+		ds.clusteranalysis()
 	})
 })

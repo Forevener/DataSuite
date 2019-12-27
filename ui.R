@@ -14,7 +14,7 @@ shinyUI(
       ),
       inputPanel(
         helpText("Если требуется исключить некоторые переменные из анализа (например, группирующие переменные при сравнении зависимых выборок), укажите их в следующем списке"),
-        selectInput("exclude_vars", h5("Исключить переменные"), choices = NULL, multiple = TRUE),
+        ds.picker("include_vars", "Выбор переменных для анализа", TRUE, TRUE),
         verbatimTextOutput("data_info")
       ),
       DTOutput("in_table")
@@ -44,7 +44,7 @@ shinyUI(
           actionButton("ff", "Однофакторный дисперсионный анализ"),
           hr(),
           helpText("Сравнение независимых выборок по нескольким критериям:"),
-          selectInput("vars_manova", h5("Независимые переменные"), choices = list("-" = 0), multiple = TRUE, selected = "-"),
+          ds.picker("vars_manova", "Независимые переменные", TRUE),
           actionButton("mav", "Многофакторный дисперсионный анализ"),
           hr(),
           helpText("Сравнение двух зависимых выборок:"),
@@ -58,15 +58,20 @@ shinyUI(
           actionButton("rma", "Анализ повторяющихся наблюдений"),
           hr(),
           helpText("Выявление взаимосвязи:"),
-          selectInput("cl1_dropdown", h5("Строки матрицы"), choices = list("-" = 0), multiple = TRUE, selected = "-"),
-          selectInput("cl2_dropdown", h5("Столбцы матрицы"), choices = list("-" = 0), multiple = TRUE, selected = "-"),
+          ds.picker("cl1_dropdown", "Строки матрицы", TRUE),
+          ds.picker("cl2_dropdown", "Столбцы матрицы", TRUE),
           actionButton("cp", "r-критерий Пирсона"),
           actionButton("cs", "ρ-критерий Спирмена"),
           hr(),
           helpText("Сокращение размерности:"),
           actionButton("sp", "График осыпи"),
           numericInput("factors_number", h5("Количество факторов"), value = 1, min = 1),
-          actionButton("fa", "Факторный анализ")
+          actionButton("fa", "Факторный анализ"),
+          hr(),
+          helpText("Группировка испытуемых:"),
+          actionButton("hc", "Дендрограмма и подбор количества"),
+          numericInput("clusters_number", h5("Количество кластеров"), value = 2, min = 2),
+          actionButton("ca", "Кластерный анализ")
         ),
 
         mainPanel(

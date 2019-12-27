@@ -31,10 +31,11 @@ fill.dropdowns = function()
 
 	updateSelectInput(session, "ctis_dropdown", choices = selections_tis, selected = selections_tis[1])
 	updateSelectInput(session, "cmis_dropdown", choices = selections_mis, selected = selections_mis[1])
-	updateSelectInput(session, "vars_manova", choices = selections_mis)
-	updateSelectInput(session, "cl1_dropdown", choices = selections_cor)
-	updateSelectInput(session, "cl2_dropdown", choices = selections_cor)
+	updatePickerInput(session, "vars_manova", choices = selections_mis)
+	updatePickerInput(session, "cl1_dropdown", choices = selections_cor)
+	updatePickerInput(session, "cl2_dropdown", choices = selections_cor)
 	updateNumericInput(session, "factors_number", max = ncol(Filter(is.numeric, get_data())))
+	updateNumericInput(session, "clusters_number", max = nrow(na.omit(get_data())))
 }
 
 clear.ui = function()

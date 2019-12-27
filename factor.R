@@ -20,10 +20,15 @@ ds.screeplot = function()
 	insertUI(
 		selector = "#tab4bottom",
 		ui = tags$div(id = "tab4_plot1",
-					  tags$p("Метод каменистой осыпи Кеттела: факторы"),
+					  tags$p("Метод каменистой осыпи Кеттела и параллельный анализ: факторы"),
 					  plotOutput("plot_1_FA"),
-					  tags$p("Метод каменистой осыпи Кеттела: компоненты"),
-					  plotOutput("plot_1_PC")
+					  tags$p("Метод каменистой осыпи Кеттела и параллельный анализ: компоненты"),
+					  plotOutput("plot_1_PC"),
+					  tags$p("Вывод:"),
+					  textOutput("text_1"),
+					  textOutput("text_2"),
+					  tags$p("Выводы psycho::n_factors:"),
+					  verbatimTextOutput("text_3")
 		)
 	)
 
@@ -35,16 +40,7 @@ ds.screeplot = function()
 		scree.ggplot(plot_data_pc, "Компоненты")
 	})
 
-	insertUI(
-		selector = "#tab4bottom",
-		ui = tags$div(id = "tab4_plot2",
-					  tags$p("Вывод:"),
-					  textOutput("text_1"),
-					  textOutput("text_2")
-		)
-	)
-
-	output[["text_1"]] = renderText(paste0("По критерию каменистой осыпи рекомендуется выбрать факторов: ",
+	output[["text_1"]] = renderText(paste0("По критерию параллельного анализа рекомендуется выбрать факторов: ",
 										   info[1],
 										   ",  компонентов: ",
 										   info[2])
@@ -55,6 +51,8 @@ ds.screeplot = function()
 										   ",  компонентов: ",
 										   length(Filter(function(x) {x > 1.0}, model$pc.values)))
 	)
+
+	output[["text_3"]] = renderPrint(n_factors(in_data, fm = "pc"))
 
 	updateTabsetPanel(session, "mainTabs", selected = "Tab4")
 }
@@ -133,10 +131,25 @@ ds.factoranalysis = function()
 		selector = "#tab4bottom",
 		ui = tags$div(id = "tab4_plot1",
 					  tags$p("График факторного анализа"),
-					  plotOutput("plot_1")
+					  plotOutput("plot_1"),
+					  tags$p("График нагрузок"),
+					  plotOutput("plot_2")
 		)
 	)
 	output[["plot_1"]] = renderPlot(fa.diagram(model))
+
+	plot_data = custom.melt(result, length(model$R2))
+	colnames(plot_data) = c("Фактор", "Нагрузка")
+	plot_data[is.na(plot_data)] = 0
+	plot_data$Переменная = unlist(lapply(rownames(result), function (x) {rep(x, length(model$R2))}))
+
+	output[["plot_2"]] = renderPlot({
+		ggplot(data = plot_data, aes(Переменная, Нагрузка, color = Фактор, group = Фактор)) +
+			geom_line() +
+			ylim(-1, 1) +
+			geom_hline(yintercept = 0) +
+			coord_polar()
+	})
 
 	output$out_table <- renderTable(result, rownames = TRUE, digits = 3, na = "")
 	updateTabsetPanel(session, "mainTabs", selected = "Tab2")
