@@ -19,7 +19,7 @@ shinyServer(function(input, output, session) {
 	source("factor.R", encoding = "utf-8", local = TRUE)
 	source("cluster.R", encoding = "utf-8", local = TRUE)
 	#source("regression.R", encoding = "utf-8", local = TRUE)
-	#source("alpha.R", encoding = "utf-8", local = TRUE)
+	source("reliability.R", encoding = "utf-8", local = TRUE)
 
 	enc = reactive({input$radio})
 	indep_var_ctis = reactive({input$ctis_dropdown})
@@ -59,8 +59,8 @@ shinyServer(function(input, output, session) {
 		if (is.null(in_file))
 			return(NULL)
 
-		temp_data = read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc())
-		temp_names = colnames(read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc(), rowIndex = c(1, 2), check.names = FALSE))
+		temp_data = xlsx::read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc())
+		temp_names = colnames(xlsx::read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc(), rowIndex = c(1, 2), check.names = FALSE))
 
 		selections = list()
 
@@ -203,5 +203,9 @@ shinyServer(function(input, output, session) {
 
 	observeEvent(input$ca, {
 		ds.clusteranalysis()
+	})
+
+	observeEvent(input$ab_reliability, {
+		ds.reliability()
 	})
 })

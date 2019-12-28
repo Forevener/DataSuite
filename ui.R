@@ -71,7 +71,10 @@ shinyUI(
           helpText("Группировка испытуемых:"),
           actionButton("hc", "Дендрограмма и подбор количества"),
           numericInput("clusters_number", h5("Количество кластеров"), value = 2, min = 2),
-          actionButton("ca", "Кластерный анализ")
+          actionButton("ca", "Кластерный анализ"),
+          hr(),
+          helpText("Проверка надёжности и согласованности:"),
+          actionButton("ab_reliability", "α Кронбаха и др.")
         ),
 
         mainPanel(

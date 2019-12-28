@@ -2,7 +2,7 @@ ds.signtest = function()
 {
 	in_data = get_data()
 
-	if (is.null(in_data))
+	if ((is.null(in_data)) || (ncol(in_data) < 1))
 	{
 		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)
@@ -22,7 +22,7 @@ ds.signtest = function()
 	{
 		if (is.numeric(in_data[[index]]))
 		{
-			result = SignTest(in_data[[index]], in_data[[index+num_vars]], na.rm = TRUE)
+			result = DescTools::SignTest(in_data[[index]], in_data[[index+num_vars]], na.rm = TRUE)
 			out_data[index, 1] = median(in_data[[index]], na.rm = TRUE)
 			out_data[index, 2] = median(in_data[[index+num_vars]], na.rm = TRUE)
 			out_data[index, 3] = sprintf(round(result$statistic[[1]], 4), fmt = '%#.4f')

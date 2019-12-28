@@ -3,7 +3,7 @@ ds.kruskalwallis = function()
 	in_data = get_data()
 	data_names = get_names()
 
-	if (is.null(in_data))
+	if ((is.null(in_data)) || (ncol(in_data) < 1))
 	{
 		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)

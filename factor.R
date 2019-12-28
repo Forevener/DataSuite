@@ -2,7 +2,7 @@ ds.screeplot = function()
 {
 	in_data = Filter(is.numeric, get_data())
 
-	if (is.null(in_data))
+	if ((is.null(in_data)) || (ncol(in_data) < 1))
 	{
 		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)
@@ -52,7 +52,7 @@ ds.screeplot = function()
 										   length(Filter(function(x) {x > 1.0}, model$pc.values)))
 	)
 
-	output[["text_3"]] = renderPrint(n_factors(in_data, fm = "pc"))
+	output[["text_3"]] = renderPrint(psycho::n_factors(in_data, fm = "pc"))
 
 	updateTabsetPanel(session, "mainTabs", selected = "Tab4")
 }
@@ -62,7 +62,7 @@ ds.factoranalysis = function()
 	in_data = get_data()
 	colnames(in_data) = get_names()
 
-	if (is.null(in_data))
+	if ((is.null(in_data)) || (ncol(in_data) < 1))
 	{
 		showNotification("Не загружены данные для обработки!", type = "warning")
 		return(NULL)
@@ -87,9 +87,9 @@ ds.factoranalysis = function()
 
 	tableA = data.frame(unclass(model$loadings))
 	colnames(tableA) = factor_names
-	tableA$Общность = model$communalities
-	tableA$Уникальность = model$uniquenesses
-	tableA$Сложность = model$complexity
+	tableA$`Общность` = model$communalities
+	tableA$`Уникальность` = model$uniquenesses
+	tableA$`Сложность` = model$complexity
 
 	tableB = data.frame(rbind("Собственные значения" = model$values[1:length(model$R2)], model$Vaccounted))
 	colnames(tableB) = factor_names
@@ -141,10 +141,10 @@ ds.factoranalysis = function()
 	plot_data = custom.melt(result, length(model$R2))
 	colnames(plot_data) = c("Фактор", "Нагрузка")
 	plot_data[is.na(plot_data)] = 0
-	plot_data$Переменная = unlist(lapply(rownames(result), function (x) {rep(x, length(model$R2))}))
+	plot_data$`Переменная` = unlist(lapply(rownames(result), function (x) {rep(x, length(model$R2))}))
 
 	output[["plot_2"]] = renderPlot({
-		ggplot(data = plot_data, aes(Переменная, Нагрузка, color = Фактор, group = Фактор)) +
+		ggplot(data = plot_data, aes(`Переменная`, `Нагрузка`, color = `Фактор`, group = `Фактор`)) +
 			geom_line() +
 			ylim(-1, 1) +
 			geom_hline(yintercept = 0) +
