@@ -1,84 +1,106 @@
 ds.screeplot = function()
 {
-	in_data = Filter(is.numeric, get_data())
-
-	if ((is.null(in_data)) || (ncol(in_data) < 1))
-	{
-		showNotification("Не загружены данные для обработки!", type = "warning")
-		return(NULL)
-	}
-
-	clear.ui()
-
-	info = strsplit(capture.output({
-		model = fa.parallel(in_data, plot = FALSE)
-	}), "\\D+")[[1]][-1]
-
-	plot_data_fa = fa.plot.data(model$fa.values, model$fa.sim, model$fa.simr)
-	plot_data_pc = fa.plot.data(model$pc.values, model$pc.sim, model$pc.simr)
+	removeUI(
+		selector = "div[id^='fa_results']",
+		multiple = TRUE)
 
 	insertUI(
-		selector = "#tab4bottom",
-		ui = tags$div(id = "tab4_plot1",
-					  tags$p("Метод каменистой осыпи Кеттела и параллельный анализ: факторы"),
-					  plotOutput("plot_1_FA"),
-					  tags$p("Метод каменистой осыпи Кеттела и параллельный анализ: компоненты"),
-					  plotOutput("plot_1_PC"),
+		selector = "#key_div_fa_table",
+		ui = tags$div(id = "fa_results_a",
+					  tags$p("Метод каменистой осыпи Кеттела и параллельный анализ"),
+					  plotOutput("fa_plot"),
 					  tags$p("Вывод:"),
-					  textOutput("text_1"),
-					  textOutput("text_2"),
+					  textOutput("fa_text_1"),
+					  textOutput("fa_text_2"),
 					  tags$p("Выводы psycho::n_factors:"),
-					  verbatimTextOutput("text_3")
+					  textOutput("fa_text_3")
 		)
 	)
 
-	output[["plot_1_FA"]] = renderPlot({
-		scree.ggplot(plot_data_fa, "Факторы")
-	})
+	in_data = Filter(is.numeric, get_data())
 
-	output[["plot_1_PC"]] = renderPlot({
-		scree.ggplot(plot_data_pc, "Компоненты")
-	})
+	info = gsub("[^0-9]", "", capture.output({
+		if (factoring_method() == "pc")
+		{
+			model = fa.parallel(in_data, plot = FALSE, fa = "pc")
+			plot_data = fa.plot.data(model$pc.values, model$pc.sim, model$pc.simr)
+			axis_label = "Компоненты"
+			summary_end = "компонентов: "
+			recommendation = length(Filter(function(x) {x > 1.0}, model$pc.values))
+		}
+		else
+		{
+			model = fa.parallel(in_data, plot = FALSE, fm = factoring_method(), fa = "fa")
+			plot_data = fa.plot.data(model$fa.values, model$fa.sim, model$fa.simr)
+			axis_label = "Факторы"
+			summary_end = "факторов: "
+			recommendation = length(Filter(function(x) {x > 1.0}, model$fa.values))
+		}
+	}))
 
-	output[["text_1"]] = renderText(paste0("По критерию параллельного анализа рекомендуется выбрать факторов: ",
-										   info[1],
-										   ",  компонентов: ",
-										   info[2])
-	)
+	output[["fa_plot"]] = renderCachedPlot({
+		scree.ggplot(plot_data, axis_label)
+	}, cacheKeyExpr = plot_data)
 
-	output[["text_2"]] = renderText(paste0("По критерию Кайзера рекомендуется выбрать факторов: ",
-										   length(Filter(function(x) {x > 1.0}, model$fa.values)),
-										   ",  компонентов: ",
-										   length(Filter(function(x) {x > 1.0}, model$pc.values)))
-	)
+	output[["fa_text_1"]] = renderText(paste0("По критерию параллельного анализа рекомендуется выбрать ", summary_end, info))
 
-	output[["text_3"]] = renderPrint(psycho::n_factors(in_data, fm = "pc"))
+	output[["fa_text_2"]] = renderText(paste0("По критерию Кайзера рекомендуется выбрать ", summary_end, recommendation))
 
-	updateTabsetPanel(session, "mainTabs", selected = "Tab4")
+	# Block reactivity for now
+	rot = factor_rotation()
+	met = factoring_method()
+	output[["fa_text_3"]] = renderPrint(psycho::n_factors(in_data, rotate = rot, fm = met))
 }
 
 ds.factoranalysis = function()
 {
+	removeUI(
+		selector = "div[id^='fa_results']",
+		multiple = TRUE)
+
+	insertUI(
+		selector = "#key_div_fa_table",
+		ui = tags$div(id = "fa_results_a",
+					  tableOutput("fa_table_main")
+		)
+	)
+
+	insertUI(
+		selector = "#key_div_fa_details",
+		ui = tags$div(id = "fa_results_b",
+					  tags$p("Полная таблица нагрузок"),
+					  tableOutput("fa_table_1"),
+					  tags$p("Сведения о факторах"),
+					  tableOutput("fa_table_2"),
+					  tags$p("Выводы:"),
+					  verbatimTextOutput("fa_text_1")
+		)
+	)
+
+	insertUI(
+		selector = "#key_div_fa_plots",
+		ui = tags$div(id = "fa_results_c",
+					  tags$p("График факторного анализа"),
+					  plotOutput("fa_plot_1"),
+					  tags$p("График нагрузок"),
+					  plotOutput("fa_plot_2")
+		)
+	)
+
 	in_data = get_data()
 	colnames(in_data) = get_names()
 
-	if ((is.null(in_data)) || (ncol(in_data) < 1))
-	{
-		showNotification("Не загружены данные для обработки!", type = "warning")
-		return(NULL)
-	}
-
 	in_data = Filter(is.numeric, in_data)
 
-	clear.ui()
+	if (factoring_method() == "pc")
+		model = principal(in_data, nfactors = factors_limit(), rotate = factor_rotation(), normalize = factor_normalize())
+	else
+		model = fa(in_data, nfactors = factors_limit(), rotate = factor_rotation(), SMC = FALSE, fm = factoring_method(), normalize = factor_normalize())
 
-	#out_data = matrix(nrow = num_vars - 1, ncol = 5, dimnames = names)
-	#fa(in_data, nfactors = factors_limit(), rotate = "varimax", SMC = FALSE, fm = "pa", normalize = TRUE)
-	model = principal(in_data, nfactors = factors_limit(), rotate = "varimax", normalize = TRUE)
 	s = fa.stats(in_data, model)
-	summary_text = paste0("Корень квадратов остатков: ", round(s$rms, 4),
-						  "\r\nКорень среднего квадрата ошибки аппроксимации: ", round(s$RMSEA[[1]], 4),
-						  "\r\nИндекс Такера-Льюиса: ", round(s$TLI, 4)
+	summary_text = paste0("Корень квадратов остатков: ", ifelse(is.null(s$rms), 0, round(s$rms, 4)),
+						  "\r\nКорень среднего квадрата ошибки аппроксимации: ", ifelse(is.null(s$RMSEA[[1]]), 0, round(s$RMSEA[[1]], 4)),
+						  "\r\nИндекс Такера-Льюиса: ", ifelse(is.null(s$TLI), 0, round(s$TLI, 4))
 	)
 
 	factor_names = lapply(1:length(model$R2), function (x) {
@@ -112,45 +134,24 @@ ds.factoranalysis = function()
 	colnames(result) = factor_names
 	result[abs(result) < 0.3] = NaN
 
-	insertUI(
-		selector = "#tab3bottom",
-		ui = tags$div(id = "tab3_table1",
-					  tags$p("Полная таблица нагрузок"),
-					  tableOutput("table_1"),
-					  tags$p("Сведения о факторах"),
-					  tableOutput("table_2"),
-					  tags$p("Выводы:"),
-					  verbatimTextOutput("text_1")
-		)
-	)
-	output[["text_1"]] = renderText(summary_text)
-	output[["table_1"]] = renderTable(tableA, rownames = TRUE, digits = 3)
-	output[["table_2"]] = renderTable(tableB, rownames = TRUE, digits = 4)
-
-	insertUI(
-		selector = "#tab4bottom",
-		ui = tags$div(id = "tab4_plot1",
-					  tags$p("График факторного анализа"),
-					  plotOutput("plot_1"),
-					  tags$p("График нагрузок"),
-					  plotOutput("plot_2")
-		)
-	)
-	output[["plot_1"]] = renderPlot(fa.diagram(model))
+	output[["fa_table_main"]] = renderTable(result, rownames = TRUE, digits = 3, na = "")
+	output[["fa_text_1"]] = renderText(summary_text)
+	output[["fa_table_1"]] = renderTable(tableA, rownames = TRUE, digits = 3)
+	output[["fa_table_2"]] = renderTable(tableB, rownames = TRUE, digits = 4)
+	output[["fa_plot_1"]] = renderCachedPlot({
+		fa.diagram(model, main = NULL)
+	}, cacheKeyExpr = model)
 
 	plot_data = custom.melt(result, length(model$R2))
 	colnames(plot_data) = c("Фактор", "Нагрузка")
 	plot_data[is.na(plot_data)] = 0
-	plot_data$`Переменная` = unlist(lapply(rownames(result), function (x) {rep(x, length(model$R2))}))
+	plot_data$`Переменная` = factor(unlist(lapply(rownames(result), function (x) {rep(x, length(model$R2))})), levels = rownames(result), ordered = TRUE)
 
-	output[["plot_2"]] = renderPlot({
+	output[["fa_plot_2"]] = renderCachedPlot({
 		ggplot(data = plot_data, aes(`Переменная`, `Нагрузка`, color = `Фактор`, group = `Фактор`)) +
 			geom_line() +
 			ylim(-1, 1) +
 			geom_hline(yintercept = 0) +
 			coord_polar()
-	})
-
-	output$out_table <- renderTable(result, rownames = TRUE, digits = 3, na = "")
-	updateTabsetPanel(session, "mainTabs", selected = "Tab2")
+	}, cacheKeyExpr = plot_data)
 }

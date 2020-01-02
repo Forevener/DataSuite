@@ -17,3 +17,8 @@ ds.picker = function(id, label = NULL, multiSelect = FALSE, actionsBox = FALSE)
 		)
 	)
 }
+
+hidden.box = function(..., class = "hidden_div", id = NULL)
+{
+	return(hidden(div(id = id, class = class, box(...))))
+}
