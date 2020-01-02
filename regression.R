@@ -51,7 +51,6 @@ ds.regression <- function(optimal = FALSE)
 			{
 				new_data = data.frame(in_data[ind_vars_i], "y" = in_data[[index]])
 				model = bestglm::bestglm(new_data, TopModels = 1)$BestModel
-				browser()
 			}
 			else
 				model = glm(form, data = in_data)
