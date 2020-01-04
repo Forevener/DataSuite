@@ -52,6 +52,10 @@ shinyServer(function(input, output, session) {
 	base_data = reactiveVal()
 	base_names = reactiveVal()
 
+	observeEvent(session$clientData, {
+		query = parseQueryString(session$clientData$url_search)
+	})
+
 	observeEvent(input$upload, {
 
 		in_file <- input$upload
@@ -66,6 +70,7 @@ shinyServer(function(input, output, session) {
 
 		# Removing empty columns
 		index = 1
+		e_cols = 0
 		repeat
 		{
 			if (index > ncol(temp_data))
@@ -75,6 +80,7 @@ shinyServer(function(input, output, session) {
 				temp_data = temp_data[-index]
 				if (index <= length(temp_names))
 					temp_names = temp_names[-index]
+				e_cols = e_cols + 1
 			}
 			else
 			{
@@ -83,9 +89,12 @@ shinyServer(function(input, output, session) {
 				index = index + 1
 			}
 		}
+		if (e_cols > 0)
+			showNotification(paste0("Удалено пустых столбцов: ", e_cols))
 
 		# Removing empty rows
 		index = 1
+		e_rows = 0
 		repeat
 		{
 			if (index > nrow(temp_data))
@@ -93,12 +102,15 @@ shinyServer(function(input, output, session) {
 			if (all(is.na(temp_data[index, ])))
 			{
 				temp_data = temp_data[-index, ]
+				e_rows = e_rows + 1
 			}
 			else
 			{
 				index = index + 1
 			}
 		}
+		if (e_rows > 0)
+			showNotification(paste0("Удалено пустых строк: ", e_rows))
 
 		updatePickerInput(session, "si_include_vars", choices = selections, selected = selections)
 		base_data(temp_data)
@@ -165,32 +177,67 @@ shinyServer(function(input, output, session) {
 		ds.execute(ds.shapirowilk(), showSelector = "div[class^=dist_box")
 	})
 
+	observeEvent(input$ab_waldwolfowitz, {
+		if (indep_var_ctis() == "0")
+			showNotification("Нет подходящих независимых переменных для данного вида анализа", type = "error")
+		else
+			ds.execute(ds.cis("Z"), "div[class^=cis_box_b", "div[class^=cis_box_a")
+	})
+
+	observeEvent(input$ab_kolmogorovsmirnov, {
+		if (indep_var_ctis() == "0")
+			showNotification("Нет подходящих независимых переменных для данного вида анализа", type = "error")
+		else
+			ds.execute(ds.cis("D"), "div[class^=cis_box_b", "div[class^=cis_box_a")
+	})
+
 	observeEvent(input$ab_mannwhitney, {
-		ds.execute(ds.mannwhitney(), showSelector = "div[class^=ctis_box")
+		if (indep_var_ctis() == "0")
+			showNotification("Нет подходящих независимых переменных для данного вида анализа", type = "error")
+		else
+			ds.execute(ds.cis("U"), "div[class^=cis_box_b", "div[class^=cis_box_a")
 	})
 
 	observeEvent(input$ab_ttestindependent, {
-		ds.execute(ds.independent_ttest(), showSelector = "div[class^=ctis_box")
+		if (indep_var_ctis() == "0")
+			showNotification("Нет подходящих независимых переменных для данного вида анализа", type = "error")
+		else
+			ds.execute(ds.cis("t"), "div[class^=cis_box_b", "div[class^=cis_box_a")
 	})
 
 	observeEvent(input$ab_kruskallwallis, {
-		ds.execute(ds.kruskalwallis(), showSelector = "div[class^=cmis_box")
+		if (indep_var_cmis() == "0")
+			showNotification("Не выбрана независимая переменная!", type = "error")
+		else
+			ds.execute(ds.cis("H"), showSelector = "div[class^=cis_box")
 	})
 
 	observeEvent(input$ab_welch, {
-		ds.execute(ds.onewayanova(), showSelector = "div[class^=cmis_box")
+		if (indep_var_cmis() == "0")
+			showNotification("Не выбрана независимая переменная!", type = "error")
+		else
+			ds.execute(ds.cis("F"), showSelector = "div[class^=cis_box")
 	})
 
 	observeEvent(input$ab_ttestdependent, {
-		ds.execute(ds.dependent_ttest(), showSelector = "div[class^=ctds_box")
+		if (ncol(get_data()) %% 2 != 0)
+			showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних", type = "error")
+		else
+			ds.execute(ds.ctds("t"), showSelector = "div[class^=ctds_box")
 	})
 
 	observeEvent(input$ab_signtest, {
-		ds.execute(ds.signtest(), showSelector = "div[class^=ctds_box")
+		if (ncol(get_data()) %% 2 != 0)
+			showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних", type = "error")
+		else
+			ds.execute(ds.ctds("Z"), showSelector = "div[class^=ctds_box")
 	})
 
 	observeEvent(input$ab_wilcoxonmp, {
-		ds.execute(ds.wilcoxonmatchedpairs(), showSelector = "div[class^=ctds_box")
+		if (ncol(get_data()) %% 2 != 0)
+			showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних", type = "error")
+		else
+			ds.execute(ds.ctds("W"), showSelector = "div[class^=ctds_box")
 	})
 
 	observeEvent(input$ab_friedman, {
@@ -203,6 +250,10 @@ shinyServer(function(input, output, session) {
 
 	observeEvent(input$ab_cor_pearson, {
 		ds.execute(ds.correlations("pearson"), showSelector = "div[class^=corr_box")
+	})
+
+	observeEvent(input$ab_cor_kendall, {
+		ds.execute(ds.correlations("kendall"), showSelector = "div[class^=corr_box")
 	})
 
 	observeEvent(input$ab_cor_spearman, {

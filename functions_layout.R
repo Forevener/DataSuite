@@ -72,3 +72,64 @@ ds.execute = function(func, hideSelector = NULL, showSelector = NULL)
 
 	enable.all(inputs)
 }
+
+check.data = function(in_data, data_names, num = TRUE, nas = FALSE)
+{
+	result = ""
+	valid_cols = NULL
+	valid_rows = NULL
+
+	if (num)
+	{
+		valid_cols = sapply(1:ncol(in_data), function (v)
+		{
+			if (is.numeric(in_data[[v]]))
+				return(v)
+			else
+				return(NA)
+		})
+		valid_cols = valid_cols[!is.na(valid_cols)]
+		non_valid_cols = (1:ncol(in_data))[-valid_cols]
+
+		if (length(non_valid_cols) > 0)
+		{
+			result = paste0("<strong>Следующие столбцы не являются числовыми и были устранены из анализа:</strong><br/>",
+							paste0(data_names[non_valid_cols], collapse = "<br/>"))
+			if (nas)
+				result = paste0(result, "<br/><br/>")
+		}
+	}
+
+	if (nas)
+	{
+		valid_rows = sapply(1:nrow(in_data), function (r)
+		{
+			if (anyNA(in_data[r, ]))
+				return(NA)
+			else
+				return(r)
+		})
+		valid_rows = valid_rows[!is.na(valid_rows)]
+		non_valid_rows = (1:nrow(in_data))[-valid_rows]
+
+		if (length(non_valid_rows) > 0)
+		{
+			result = paste0(result,
+							"<strong>Следующие строки имели пропущенные значения и были устранены из анализа:</strong><br/>",
+							paste0(rownames(in_data)[non_valid_rows], collapse = "<br/>"))
+		}
+	}
+
+	if (nchar(result) > 1)
+	{
+		showModal(
+			modalDialog(
+				title = "Предупреждение",
+				footer = modalButton("ОК"),
+				HTML(result)
+			)
+		)
+	}
+
+	return(list("cols" = valid_cols, "rows" = valid_rows))
+}

@@ -8,10 +8,7 @@ shinyUI(
                        menuItem("Ввод и отбор данных", tabName = "data_upload"),
                        menuItem("Описательная статистика", tabName = "descriptive"),
                        menuItem("Распределение", tabName = "distribution"),
-                       menuItem("Сравнение независимых выборок",
-                                menuSubItem("Двух", tabName = "comparison_TIS"),
-                                menuSubItem("Нескольких", tabName = "comparison_MIS")
-                       ),
+                       menuItem("Сравнение независимых выборок", tabName = "comparison_IS"),
                        menuItem("Сравнение зависимых выборок",
                                 menuSubItem("Двух", tabName = "comparison_TDS"),
                                 menuSubItem("Нескольких", tabName = "comparison_MDS")
@@ -62,29 +59,25 @@ shinyUI(
                 fluidRow(hidden.box(class = "dist_box", width =  12, title = "Результаты",
                                     tags$div(id = "key_div_dist", style = "overflow-x: auto")))
         ),
-        tabItem("comparison_TIS",
-                hidden.box(
-                  selectInput("si_var_ctis", h5("Независимая переменная"), choices = list("-" = 0), selected = "-"),
-                  actionButton("ab_mannwhitney", "U-критерий Манна-Уитни"),
-                  actionButton("ab_ttestindependent", "t-критерий Стьюдента")
+        tabItem("comparison_IS",
+                hidden.box(title = "Две выборки",
+                           selectInput("si_var_ctis", h5("Независимая переменная"), choices = NULL),
+                           actionButton("ab_mannwhitney", "U-критерий Манна-Уитни"),
+                           actionButton("ab_waldwolfowitz", "Z-критерий Уалда-Вольфовица"),
+                           actionButton("ab_kolmogorovsmirnov", "D-критерий Колмогорова-Смирнова"),
+                           actionButton("ab_ttestindependent", "t-критерий Стьюдента")
                 ),
-                fluidRow(hidden.box(class = "ctis_box", width =  12, title = "Результаты",
-                                    tags$div(id = "key_div_ctis_table", style = "overflow-x: auto"))),
-                fluidRow(hidden.box(class = "ctis_box", width =  12, title = "Графики", collapsible = TRUE, collapsed = TRUE,
-                                    tags$div(id = "key_div_ctis_plots", style = "overflow-x: auto")))
-        ),
-        tabItem("comparison_MIS",
-                hidden.box(
-                  selectInput("si_var_cmis", h5("Независимая переменная"), choices = list("-" = 0), selected = "-"),
-                  actionButton("ab_kruskallwallis", "H-критерий Краскела-Уоллиса"),
-                  actionButton("ab_welch", "F-критерий Уэлча")
+                hidden.box(title = "Несколько выборок",
+                           selectInput("si_var_cmis", h5("Независимая переменная"), choices = NULL),
+                           actionButton("ab_kruskallwallis", "H-критерий Краскела-Уоллиса"),
+                           actionButton("ab_welch", "F-критерий Уэлча")
                 ),
-                fluidRow(hidden.box(class = "cmis_box", width =  12, title = "Основные результаты",
-                                    tags$div(id = "key_div_cmis_table", style = "overflow-x: auto"))),
-                fluidRow(hidden.box(class = "cmis_box", width =  12, title = "Подробности", collapsible = TRUE, collapsed = TRUE,
-                                    tags$div(id = "key_div_cmis_details", style = "overflow-x: auto"))),
-                fluidRow(hidden.box(class = "cmis_box", width =  12, title = "Графики", collapsible = TRUE, collapsed = TRUE,
-                                    tags$div(id = "key_div_cmis_plots", style = "overflow-x: auto")))
+                fluidRow(hidden.box(class = "cis_box_a", width =  12, title = "Результаты",
+                                    tags$div(id = "key_div_cis_table", style = "overflow-x: auto"))),
+                fluidRow(hidden.box(class = "cis_box_b", width =  12, title = "Подробности", collapsible = TRUE, collapsed = TRUE,
+                                    tags$div(id = "key_div_cis_details", style = "overflow-x: auto"))),
+                fluidRow(hidden.box(class = "cis_box_a", width =  12, title = "Графики", collapsible = TRUE, collapsed = TRUE,
+                                    tags$div(id = "key_div_cis_plots", style = "overflow-x: auto")))
         ),
         tabItem("comparison_TDS",
                 hidden.box(
@@ -115,6 +108,7 @@ shinyUI(
                   ds.picker("si_var1_corr", "Строки матрицы", TRUE),
                   ds.picker("si_var2_corr", "Столбцы матрицы", TRUE),
                   actionButton("ab_cor_pearson", "r-критерий Пирсона"),
+                  actionButton("ab_cor_kendall", "τ-критерий Кендалла"),
                   actionButton("ab_cor_spearman", "ρ-критерий Спирмена")
                 ),
                 fluidRow(hidden.box(class = "corr_box", width =  12, title = "Результаты",
