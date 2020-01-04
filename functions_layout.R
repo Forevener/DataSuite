@@ -73,15 +73,17 @@ ds.execute = function(func, hideSelector = NULL, showSelector = NULL)
 	enable.all(inputs)
 }
 
-check.data = function(in_data, data_names, num = TRUE, nas = FALSE)
+check.data = function(in_data, data_names = NULL, num = TRUE, nas = FALSE)
 {
 	result = ""
-	valid_cols = NULL
-	valid_rows = NULL
+	valid_cols = c(1:ncol(in_data))
+	valid_rows = c(1:nrow(in_data))
+	if (is.null(data_names))
+		data_names = get_names()
 
 	if (num)
 	{
-		valid_cols = sapply(1:ncol(in_data), function (v)
+		valid_cols = sapply(valid_cols, function (v)
 		{
 			if (is.numeric(in_data[[v]]))
 				return(v)
@@ -89,6 +91,10 @@ check.data = function(in_data, data_names, num = TRUE, nas = FALSE)
 				return(NA)
 		})
 		valid_cols = valid_cols[!is.na(valid_cols)]
+
+		if (length(valid_cols) == 0)
+			stop("В таблице данных нет числовых столбцов")
+
 		non_valid_cols = (1:ncol(in_data))[-valid_cols]
 
 		if (length(non_valid_cols) > 0)
@@ -102,7 +108,7 @@ check.data = function(in_data, data_names, num = TRUE, nas = FALSE)
 
 	if (nas)
 	{
-		valid_rows = sapply(1:nrow(in_data), function (r)
+		valid_rows = sapply(valid_rows, function (r)
 		{
 			if (anyNA(in_data[r, ]))
 				return(NA)
@@ -110,6 +116,10 @@ check.data = function(in_data, data_names, num = TRUE, nas = FALSE)
 				return(r)
 		})
 		valid_rows = valid_rows[!is.na(valid_rows)]
+
+		if (length(valid_rows) == 0)
+			stop("В таблице данных нет строк без пропусков")
+
 		non_valid_rows = (1:nrow(in_data))[-valid_rows]
 
 		if (length(non_valid_rows) > 0)
@@ -131,5 +141,5 @@ check.data = function(in_data, data_names, num = TRUE, nas = FALSE)
 		)
 	}
 
-	return(list("cols" = valid_cols, "rows" = valid_rows))
+	return(list("data" = in_data[valid_rows, valid_cols], "cols" = valid_cols, "rows" = valid_rows))
 }
