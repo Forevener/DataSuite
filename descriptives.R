@@ -1,84 +1,38 @@
-ds.parametric_descriptives = function()
+ds.descriptives = function(method = "parametric")
 {
+	# Prepare UI
 	removeUI(selector = "#desc_table")
-
 	insertUI(selector = "#key_div_desc",
 			 ui = tags$div(id = "desc_table",
 			 			  tags$p("Параметрическая описательная статистика"),
-			 			  tableOutput("param_desc_table")))
+			 			  tableOutput("desc_table_main")))
 
-	in_data = get_data()
-	data_names = get_names()
+	# Retrieve valid data and save original names
+	valid_data = check.data(get_data())
+	in_data = data.matrix(valid_data$data)
+	data_names = valid_data$names
 
-	num_vars = ncol(in_data)
-	names = list(data_names, c("Минимум", "Нижняя граница нормы", "Среднее", "Верхняя граница нормы", "Максимум", "Стандартное отклонение"))
-	out_data = matrix(nrow = num_vars, ncol = 6, dimnames = names)
-
-	for (index in 1:num_vars)
+	# Perform analysis
+	if (method == "parametric")
 	{
-		if (is.numeric(in_data[[index]]))
-		{
-			rmean = round(mean(in_data[[index]], na.rm = TRUE), 2)
-			rsd = round(sd(in_data[[index]], na.rm = TRUE), 2)
-			out_data[index, 1] = min(in_data[[index]], na.rm = TRUE)
-			out_data[index, 2] = rmean - rsd
-			out_data[index, 3] = rmean
-			out_data[index, 4] = rmean + rsd
-			out_data[index, 5] = max(in_data[[index]], na.rm = TRUE)
-			out_data[index, 6] = rsd
-		}
-		# else
-		# {
-		# 	out_data[index, 1] = "Переменная не является числовой"
-		# 	out_data[index, 2] = ""
-		# 	out_data[index, 3] = ""
-		# 	out_data[index, 4] = ""
-		# 	out_data[index, 5] = ""
-		# 	out_data[index, 6] = ""
-		# }
+		means = colMeans2(in_data)
+		sds = colSds(in_data)
+		out_data = data.frame("Минимум" = colMins(in_data))
+		out_data[["Нижняя граница нормы"]] = means - sds
+		out_data[["Среднее"]] = means
+		out_data[["Верхняя граница нормы"]] = means + sds
+		out_data[["Максимум"]] = colMaxs(in_data)
+		out_data[["Стандартное отклонение"]] = sds
+	}
+	else
+	{
+		out_data = data.frame(colQuantiles(in_data))
+		colnames(out_data) = c("Минимум", "Нижний квартиль", "Медиана", "Верхний квартиль", "Максимум")
 	}
 
+	# Set pretty names
+	rownames(out_data) = data_names
 
-
-	output$param_desc_table <- renderTable(out_data, rownames = TRUE)
-}
-
-ds.nonparametric_descriptives = function()
-{
-	removeUI(selector = "#desc_table")
-
-	insertUI(selector = "#key_div_desc",
-			 ui = tags$div(id = "desc_table",
-			 			  tags$p("Непараметрическая описательная статистика"),
-			 			  tableOutput("nonparam_desc_table")))
-
-	in_data = get_data()
-	data_names = get_names()
-
-	num_vars = ncol(in_data)
-	names = list(data_names, c("Минимум", "Нижний квартиль", "Медиана", "Верхний квартиль", "Максимум"))
-	out_data = matrix(nrow = num_vars, ncol = 5, dimnames = names)
-
-	for (index in 1:num_vars)
-	{
-		if (is.numeric(in_data[[index]]))
-		{
-			result = quantile(in_data[[index]], na.rm = TRUE)
-			out_data[index, 1] = result[[1]]
-			out_data[index, 2] = result[[2]]
-			out_data[index, 3] = result[[3]]
-			out_data[index, 4] = result[[4]]
-			out_data[index, 5] = result[[5]]
-		}
-		# else
-		# {
-		# 	out_data[index, 1] = "Переменная не является числовой"
-		# 	out_data[index, 2] = ""
-		# 	out_data[index, 3] = ""
-		# 	out_data[index, 4] = ""
-		# 	out_data[index, 5] = ""
-		# }
-	}
-
-	output$nonparam_desc_table <- renderTable(out_data, rownames = TRUE)
+	# Render the resulting table
+	output$desc_table_main = renderTable(out_data, rownames = TRUE)
 }

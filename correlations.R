@@ -19,11 +19,6 @@ ds.correlations = function(method)
 	# Prepare and check the data
 	in_data = get_data()
 	data_names = get_names()
-	if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1))
-	{
-		showNotification("Не выбраны переменные для анализа", type = "warning")
-		return(NULL)
-	}
 
 	# Get variables
 	vars1 = strtoi(corr1_var_list())
@@ -57,10 +52,9 @@ ds.correlations = function(method)
 
 			# Drawing scatterplots
 			n = paste0("plot_", i, "x", j)
-			insertUI(
-				selector = "#corr_plots",
-				ui = tagList(tags$p(paste(data_names[x], " & ", data_names[y])),
-							 plotOutput(n)))
+			insertUI(selector = "#corr_plots",
+					 ui = tagList(tags$p(paste(data_names[x], " & ", data_names[y])),
+					 			 plotOutput(n)))
 
 			output[[n]] = renderCachedPlot({
 				ggplot(in_data, aes(in_data[[x]], in_data[[y]])) +

@@ -28,9 +28,9 @@ ds.cis = function(method = "t")
 	ind_var = get_data()[[ind_var_i]]
 	if (!is.factor(ind_var))
 		ind_var = factor(ind_var)
-	valid_cols = check.data(get_data()[-ind_var_i], get_names()[-ind_var_i])$cols
-	in_data = get_data()[-ind_var_i][valid_cols]
-	data_names = get_names()[-ind_var_i][valid_cols]
+	valid_data = check.data(get_data()[-ind_var_i], get_names()[-ind_var_i])
+	in_data = valid_data$data
+	data_names = valid_data$names
 
 	# Variables
 	num_vars = ncol(in_data)

@@ -8,13 +8,6 @@ ds.manova <- function()
 	insertUI(selector = "#key_div_manova_plots",
 			 ui = tags$div(id = "manova_plots"))
 
-	# MANOVA should really be used only for nvar > 2
-	if (length(indep_vars_css()) < 2)
-	{
-		showNotification("Не выбрано достаточно независимых переменных!", type = "error")
-		return(NULL)
-	}
-
 	# Retrieve the data
 	in_data = get_data()
 	data_names = get_names()

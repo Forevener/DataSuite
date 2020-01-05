@@ -74,7 +74,7 @@ ds.factoranalysis = function()
 	# Retrieve data and set original names
 	valid_data = check.data(get_data())
 	in_data = valid_data$data
-	colnames(in_data) = get_names()[valid_data$cols]
+	colnames(in_data) = valid_data$names
 
 	# Build model, considering method
 	if (factoring_method() == "pc")
@@ -101,9 +101,9 @@ ds.factoranalysis = function()
 	# Prepare extended loadings table
 	tableA = data.frame(unclass(model$loadings))
 	colnames(tableA) = factor_names
-	tableA$`Общность` = model$communalities
-	tableA$`Уникальность` = model$uniquenesses
-	tableA$`Сложность` = model$complexity
+	tableA[["Общность"]] = model$communalities
+	tableA[["Уникальность"]] = model$uniquenesses
+	tableA[["Сложность"]] = model$complexity
 
 	# Prepare eigenvalues and factors quality table
 	tableB = data.frame(rbind("Собственные значения" = model$values[1:length(model$R2)], model$Vaccounted))
@@ -126,7 +126,7 @@ ds.factoranalysis = function()
 	plot_data = custom.melt(result, length(model$R2))
 	colnames(plot_data) = c("Фактор", "Нагрузка")
 	plot_data[is.na(plot_data)] = 0
-	plot_data$`Переменная` = factor(unlist(lapply(rownames(result), function (x) {rep(x, length(model$R2))})), levels = rownames(result), ordered = TRUE)
+	plot_data[["Переменная"]] = factor(unlist(lapply(rownames(result), function (x) {rep(x, length(model$R2))})), levels = rownames(result), ordered = TRUE)
 
 	# Render UI
 	output[["fa_table_main"]] = renderTable(result, rownames = TRUE, digits = 3, na = "")
@@ -137,7 +137,7 @@ ds.factoranalysis = function()
 		fa.diagram(model, main = NULL)
 	}, cacheKeyExpr = model)
 	output[["fa_plot_2"]] = renderCachedPlot({
-		ggplot(data = plot_data, aes(`Переменная`, `Нагрузка`, color = `Фактор`, group = `Фактор`)) +
+		ggplot(data = plot_data, aes(!!sym("Переменная"), !!sym("Нагрузка"), color = !!sym("Фактор"), group = !!sym("Фактор"))) +
 			geom_line() +
 			ylim(-1, 1) +
 			geom_hline(yintercept = 0) +

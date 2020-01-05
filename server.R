@@ -157,11 +157,11 @@ shinyServer(function(input, output, session) {
 	})
 
 	observeEvent(input$ab_parametric_desc, {
-		ds.execute(ds.parametric_descriptives(), showSelector = "div[class^=desc_box")
+		ds.execute(ds.descriptives("parametric"), showSelector = "div[class^=desc_box")
 	})
 
 	observeEvent(input$ab_nonparametric_desc, {
-		ds.execute(ds.nonparametric_descriptives(), showSelector = "div[class^=desc_box")
+		ds.execute(ds.descriptives("nonparametric"), showSelector = "div[class^=desc_box")
 	})
 
 	observeEvent(input$ab_frequency_tables, {
@@ -248,11 +248,17 @@ shinyServer(function(input, output, session) {
 	})
 
 	observeEvent(input$ab_cor_pearson, {
-		ds.execute(ds.correlations("pearson"), showSelector = "div[class^=corr_box")
+		if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1))
+			showNotification("Не выбраны переменные для анализа", type = "warning")
+		else
+			ds.execute(ds.correlations("pearson"), showSelector = "div[class^=corr_box")
 	})
 
 	observeEvent(input$ab_cor_kendall, {
-		ds.execute(ds.correlations("kendall"), showSelector = "div[class^=corr_box")
+		if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1))
+			showNotification("Не выбраны переменные для анализа", type = "warning")
+		else
+			ds.execute(ds.correlations("kendall"), showSelector = "div[class^=corr_box")
 	})
 
 	observeEvent(input$ab_cor_spearman, {
@@ -280,7 +286,10 @@ shinyServer(function(input, output, session) {
 	})
 
 	observeEvent(input$ab_manova, {
-		ds.execute(ds.manova(), showSelector = "div[class^=manova_box")
+		if (length(indep_vars_css()) < 2)
+			showNotification("Не выбрано достаточно независимых переменных!", type = "error")
+		else
+			ds.execute(ds.manova(), showSelector = "div[class^=manova_box")
 	})
 
 	observeEvent(input$ab_regression, {

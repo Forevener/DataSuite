@@ -141,5 +141,5 @@ check.data = function(in_data, data_names = NULL, num = TRUE, nas = FALSE)
 		)
 	}
 
-	return(list("data" = in_data[valid_rows, valid_cols], "cols" = valid_cols, "rows" = valid_rows))
+	return(list("data" = in_data[valid_rows, valid_cols], "names" = data_names[valid_cols], "cols" = valid_cols, "rows" = valid_rows))
 }

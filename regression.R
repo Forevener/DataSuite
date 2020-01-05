@@ -1,3 +1,4 @@
+# TODO: Rework, separate optimal model browser, additional modeling options
 ds.regression <- function(optimal = FALSE)
 {
 	# Prepare UI

@@ -1,4 +1,5 @@
-ds.reliability = function() # TODO: Reversed items
+# TODO: Reversed items selection, more descriptives for drop table
+ds.reliability = function()
 {
 	# Prepare UI
 	removeUI(selector = "#reliability_table")
@@ -9,8 +10,8 @@ ds.reliability = function() # TODO: Reversed items
 			 			  tags$p("Таблица отбросов"),
 			 			  tableOutput("table_2")))
 
-	# Filter numeric data
-	in_data = na.omit(Filter(is.numeric, get_data()))
+	# Filter numeric valid data
+	in_data = check.data(get_data(), nas = TRUE)$data
 
 	# Calculate Alpha and Omega
 	resultA = psych::alpha(as.data.frame(in_data))

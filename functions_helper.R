@@ -88,13 +88,13 @@ fa.plot.data = function(real, simulated, resampled)
 
 scree.ggplot = function(plot_data, axis.title = "Факторы")
 {
-	ggplot(data = plot_data, aes(`Фактор`, `СобственноеЗначение`, colour = `Категория`, linetype = `Категория`)) +
+	ggplot(data = plot_data, aes(!!sym("Фактор"), !!sym("СобственноеЗначение"), colour = !!sym("Категория"), linetype = !!sym("Категория"))) +
 		geom_line() +
 		geom_hline(yintercept = 1) +
-		geom_point(aes(alpha = `Категория`), shape = 0, size = 2) +
+		geom_point(aes(alpha = !!sym("Категория")), shape = 0, size = 2) +
 		scale_alpha_manual(values = c(1, 0, 0)) +
 		scale_color_manual(values = c("blue", "red", "orange")) +
-		labs(x = axis.title, y = "Собственные значения") +
+		labs(x = axis.title, y = "Собственное значение") +
 		theme(
 			legend.title = element_blank(),
 			legend.justification = c(1, 1),

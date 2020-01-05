@@ -1,3 +1,4 @@
+# TODO: Rework, separate hierarchical and kmeans clustering, and possibly more methods
 ds.dendro = function()
 {
 	# Prepare UI
@@ -23,7 +24,7 @@ ds.dendro = function()
 			 			  plotOutput("plot_QI")))
 
 	# Retrieve and prepare the data
-	in_data = na.omit(Filter(is.numeric, get_data()))
+	in_data = check.data(get_data(), nas = TRUE)$data
 	scaled = scale(in_data)
 	result = dist(scaled)
 	hc = hclust(result)
@@ -94,8 +95,8 @@ ds.clusteranalysis = function()
 			 			  tags$p("График силуэтов"),
 			 			  plotOutput("plot_1")))
 
-	# Retrieve and prepare the data
-	in_data = na.omit(Filter(is.numeric, get_data()))
+	# Retrieve and prepare the valid data
+	in_data = check.data(get_data(), nas = TRUE)$data
 	scaled = scale(in_data)
 	k_dist = dist(scaled)
 	clusters = clusters_num()
@@ -109,8 +110,8 @@ ds.clusteranalysis = function()
 
 	# Prepare data for export
 	out_data = base_data()
-	out_data$`Кластер` = NaN
-	out_data[input$in_table_rows_all, ][!rowSums(is.na(out_data[strtoi(included_vars())])), ]$`Кластер` = result$cluster
+	out_data[["Кластер"]] = NaN
+	out_data[input$in_table_rows_all, ][!rowSums(is.na(out_data[strtoi(included_vars())])), ][["Кластер"]] = result$cluster
 
 	# Generate detail tables
 	tableA = data.frame("Количество" = result$size)
