@@ -18,8 +18,8 @@ ds.reliability = function()
 	resultO = psych::omega(in_data, plot = FALSE)
 
 	#Calculate composite reliability from https://www.r-bloggers.com/five-ways-to-calculate-internal-consistency/
-	items = paste(colnames(in_data), collapse = "+")
-	model = paste("F1", items, sep = "=~")
+	items = paste0(colnames(in_data), collapse = "+")
+	model = paste0("F1 =~ ", items)
 	fit = lavaan::cfa(model, data = in_data)
 	sl = lavaan::standardizedSolution(fit)
 	sl = sl$est.std[sl$op == "=~"]

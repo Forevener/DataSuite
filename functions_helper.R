@@ -13,11 +13,12 @@ custom.melt = function(dataset, times)
 			for (y in 0:(repeats - 1))
 			{
 				starting = 1 + new_cols * y
-				result[n, 1] = as.character(y + 1)
+				result[n, 1] = y + 1
 				result[n, 2:(new_cols + 1)] = dataset[x, starting:(starting + new_cols - 1)]
 				n = n + 1
 			}
 		}
+		result[[1]] = factor(result[[1]])
 		return (result)
 	}
 	else
@@ -31,9 +32,9 @@ extract = function(dataset, column_n, measures)
 	result = matrix(nrow = nrow(dataset), ncol = measures)
 	columns = ncol(dataset) / measures
 
-	for (index in 0:(measures - 1))
+	for (index in 1:measures)
 	{
-		result[, index + 1] = dataset[[column_n + index * columns]]
+		result[, index] = dataset[[column_n + (index - 1) * columns]]
 	}
 
 	return(result)
@@ -46,7 +47,7 @@ last = function(x)
 
 strong.p = function(data, level)
 {
-	lapply(data, function(x) {
+	sapply(data, function(x) {
 		if (!is.na(x) && is.numeric(x))
 		{
 			if (x <= level)

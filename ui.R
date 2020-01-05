@@ -4,15 +4,11 @@ shinyUI(
     dashboardSidebar(width = 270,
                      sidebarMenu(
                        id = "sidebar_tabs",
-
                        menuItem("Ввод и отбор данных", tabName = "data_upload"),
                        menuItem("Описательная статистика", tabName = "descriptive"),
                        menuItem("Распределение", tabName = "distribution"),
                        menuItem("Сравнение независимых выборок", tabName = "comparison_IS"),
-                       menuItem("Сравнение зависимых выборок",
-                                menuSubItem("Двух", tabName = "comparison_TDS"),
-                                menuSubItem("Нескольких", tabName = "comparison_MDS")
-                       ),
+                       menuItem("Сравнение зависимых выборок", tabName = "comparison_DS"),
                        menuItem("Корреляционный анализ", tabName = "correlations"),
                        menuItem("Надёжность и согласованность", tabName = "reliability"),
                        menuItem("Факторный анализ", tabName = "factor"),
@@ -40,7 +36,6 @@ shinyUI(
                              div(style = "overflow-x: auto",  DTOutput("in_table"))
                   )
                 )
-
         ),
         tabItem("descriptive",
                 hidden.box(
@@ -79,29 +74,23 @@ shinyUI(
                 fluidRow(hidden.box(class = "cis_box_a", width =  12, title = "Графики", collapsible = TRUE, collapsed = TRUE,
                                     tags$div(id = "key_div_cis_plots", style = "overflow-x: auto")))
         ),
-        tabItem("comparison_TDS",
-                hidden.box(
+        tabItem("comparison_DS",
+                hidden.box(title = "Две выборки",
                   actionButton("ab_ttestdependent", "t-критерий Стьюдента"),
                   actionButton("ab_signtest", "Критерий знаков"),
                   actionButton("ab_wilcoxonmp", "W-критерий Уилкоксона")
                 ),
-                fluidRow(hidden.box(class = "ctds_box", width =  12, title = "Результаты",
-                                    tags$div(id = "key_div_ctds_table", style = "overflow-x: auto"))),
-                fluidRow(hidden.box(class = "ctds_box", width =  12, title = "Графики", collapsible = TRUE, collapsed = TRUE,
-                                    tags$div(id = "key_div_ctds_plots", style = "overflow-x: auto")))
-        ),
-        tabItem("comparison_MDS",
-                hidden.box(
+                hidden.box(title = "Несколько выборок",
                   numericInput("measures_number", h5("Количество замеров"), value = 3, min = 3),
                   actionButton("ab_friedman", "Критерий Фридмана"),
                   actionButton("ab_repeatedmeasures", "Анализ повторяющихся наблюдений")
                 ),
-                fluidRow(hidden.box(class = "cmds_box", width =  12, title = "Основные результаты",
-                                    tags$div(id = "key_div_cmds_table", style = "overflow-x: auto"))),
-                fluidRow(hidden.box(class = "cmds_box", width =  12, title = "Подробности", collapsible = TRUE, collapsed = TRUE,
-                                    tags$div(id = "key_div_cmds_details", style = "overflow-x: auto"))),
-                fluidRow(hidden.box(class = "cmds_box", width =  12, title = "Графики", collapsible = TRUE, collapsed = TRUE,
-                                    tags$div(id = "key_div_cmds_plots", style = "overflow-x: auto")))
+                fluidRow(hidden.box(class = "cds_box_a", width =  12, title = "Результаты",
+                                    tags$div(id = "key_div_cds_table", style = "overflow-x: auto"))),
+                fluidRow(hidden.box(class = "cds_box_b", width =  12, title = "Подробности", collapsible = TRUE, collapsed = TRUE,
+                                    tags$div(id = "key_div_cds_details", style = "overflow-x: auto"))),
+                fluidRow(hidden.box(class = "cds_box_a", width =  12, title = "Графики", collapsible = TRUE, collapsed = TRUE,
+                                    tags$div(id = "key_div_cds_plots", style = "overflow-x: auto")))
         ),
         tabItem("correlations",
                 hidden.box(

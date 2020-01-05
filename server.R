@@ -2,9 +2,8 @@ shinyServer(function(input, output, session) {
 	source("functions_layout.R", encoding = "utf-8", local = TRUE)
 	source("descriptives.R", encoding = "utf-8", local = TRUE)
 	source("distribution.R", encoding = "utf-8", local = TRUE)
-	source("cis.R", encoding = "utf-8", local = TRUE)
-	source("ctds.R", encoding = "utf-8", local = TRUE)
-	source("cmds.R", encoding = "utf-8", local = TRUE)
+	source("comparison_indep.R", encoding = "utf-8", local = TRUE)
+	source("comparison_dep.R", encoding = "utf-8", local = TRUE)
 	source("correlations.R", encoding = "utf-8", local = TRUE)
 	source("reliability.R", encoding = "utf-8", local = TRUE)
 	source("factor.R", encoding = "utf-8", local = TRUE)
@@ -222,29 +221,35 @@ shinyServer(function(input, output, session) {
 		if (ncol(get_data()) %% 2 != 0)
 			showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних", type = "error")
 		else
-			ds.execute(ds.ctds("t"), showSelector = "div[class^=ctds_box")
+			ds.execute(ds.cds("t"), "div[class^=cds_box_b", "div[class^=cds_box_a")
 	})
 
 	observeEvent(input$ab_signtest, {
 		if (ncol(get_data()) %% 2 != 0)
 			showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних", type = "error")
 		else
-			ds.execute(ds.ctds("Z"), showSelector = "div[class^=ctds_box")
+			ds.execute(ds.cds("Z"), "div[class^=cds_box_b", "div[class^=cds_box_a")
 	})
 
 	observeEvent(input$ab_wilcoxonmp, {
 		if (ncol(get_data()) %% 2 != 0)
 			showNotification("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних", type = "error")
 		else
-			ds.execute(ds.ctds("W"), showSelector = "div[class^=ctds_box")
+			ds.execute(ds.cds("W"), "div[class^=cds_box_b", "div[class^=cds_box_a")
 	})
 
 	observeEvent(input$ab_friedman, {
-		ds.execute(ds.friedman(), showSelector = "div[class^=cmds_box")
+		if (ncol(get_data()) %% strtoi(measures_input()) != 0)
+			showNotification("Количество столбцов не делится на количество замеров - проверьте наличие нужных данных и отсутствие лишних", type = "error")
+		else
+			ds.execute(ds.cds("Q"), showSelector = "div[class^=cds_box")
 	})
 
 	observeEvent(input$ab_repeatedmeasures, {
-		ds.execute(ds.repeatedanova(), showSelector = "div[class^=cmds_box")
+		if (ncol(get_data()) %% strtoi(measures_input()) != 0)
+			showNotification("Количество столбцов не делится на количество замеров - проверьте наличие нужных данных и отсутствие лишних", type = "error")
+		else
+			ds.execute(ds.cds("F"), showSelector = "div[class^=cds_box")
 	})
 
 	observeEvent(input$ab_cor_pearson, {

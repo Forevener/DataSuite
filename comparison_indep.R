@@ -15,7 +15,7 @@ ds.cis = function(method = "t")
 			 multiple = TRUE)
 	insertUI(selector = "#key_div_cis_table",
 			 ui = tags$div(id = "cis_table",
-			 			  tags$p(paste0("Сравнение двух независимых выборок с помощью ", method_title)),
+			 			  tags$p(paste0("Сравнение независимых выборок с помощью ", method_title)),
 			 			  tableOutput("cis_result_table")))
 	insertUI(selector = "#key_div_cis_plots",
 			 ui = tags$div(id = "cis_plots"))
@@ -64,7 +64,7 @@ ds.cis = function(method = "t")
 			pwc = switch(method,
 						 "F" = pairwise.t.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value,
 						 "H" = pairwise.wilcox.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value)
-			pwc[] = unlist(strong.p(pwc, 0.05))
+			pwc[] = strong.p(pwc, 0.05)
 
 			# Prepare and render detailed tables
 			nt = paste0("table_", index)

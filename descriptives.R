@@ -15,18 +15,18 @@ ds.descriptives = function(method = "parametric")
 	# Perform analysis
 	if (method == "parametric")
 	{
-		means = colMeans2(in_data)
-		sds = colSds(in_data)
-		out_data = data.frame("Минимум" = colMins(in_data))
+		means = colMeans2(in_data, na.rm = TRUE)
+		sds = colSds(in_data, na.rm = TRUE)
+		out_data = data.frame("Минимум" = colMins(in_data, na.rm = TRUE))
 		out_data[["Нижняя граница нормы"]] = means - sds
 		out_data[["Среднее"]] = means
 		out_data[["Верхняя граница нормы"]] = means + sds
-		out_data[["Максимум"]] = colMaxs(in_data)
+		out_data[["Максимум"]] = colMaxs(in_data, na.rm = TRUE)
 		out_data[["Стандартное отклонение"]] = sds
 	}
 	else
 	{
-		out_data = data.frame(colQuantiles(in_data))
+		out_data = data.frame(colQuantiles(in_data, na.rm = TRUE))
 		colnames(out_data) = c("Минимум", "Нижний квартиль", "Медиана", "Верхний квартиль", "Максимум")
 	}
 

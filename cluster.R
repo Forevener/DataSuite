@@ -138,9 +138,9 @@ ds.clusteranalysis = function()
 	)
 	output[["plot_1"]] = renderCachedPlot({
 		factoextra::fviz_cluster(result, in_data, repel = TRUE, main = NULL)
-	}, )
+	}, cacheKeyExpr = list(result, in_data))
 	output[["plot_1"]] = renderCachedPlot({
 		factoextra::fviz_silhouette(sil, print.summary = FALSE) +
 			labs(title = NULL, y = "Ширина силуэта")
-	}, )
+	}, cacheKeyExpr = sil)
 }

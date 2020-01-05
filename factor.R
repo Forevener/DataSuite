@@ -1,3 +1,4 @@
+# TODO: Confirmatory factor analysis, additional options
 ds.screeplot = function()
 {
 	# Prepare UI
@@ -126,7 +127,7 @@ ds.factoranalysis = function()
 	plot_data = custom.melt(result, length(model$R2))
 	colnames(plot_data) = c("Фактор", "Нагрузка")
 	plot_data[is.na(plot_data)] = 0
-	plot_data[["Переменная"]] = factor(unlist(lapply(rownames(result), function (x) {rep(x, length(model$R2))})), levels = rownames(result), ordered = TRUE)
+	plot_data[["Переменная"]] = factor(sapply(rownames(result), function (x) {rep(x, length(model$R2))}), levels = rownames(result), ordered = TRUE)
 
 	# Render UI
 	output[["fa_table_main"]] = renderTable(result, rownames = TRUE, digits = 3, na = "")
