@@ -18,8 +18,8 @@ fill.dropdowns = function()
 			selections_cor = append(selections_cor, index)
 	}
 
-	updateSelectInput(session, "si_var_ctis", choices = selections_tis, selected = selections_tis[1])
-	updateSelectInput(session, "si_var_cmis", choices = selections_mis, selected = selections_mis[1])
+	updatePickerInput(session, "si_var_ctis", choices = selections_tis, selected = selections_tis[1])
+	updatePickerInput(session, "si_var_cmis", choices = selections_mis, selected = "")
 	updatePickerInput(session, "si_vars_manova", choices = selections_mis)
 	updatePickerInput(session, "si_vars_regression", choices = selections_mis)
 	updatePickerInput(session, "si_var1_corr", choices = selections_cor)
@@ -99,7 +99,7 @@ check.data = function(in_data, data_names = NULL, num = TRUE, nas = FALSE)
 
 		if (length(non_valid_cols) > 0)
 		{
-			result = paste0("<strong>Следующие столбцы не являются числовыми и были устранены из анализа:</strong><br/>",
+			result = paste0(tags$strong("Следующие столбцы не являются числовыми и были устранены из анализа:"), "<br/>",
 							paste0(data_names[non_valid_cols], collapse = "<br/>"))
 			if (nas)
 				result = paste0(result, "<br/><br/>")

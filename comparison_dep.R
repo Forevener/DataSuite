@@ -16,7 +16,7 @@ ds.cds = function(method = "t")
 			 multiple = TRUE)
 	insertUI(selector = "#key_div_cds_table",
 			 ui = tags$div(id = "cds_table",
-			 			  tags$p(paste0("Сравнение зависимых выборок с помощью ", method_title)),
+			 			  tags$p(glue("Сравнение зависимых выборок с помощью {method_title}")),
 			 			  tableOutput("cds_result_table")))
 	insertUI(selector = "#key_div_cds_plots",
 			 ui = tags$div(id = "cds_plots"))
@@ -37,7 +37,7 @@ ds.cds = function(method = "t")
 	new_data = custom.melt(in_data, n_measures)
 	measure = new_data[[1]]
 	new_data = new_data[-1]
-	colname = lapply(1:n_measures, function(x) paste0(method_agg, " по замеру #", x))
+	colname = lapply(1:n_measures, function(n) glue("{method_agg} по замеру #{n}"))
 	table_names = list(data_names, c(colname, c(method, "p", "Различия")))
 	out_data = matrix(nrow = num_vars, ncol = length(table_names[[2]]), dimnames = table_names)
 

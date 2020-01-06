@@ -3,13 +3,13 @@ ds.correlations = function(method)
 	# Prepare UI
 	removeUI(selector = "div[id^=corr_]",
 			 multiple = TRUE)
-	ending = switch(method,
+	method_title = switch(method,
 					"spearman" = "критерию Спирмена",
 					"kendall" = "критерию Кендалла",
 					"pearson" = "критерию Пирсона")
 	insertUI(selector = "#key_div_corr_tables",
 			 ui = tags$div(id = "corr_tables",
-			 			  tags$p(paste0("Коэффициенты корреляции по ", ending)),
+			 			  tags$p(glue("Коэффициенты корреляции по {method_title}")),
 			 			  tableOutput("corr_table_r"),
 			 			  tags$p("p-значения для корреляций"),
 			 			  tableOutput("corr_table_p")))

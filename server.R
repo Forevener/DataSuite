@@ -1,4 +1,6 @@
+# TODO: Various import formats
 shinyServer(function(input, output, session) {
+	# Embed separate files
 	source("functions_layout.R", encoding = "utf-8", local = TRUE)
 	source("descriptives.R", encoding = "utf-8", local = TRUE)
 	source("distribution.R", encoding = "utf-8", local = TRUE)
@@ -10,6 +12,9 @@ shinyServer(function(input, output, session) {
 	source("cluster.R", encoding = "utf-8", local = TRUE)
 	source("manova.R", encoding = "utf-8", local = TRUE)
 	source("regression.R", encoding = "utf-8", local = TRUE)
+
+	# Where are we running?
+	isServer = nzchar(Sys.getenv("SHINY_PORT"))
 
 	enc = reactive({input$file_encoding})
 	indep_var_ctis = reactive({input$si_var_ctis})
@@ -39,16 +44,30 @@ shinyServer(function(input, output, session) {
 
 	output$data_info = renderText({
 		if (!is.null(base_data()))
+		{
+			selected_cols = length(included_vars())
+			total_cols = ncol(base_data())
+			selected_rows = length(input$in_table_rows_all)
+			total_rows = nrow(base_data())
+
 			paste0(
-				"Количество переменных: ", length(included_vars()),
-				" из ", ncol(base_data()),
-				"\r\nКоличество испытуемых: ", length(input$in_table_rows_all),
-				" из ", nrow(base_data())
+				glue("Количество переменных: {selected_cols} из {total_cols}"), "\r\n",
+				glue("Количество испытуемых: {selected_rows} из {total_rows}")
 			)
+		}
 	})
 
 	base_data = reactiveVal()
 	base_names = reactiveVal()
+
+	output$additionalItems = renderUI({
+		if (!isServer)
+			tagList(
+				"Debug options:",
+				actionLink("ab_debug_browser", "browser()")
+				# prettyRadioButtons("rb_error_action", "action on error", choices = c("NULL", "recover", "browser"))
+			)
+	})
 
 	observeEvent(session$clientData, {
 		query = parseQueryString(session$clientData$url_search)
@@ -60,7 +79,7 @@ shinyServer(function(input, output, session) {
 
 		if (is.null(in_file))
 			return(NULL)
-# TODO: Various import formats
+
 		temp_data = xlsx::read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc())
 		temp_names = colnames(xlsx::read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc(), rowIndex = c(1, 2), check.names = FALSE))
 
@@ -88,7 +107,7 @@ shinyServer(function(input, output, session) {
 			}
 		}
 		if (e_cols > 0)
-			showNotification(paste0("Удалено пустых столбцов: ", e_cols))
+			showNotification(glue("Удалено пустых столбцов: {e_cols}"))
 
 		# Removing empty rows
 		index = 1
@@ -108,7 +127,7 @@ shinyServer(function(input, output, session) {
 			}
 		}
 		if (e_rows > 0)
-			showNotification(paste0("Удалено пустых строк: ", e_rows))
+			showNotification(glue("Удалено пустых строк: {e_rows}"))
 
 		updatePickerInput(session, "si_include_vars", choices = selections, selected = selections)
 		base_data(temp_data)
@@ -176,42 +195,42 @@ shinyServer(function(input, output, session) {
 	})
 
 	observeEvent(input$ab_waldwolfowitz, {
-		if (indep_var_ctis() == "0")
+		if (is.null(indep_var_ctis()))
 			showNotification("Нет подходящих независимых переменных для данного вида анализа", type = "error")
 		else
 			ds.execute(ds.cis("Z"), "div[class^=cis_box_b", "div[class^=cis_box_a")
 	})
 
 	observeEvent(input$ab_kolmogorovsmirnov, {
-		if (indep_var_ctis() == "0")
+		if (is.null(indep_var_ctis()))
 			showNotification("Нет подходящих независимых переменных для данного вида анализа", type = "error")
 		else
 			ds.execute(ds.cis("D"), "div[class^=cis_box_b", "div[class^=cis_box_a")
 	})
 
 	observeEvent(input$ab_mannwhitney, {
-		if (indep_var_ctis() == "0")
+		if (is.null(indep_var_ctis()))
 			showNotification("Нет подходящих независимых переменных для данного вида анализа", type = "error")
 		else
 			ds.execute(ds.cis("U"), "div[class^=cis_box_b", "div[class^=cis_box_a")
 	})
 
 	observeEvent(input$ab_ttestindependent, {
-		if (indep_var_ctis() == "0")
+		if (is.null(indep_var_ctis()))
 			showNotification("Нет подходящих независимых переменных для данного вида анализа", type = "error")
 		else
 			ds.execute(ds.cis("t"), "div[class^=cis_box_b", "div[class^=cis_box_a")
 	})
 
 	observeEvent(input$ab_kruskallwallis, {
-		if (indep_var_cmis() == "0")
+		if (is.null(indep_var_cmis()))
 			showNotification("Не выбрана независимая переменная!", type = "error")
 		else
 			ds.execute(ds.cis("H"), showSelector = "div[class^=cis_box")
 	})
 
 	observeEvent(input$ab_welch, {
-		if (indep_var_cmis() == "0")
+		if (is.null(indep_var_cmis()))
 			showNotification("Не выбрана независимая переменная!", type = "error")
 		else
 			ds.execute(ds.cis("F"), showSelector = "div[class^=cis_box")
@@ -267,7 +286,10 @@ shinyServer(function(input, output, session) {
 	})
 
 	observeEvent(input$ab_cor_spearman, {
-		ds.execute(ds.correlations("spearman"), showSelector = "div[class^=corr_box")
+		if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1))
+			showNotification("Не выбраны переменные для анализа", type = "warning")
+		else
+			ds.execute(ds.correlations("spearman"), showSelector = "div[class^=corr_box")
 	})
 
 	observeEvent(input$ab_reliability, {
@@ -300,4 +322,18 @@ shinyServer(function(input, output, session) {
 	observeEvent(input$ab_regression, {
 		ds.execute(ds.regression(optimize_glm()), showSelector = "div[class^=regression_box")
 	})
+
+	# Debug options
+	observeEvent(input$ab_debug_browser, {
+		browser()
+	})
+
+	# observeEvent(input$rb_error_action, {
+	# 	if (input$rb_error_action == "NULL")
+	# 		action = NULL
+	# 	else
+	# 		action = sym(input$rb_error_action)
+	#
+	# 	options(shiny.error = action)
+	# })
 })

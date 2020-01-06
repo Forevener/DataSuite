@@ -18,22 +18,22 @@ ds.screeplot = function()
 	in_data = check.data(get_data())$data
 
 	# Perform parallel analysis, consider method, extract output
-	info = gsub("[^0-9]", "", capture.output({
+	pa_recommendation = gsub("[^0-9]", "", capture.output({
 		if (factoring_method() == "pc")
 		{
 			model = fa.parallel(in_data, plot = FALSE, fa = "pc")
 			plot_data = fa.plot.data(model$pc.values, model$pc.sim, model$pc.simr)
 			axis_label = "Компоненты"
-			summary_end = "компонентов: "
-			recommendation = length(Filter(function(x) {x > 1.0}, model$pc.values))
+			type = "компонентов: "
+			kt_recommendation = length(Filter(function(x) {x > 1.0}, model$pc.values))
 		}
 		else
 		{
 			model = fa.parallel(in_data, plot = FALSE, fm = factoring_method(), fa = "fa")
 			plot_data = fa.plot.data(model$fa.values, model$fa.sim, model$fa.simr)
 			axis_label = "Факторы"
-			summary_end = "факторов: "
-			recommendation = length(Filter(function(x) {x > 1.0}, model$fa.values))
+			type = "факторов: "
+			kt_recommendation = length(Filter(function(x) {x > 1.0}, model$fa.values))
 		}
 	}))
 
@@ -41,8 +41,8 @@ ds.screeplot = function()
 	output[["fa_plot"]] = renderCachedPlot({
 		scree.ggplot(plot_data, axis_label)
 	}, cacheKeyExpr = plot_data)
-	output[["fa_text_1"]] = renderText(paste0("По критерию параллельного анализа рекомендуется выбрать ", summary_end, info))
-	output[["fa_text_2"]] = renderText(paste0("По критерию Кайзера рекомендуется выбрать ", summary_end, recommendation))
+	output[["fa_text_1"]] = renderText(glue("По критерию параллельного анализа рекомендуется выбрать {type}: {pa_recommendation}"))
+	output[["fa_text_2"]] = renderText(glue("По критерию Кайзера рекомендуется выбрать {type}: {kt_recommendation}"))
 	# No reactivity for the following output
 	rot = factor_rotation()
 	met = factoring_method()
@@ -85,13 +85,16 @@ ds.factoranalysis = function()
 
 	# Calculate model quality
 	s = fa.stats(in_data, model)
-	summary_text = paste0("Корень квадратов остатков: ", ifelse(is.null(s$rms), 0, round(s$rms, 4)),
-						  "\r\nКорень среднего квадрата ошибки аппроксимации: ", ifelse(is.null(s$RMSEA[[1]]), 0, round(s$RMSEA[[1]], 4)),
-						  "\r\nИндекс Такера-Льюиса: ", ifelse(is.null(s$TLI), 0, round(s$TLI, 4)))
+	summary_text = paste0("Корень квадратов остатков: ", ifelse(is.null(s$rms), 0, round(s$rms, 4)), "\r\n",
+						  "Корень среднего квадрата ошибки аппроксимации: ", ifelse(is.null(s$RMSEA[[1]]), 0, round(s$RMSEA[[1]], 4)), "\r\n",
+						  "Индекс Такера-Льюиса: ", ifelse(is.null(s$TLI), 0, round(s$TLI, 4)))
 
 	# Pretty names for factors
-	factor_names = lapply(1:length(model$R2), function (x) {
-		paste0("Фактор ", x)
+	factor_names = lapply(1:length(model$R2), function (n) {
+		if (factoring_method() == "pc")
+			glue("Компонент {n}")
+		else
+			glue("Фактор {n}")
 	})
 
 	# Prepare main loadings table

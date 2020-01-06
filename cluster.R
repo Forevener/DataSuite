@@ -1,4 +1,4 @@
-# TODO: Rework, separate hierarchical and kmeans clustering, and possibly more methods
+# TODO: Rework, separate hierarchical and kmeans clustering, and possibly more methods; Various export formats
 ds.dendro = function()
 {
 	# Prepare UI
@@ -130,7 +130,7 @@ ds.clusteranalysis = function()
 	output[["table_1_Q"]] = renderTable(tableC, rownames = TRUE, digits = 4)
 	output[["dlClusteringData"]] = downloadHandler(
 		filename = function() {
-			paste0("Данные кластеризации ", Sys.Date(), ".xlsx") # TODO: Various export formats
+			paste0("Данные кластеризации ", format(Sys.time(), "%Y-%m-%d %H-%M-%S"), ".xlsx")
 		},
 		content = function(file) {
 			xlsx::write.xlsx(out_data, file)

@@ -15,7 +15,7 @@ ds.cis = function(method = "t")
 			 multiple = TRUE)
 	insertUI(selector = "#key_div_cis_table",
 			 ui = tags$div(id = "cis_table",
-			 			  tags$p(paste0("Сравнение независимых выборок с помощью ", method_title)),
+			 			  tags$p(glue("Сравнение независимых выборок с помощью {method_title}")),
 			 			  tableOutput("cis_result_table")))
 	insertUI(selector = "#key_div_cis_plots",
 			 ui = tags$div(id = "cis_plots"))

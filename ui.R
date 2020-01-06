@@ -14,7 +14,8 @@ shinyUI(
                        menuItem("Факторный анализ", tabName = "factor"),
                        menuItem("Кластерный анализ", tabName = "cluster"),
                        menuItem("МФ-дисперсионный анализ", tabName = "manova"),
-                       menuItem("Регрессионный анализ", tabName = "regression")
+                       menuItem("Регрессионный анализ", tabName = "regression"),
+                       uiOutput("additionalItems")
                      )
     ),
     dashboardBody(
@@ -56,14 +57,14 @@ shinyUI(
         ),
         tabItem("comparison_IS",
                 hidden.box(title = "Две выборки",
-                           selectInput("si_var_ctis", h5("Независимая переменная"), choices = NULL),
+                           ds.picker("si_var_ctis", "Независимая переменная"),
                            actionButton("ab_mannwhitney", "U-критерий Манна-Уитни"),
                            actionButton("ab_waldwolfowitz", "Z-критерий Уалда-Вольфовица"),
                            actionButton("ab_kolmogorovsmirnov", "D-критерий Колмогорова-Смирнова"),
                            actionButton("ab_ttestindependent", "t-критерий Стьюдента")
                 ),
                 hidden.box(title = "Несколько выборок",
-                           selectInput("si_var_cmis", h5("Независимая переменная"), choices = NULL),
+                           ds.picker("si_var_cmis", "Независимая переменная"),
                            actionButton("ab_kruskallwallis", "H-критерий Краскела-Уоллиса"),
                            actionButton("ab_welch", "F-критерий Уэлча")
                 ),
