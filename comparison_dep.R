@@ -41,7 +41,7 @@ ds.cds <- function(method = "t") {
   }
 
   # Excluding non-numeric variables could lead to unpredictable results - so it's better to just throw an error and let user check the data manually
-  if (length(check.data(get_data(), get_names())$cols) < ncol(get_data())) {
+  if (length(check_data(get_data(), get_names())$cols) < ncol(get_data())) {
     stop(i18n$t("Были обнаружены нечисловые переменные. Сравнение выборок отменено, рекомендуется внимательно проверить и убрать лишние столбцы из анализа."))
   }
 
@@ -51,7 +51,7 @@ ds.cds <- function(method = "t") {
   num_vars <- ncol(in_data) / n_measures
   data_names <- get_names()[1:num_vars]
 
-  new_data <- custom.melt(in_data, n_measures)
+  new_data <- custom_melt(in_data, n_measures)
   measure <- new_data[[1]]
   new_data <- new_data[-1]
   colname <- lapply(1:n_measures, function(n) glue(i18n$t("{method_agg} по замеру #{n}")))
@@ -75,7 +75,7 @@ ds.cds <- function(method = "t") {
       out_data[index, y] <<- sprintf(round(aggs[y, 2], 2), fmt = "%#.2f")
     }
     out_data[index, y + 1] <<- sprintf(round(result$statistic[[1]], 3), fmt = "%#.3f")
-    out_data[index, y + 2] <<- strong.p(result$p.value, 0.05)
+    out_data[index, y + 2] <<- strong_p(result$p.value, 0.05)
     out_data[index, y + 3] <<- ifelse(result$p.value > 0.05, i18n$t("Отсутствуют"), i18n$t("Присутствуют"))
 
     if (multiple) {
@@ -84,7 +84,7 @@ ds.cds <- function(method = "t") {
         "F" = pairwise.t.test(new_data[[index]], measure, p.adjust.method = "BH", paired = TRUE, na.rm = TRUE)$p.value,
         "Q" = pairwise.wilcox.test(new_data[[index]], measure, p.adjust.method = "BH", paired = TRUE, na.rm = TRUE)$p.value
       )
-      pwc[] <- strong.p(pwc, 0.05)
+      pwc[] <- strong_p(pwc, 0.05)
 
       # Prepare and render detailed tables
       nt <- paste0("cds_table_", index)

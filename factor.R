@@ -20,13 +20,13 @@ ds.screeplot <- function() {
   )
 
   # Retrieve data
-  in_data <- check.data(get_data())$data
+  in_data <- check_data(get_data())$data
 
   # Perform parallel analysis, consider method, extract output
   pa_recommendation <- gsub("[^0-9]", "", capture.output({
     if (factoring_method() == "pc") {
       model <- fa.parallel(in_data, plot = FALSE, fa = "pc")
-      plot_data <- fa.plot.data(model$pc.values, model$pc.sim, model$pc.simr)
+      plot_data <- compose_fa_plot_data(model$pc.values, model$pc.sim, model$pc.simr)
       axis_label <- i18n$t("Компоненты")
       type <- i18n$t("компонентов")
       kt_recommendation <- length(Filter(function(x) {
@@ -34,7 +34,7 @@ ds.screeplot <- function() {
       }, model$pc.values))
     } else {
       model <- fa.parallel(in_data, plot = FALSE, fm = factoring_method(), fa = "fa")
-      plot_data <- fa.plot.data(model$fa.values, model$fa.sim, model$fa.simr)
+      plot_data <- compose_fa_plot_data(model$fa.values, model$fa.sim, model$fa.simr)
       axis_label <- i18n$t("Факторы")
       type <- i18n$t("факторов")
       kt_recommendation <- length(Filter(function(x) {
@@ -46,7 +46,7 @@ ds.screeplot <- function() {
   # Render UI
   output[["fa_plot"]] <- renderCachedPlot(
     {
-      scree.ggplot(plot_data, axis_label)
+      build_scree_ggplot(plot_data, axis_label)
     },
     cacheKeyExpr = plot_data
   )
@@ -95,7 +95,7 @@ ds.factoranalysis <- function() {
   )
 
   # Retrieve data and set original names
-  valid_data <- check.data(get_data())
+  valid_data <- check_data(get_data())
   in_data <- valid_data$data
   colnames(in_data) <- valid_data$names
 
@@ -151,7 +151,7 @@ ds.factoranalysis <- function() {
   }
 
   # Prepare data for plots
-  plot_data <- custom.melt(result, length(model$R2))
+  plot_data <- custom_melt(result, length(model$R2))
   colnames(plot_data) <- c(i18n$t("Фактор"), i18n$t("Нагрузка"))
   plot_data[is.na(plot_data)] <- 0
   plot_data[[i18n$t("Переменная")]] <- factor(sapply(rownames(result), function(x) {

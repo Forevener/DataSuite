@@ -47,13 +47,13 @@ ds.manova <- function() {
 
       # Effects table
       tableA <- summary(model)[[1]]
-      tableA[[5]] <- strong.p(tableA[[5]], 0.05)
+      tableA[[5]] <- strong_p(tableA[[5]], 0.05)
       colnames(tableA) <- c(i18n$t("Степени свободы"), i18n$t("Сумма квадратов"), i18n$t("Среднее квадратов"), "F", "p")
       rownames(tableA) <- sub("Residuals", i18n$t("Остаток"), rownames(tableA), fixed = TRUE)
 
       # Pairwise comparisons table
       tableB <- as.data.frame(last(TukeyHSD(model))[[1]])
-      tableB[[4]] <- strong.p(tableB[[4]], 0.05)
+      tableB[[4]] <- strong_p(tableB[[4]], 0.05)
       colnames(tableB) <- c(i18n$t("Разница средних"), i18n$t("Нижняя граница интервала"), i18n$t("Верхняя граница интервала"), i18n$t("Корректированный p"))
 
       # Adding the UI elements

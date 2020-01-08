@@ -1,4 +1,4 @@
-fill.dropdowns <- function() {
+fill_inputs <- function() {
   in_data <- get_data()
   data_names <- get_names()
   num_vars <- ncol(in_data)
@@ -29,31 +29,23 @@ fill.dropdowns <- function() {
   updateNumericInput(session, "clusters_number", max = nrow(na.omit(get_data())))
 }
 
-clear.ui <- function() {
-  removeUI(
-    selector = "div[id^='tab3_table']",
-    multiple = TRUE
-  )
-  removeUI(
-    selector = "div[id^='tab4_plot']",
-    multiple = TRUE
-  )
-  output$out_table <- renderTable(NULL)
+clear_ui <- function() {
+  hide(selector = "div[class*=_box")
 }
 
-disable.all <- function(elements) {
+disable_all <- function(elements) {
   lapply(elements, function(x) {
     disable(x)
   })
 }
 
-enable.all <- function(elements) {
+enable_all <- function(elements) {
   lapply(elements, function(x) {
     enable(x)
   })
 }
 
-ds.execute <- function(func, hideSelector = NULL, showSelector = NULL) {
+ds_execute <- function(func, hideSelector = NULL, showSelector = NULL) {
   if (!is.null(hideSelector)) {
     hide(selector = hideSelector)
   }
@@ -61,8 +53,8 @@ ds.execute <- function(func, hideSelector = NULL, showSelector = NULL) {
     show(selector = showSelector)
   }
   inputs <- names(input)
-  disable.all(inputs)
-  if (isLocal && input$ps_handle_errors) {
+  disable_all(inputs)
+  if (!isLocal || input$ps_handle_errors) {
     result <- try(func)
 
     if (any(class(result) == "try-error")) {
@@ -78,10 +70,10 @@ ds.execute <- function(func, hideSelector = NULL, showSelector = NULL) {
   else
     func
 
-  enable.all(inputs)
+  enable_all(inputs)
 }
 
-check.data <- function(in_data, data_names = NULL, num = TRUE, nas = FALSE) {
+check_data <- function(in_data, data_names = NULL, num = TRUE, nas = FALSE) {
   result <- ""
   valid_cols <- c(1:ncol(in_data))
   valid_rows <- c(1:nrow(in_data))
@@ -154,7 +146,7 @@ check.data <- function(in_data, data_names = NULL, num = TRUE, nas = FALSE) {
   return(list("data" = in_data[valid_rows, valid_cols], "names" = data_names[valid_cols], "cols" = valid_cols, "rows" = valid_rows))
 }
 
-fa.plot.data <- function(real, simulated, resampled) {
+compose_fa_plot_data <- function(real, simulated, resampled) {
   factors <- length(real)
   series <- 1:factors
 
@@ -177,7 +169,7 @@ fa.plot.data <- function(real, simulated, resampled) {
   return(data.frame(plot_data))
 }
 
-scree.ggplot <- function(plot_data, axis.title = i18n$t("Факторы")) {
+build_scree_ggplot <- function(plot_data, axis.title = i18n$t("Факторы")) {
   ggplot(data = plot_data, aes(!!sym(i18n$t("Фактор")), !!sym(i18n$t("СобственноеЗначение")), colour = !!sym(i18n$t("Категория")), linetype = !!sym(i18n$t("Категория")))) +
     geom_line() +
     geom_hline(yintercept = 1) +

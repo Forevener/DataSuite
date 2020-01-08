@@ -1,4 +1,4 @@
-custom.melt <- function(dataset, times) {
+custom_melt <- function(dataset, times) {
   repeats <- as.integer(times)
   if (is.integer(repeats)) {
     rows <- nrow(dataset)
@@ -40,7 +40,7 @@ last <- function(x) {
   return(x[length(x)])
 }
 
-strong.p <- function(data, level) {
+strong_p <- function(data, level) {
   sapply(data, function(x) {
     if (!is.na(x) && is.numeric(x)) {
       if (x <= level) {

@@ -46,7 +46,7 @@ ds.cis <- function(method = "t") {
   if (!is.factor(ind_var)) {
     ind_var <- factor(ind_var)
   }
-  valid_data <- check.data(get_data()[-ind_var_i], get_names()[-ind_var_i])
+  valid_data <- check_data(get_data()[-ind_var_i], get_names()[-ind_var_i])
   in_data <- valid_data$data
   data_names <- valid_data$names
 
@@ -83,7 +83,7 @@ ds.cis <- function(method = "t") {
         "F" = pairwise.t.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value,
         "H" = pairwise.wilcox.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value
       )
-      pwc[] <- strong.p(pwc, 0.05)
+      pwc[] <- strong_p(pwc, 0.05)
 
       # Prepare and render detailed tables
       nt <- paste0("cis_table_", index)

@@ -11,7 +11,7 @@ ds.descriptives <- function(method = "parametric") {
   )
 
   # Retrieve valid data and save original names
-  valid_data <- check.data(get_data())
+  valid_data <- check_data(get_data())
   in_data <- data.matrix(valid_data$data)
   data_names <- valid_data$names
 

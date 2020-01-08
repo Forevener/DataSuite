@@ -1,4 +1,4 @@
-ds.picker <<- function(id, label = NULL, multiSelect = FALSE, actionsBox = FALSE) {
+ds_picker <- function(id, label = NULL, multiSelect = FALSE, actionsBox = FALSE) {
   pickerInput(
     inputId = id,
     label = label,
@@ -17,6 +17,6 @@ ds.picker <<- function(id, label = NULL, multiSelect = FALSE, actionsBox = FALSE
   )
 }
 
-hidden.box <- function(..., class = "hidden_div", id = NULL) {
+hidden_box <- function(..., class = "hidden_div", id = NULL) {
   return(hidden(div(id = id, class = class, box(...))))
 }

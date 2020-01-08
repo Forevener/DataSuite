@@ -137,7 +137,7 @@ shinyServer(function(input, output, session) {
     }
 
     temp_data <- readxl::read_excel(in_file$datapath)
-    temp_data <- janitor::remove_empty(temp_data)
+    temp_data <- janitor::remove_empty(temp_data, c("rows", "cols"))
     temp_names <- colnames(temp_data)
     colnames(temp_data) = janitor::make_clean_names(temp_names, case = "none")
     cat(file = stderr(), paste0("File structure: ", capture.output(str(temp_data)), "\r\n")) # USER TESTING TRACING
@@ -148,11 +148,10 @@ shinyServer(function(input, output, session) {
     base_data(temp_data)
     base_names(temp_names)
 
-    # Clear all previous results
-    # clear.ui()
+    clear_ui()
 
     output$in_table <- renderDT(base_data(), filter = list(position = "top"), options = list(language = list(url = glue("//cdn.datatables.net/plug-ins/1.10.11/i18n/{i18n$translation_language}.json"))))
-    show("data_box")
+    show("databox")
     showNotification(i18n$t("Файл успешно загружен!"), type = "message")
   })
 
@@ -163,7 +162,7 @@ shinyServer(function(input, output, session) {
           in_data <- get_data()
 
           if (nrow(in_data) > 0 && ncol(in_data) > 0) {
-            fill.dropdowns()
+            fill_inputs()
             show(selector = "div.hidden_div")
             ui_ready <<- TRUE
           }
@@ -183,30 +182,30 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_parametric_desc, {
-    ds.execute(ds.descriptives("parametric"), showSelector = "div[class^=desc_box")
+    ds_execute(ds.descriptives("parametric"), showSelector = "div[class^=desc_box")
   })
 
   observeEvent(input$ab_nonparametric_desc, {
-    ds.execute(ds.descriptives("nonparametric"), showSelector = "div[class^=desc_box")
+    ds_execute(ds.descriptives("nonparametric"), showSelector = "div[class^=desc_box")
   })
 
   observeEvent(input$ab_frequency_tables, {
-    ds.execute(ds.frequencytables(), showSelector = "div[class^=dist_box")
+    ds_execute(ds.frequencytables(), showSelector = "div[class^=dist_box")
   })
 
   observeEvent(input$ab_distplots, {
-    ds.execute(ds.distributionplots(), showSelector = "div[class^=dist_box")
+    ds_execute(ds.distributionplots(), showSelector = "div[class^=dist_box")
   })
 
   observeEvent(input$ab_shapirowilk, {
-    ds.execute(ds.shapirowilk(), showSelector = "div[class^=dist_box")
+    ds_execute(ds.shapirowilk(), showSelector = "div[class^=dist_box")
   })
 
   observeEvent(input$ab_waldwolfowitz, {
     if (is.null(indep_var_ctis())) {
       showNotification(i18n$t("Нет подходящих независимых переменных для данного вида анализа"), type = "error")
     } else {
-      ds.execute(ds.cis("Z"), "div[class^=cis_box_b", "div[class^=cis_box_a")
+      ds_execute(ds.cis("Z"), "div[class^=cis_box_b", "div[class^=cis_box_a")
     }
   })
 
@@ -214,7 +213,7 @@ shinyServer(function(input, output, session) {
     if (is.null(indep_var_ctis())) {
       showNotification(i18n$t("Нет подходящих независимых переменных для данного вида анализа"), type = "error")
     } else {
-      ds.execute(ds.cis("D"), "div[class^=cis_box_b", "div[class^=cis_box_a")
+      ds_execute(ds.cis("D"), "div[class^=cis_box_b", "div[class^=cis_box_a")
     }
   })
 
@@ -222,7 +221,7 @@ shinyServer(function(input, output, session) {
     if (is.null(indep_var_ctis())) {
       showNotification(i18n$t("Нет подходящих независимых переменных для данного вида анализа"), type = "error")
     } else {
-      ds.execute(ds.cis("U"), "div[class^=cis_box_b", "div[class^=cis_box_a")
+      ds_execute(ds.cis("U"), "div[class^=cis_box_b", "div[class^=cis_box_a")
     }
   })
 
@@ -230,7 +229,7 @@ shinyServer(function(input, output, session) {
     if (is.null(indep_var_ctis())) {
       showNotification(i18n$t("Нет подходящих независимых переменных для данного вида анализа"), type = "error")
     } else {
-      ds.execute(ds.cis("t"), "div[class^=cis_box_b", "div[class^=cis_box_a")
+      ds_execute(ds.cis("t"), "div[class^=cis_box_b", "div[class^=cis_box_a")
     }
   })
 
@@ -238,7 +237,7 @@ shinyServer(function(input, output, session) {
     if (is.null(indep_var_cmis())) {
       showNotification(i18n$t("Не выбрана независимая переменная!"), type = "error")
     } else {
-      ds.execute(ds.cis("H"), showSelector = "div[class^=cis_box")
+      ds_execute(ds.cis("H"), showSelector = "div[class^=cis_box")
     }
   })
 
@@ -246,7 +245,7 @@ shinyServer(function(input, output, session) {
     if (is.null(indep_var_cmis())) {
       showNotification(i18n$t("Не выбрана независимая переменная!"), type = "error")
     } else {
-      ds.execute(ds.cis("F"), showSelector = "div[class^=cis_box")
+      ds_execute(ds.cis("F"), showSelector = "div[class^=cis_box")
     }
   })
 
@@ -254,7 +253,7 @@ shinyServer(function(input, output, session) {
     if (ncol(get_data()) %% 2 != 0) {
       showNotification(i18n$t("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних"), type = "error")
     } else {
-      ds.execute(ds.cds("t"), "div[class^=cds_box_b", "div[class^=cds_box_a")
+      ds_execute(ds.cds("t"), "div[class^=cds_box_b", "div[class^=cds_box_a")
     }
   })
 
@@ -262,7 +261,7 @@ shinyServer(function(input, output, session) {
     if (ncol(get_data()) %% 2 != 0) {
       showNotification(i18n$t("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних"), type = "error")
     } else {
-      ds.execute(ds.cds("Z"), "div[class^=cds_box_b", "div[class^=cds_box_a")
+      ds_execute(ds.cds("Z"), "div[class^=cds_box_b", "div[class^=cds_box_a")
     }
   })
 
@@ -270,7 +269,7 @@ shinyServer(function(input, output, session) {
     if (ncol(get_data()) %% 2 != 0) {
       showNotification(i18n$t("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних"), type = "error")
     } else {
-      ds.execute(ds.cds("W"), "div[class^=cds_box_b", "div[class^=cds_box_a")
+      ds_execute(ds.cds("W"), "div[class^=cds_box_b", "div[class^=cds_box_a")
     }
   })
 
@@ -278,7 +277,7 @@ shinyServer(function(input, output, session) {
     if (ncol(get_data()) %% strtoi(measures_input()) != 0) {
       showNotification(i18n$t("Количество столбцов не делится на количество замеров - проверьте наличие нужных данных и отсутствие лишних"), type = "error")
     } else {
-      ds.execute(ds.cds("Q"), showSelector = "div[class^=cds_box")
+      ds_execute(ds.cds("Q"), showSelector = "div[class^=cds_box")
     }
   })
 
@@ -286,7 +285,7 @@ shinyServer(function(input, output, session) {
     if (ncol(get_data()) %% strtoi(measures_input()) != 0) {
       showNotification(i18n$t("Количество столбцов не делится на количество замеров - проверьте наличие нужных данных и отсутствие лишних"), type = "error")
     } else {
-      ds.execute(ds.cds("F"), showSelector = "div[class^=cds_box")
+      ds_execute(ds.cds("F"), showSelector = "div[class^=cds_box")
     }
   })
 
@@ -294,7 +293,7 @@ shinyServer(function(input, output, session) {
     if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1)) {
       showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
     } else {
-      ds.execute(ds.correlations("pearson"), showSelector = "div[class^=corr_box")
+      ds_execute(ds.correlations("pearson"), showSelector = "div[class^=corr_box")
     }
   })
 
@@ -302,7 +301,7 @@ shinyServer(function(input, output, session) {
     if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1)) {
       showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
     } else {
-      ds.execute(ds.correlations("kendall"), showSelector = "div[class^=corr_box")
+      ds_execute(ds.correlations("kendall"), showSelector = "div[class^=corr_box")
     }
   })
 
@@ -310,35 +309,35 @@ shinyServer(function(input, output, session) {
     if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1)) {
       showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
     } else {
-      ds.execute(ds.correlations("spearman"), showSelector = "div[class^=corr_box")
+      ds_execute(ds.correlations("spearman"), showSelector = "div[class^=corr_box")
     }
   })
 
   observeEvent(input$ab_reliability, {
-    ds.execute(ds.reliability(), showSelector = "div[class^=reli_box")
+    ds_execute(ds.reliability(), showSelector = "div[class^=reli_box")
   })
 
   observeEvent(input$ab_screeplot, {
-    ds.execute(ds.screeplot(), "div[class^=fa_box]", "div[class^=fa_box_a]")
+    ds_execute(ds.screeplot(), "div[class^=fa_box]", "div[class^=fa_box_a]")
   })
 
   observeEvent(input$ab_factoranalysis, {
-    ds.execute(ds.factoranalysis(), showSelector = "div[class^=fa_box]")
+    ds_execute(ds.factoranalysis(), showSelector = "div[class^=fa_box]")
   })
 
   observeEvent(input$ab_dendro, {
-    ds.execute(ds.dendro(), showSelector = "div[class^=clust_box]")
+    ds_execute(ds.dendro(), showSelector = "div[class^=clust_box]")
   })
 
   observeEvent(input$ab_clustering, {
-    ds.execute(ds.clusteranalysis(), showSelector = "div[class^=clust_box]")
+    ds_execute(ds.clusteranalysis(), showSelector = "div[class^=clust_box]")
   })
 
   observeEvent(input$ab_manova, {
     if (length(indep_vars_css()) < 2) {
       showNotification(i18n$t("Не выбрано достаточно независимых переменных!"), type = "error")
     } else {
-      ds.execute(ds.manova(), showSelector = "div[class^=manova_box")
+      ds_execute(ds.manova(), showSelector = "div[class^=manova_box")
     }
   })
 
@@ -346,7 +345,7 @@ shinyServer(function(input, output, session) {
     if (length(indep_vars_reg()) < 1) {
       showNotification(i18n$t("Не выбраны независимые переменные!"), type = "error")
     } else {
-        ds.execute(ds.regression(optimize_glm()), showSelector = "div[class^=regression_box")
+        ds_execute(ds.regression(optimize_glm()), showSelector = "div[class^=regression_box")
     }
   })
 

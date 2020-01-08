@@ -14,7 +14,7 @@ ds.reliability <- function() {
   )
 
   # Filter numeric valid data
-  in_data <- check.data(get_data(), nas = TRUE)$data
+  in_data <- check_data(get_data(), nas = TRUE)$data
 
   # Calculate Alpha and Omega
   resultA <- psych::alpha(as.data.frame(in_data))

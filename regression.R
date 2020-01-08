@@ -50,7 +50,7 @@ ds.regression <- function(optimal = FALSE) {
 
       # Coefficients table
       tableA <- data.frame(summary(model)$coefficients)
-      tableA[[4]] <- strong.p(tableA[[4]], 0.05)
+      tableA[[4]] <- strong_p(tableA[[4]], 0.05)
       colnames(tableA) <- c(i18n$t("Коэффициент"), i18n$t("Стандартная ошибка"), "t", "p")
 
       # Quality indicators

@@ -116,7 +116,7 @@ ds.shapirowilk <- function() {
   )
 
   # Retrieve the data
-  valid_data <- check.data(get_data())
+  valid_data <- check_data(get_data())
   in_data <- valid_data$data
   data_names <- valid_data$names
 
