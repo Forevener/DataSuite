@@ -58,6 +58,11 @@ shinyServer(function(input, output, session) {
   optimize_glm <- reactive({
     input$cb_optimal_glm
   })
+  observeEvent(input$si_reli_vars, {
+    selections <- data_names[strtoi(input$si_reli_vars)] %isnameof% 1:length(input$si_reli_vars)
+    updatePickerInput(session, "si_reli_reversed_items", choices = selections)
+  })
+
 
   # Data variables
   base_data <- reactiveVal()
@@ -314,7 +319,11 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_reliability, {
-    ds_execute(ds.reliability(), showSelector = "div[class^=reli_box")
+    if (is.null(input$si_reli_vars)) {
+      showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
+    } else {
+      ds_execute(ds.reliability(), showSelector = "div[class^=reli_box")
+    }
   })
 
   observeEvent(input$ab_screeplot, {

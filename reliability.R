@@ -14,11 +14,24 @@ ds.reliability <- function() {
   )
 
   # Filter numeric valid data
-  in_data <- check_data(get_data(), nas = TRUE)$data
+  valid_data <- check_data(get_data()[strtoi(input$si_reli_vars)], nas = TRUE)
+  in_data <- valid_data$data
+  data_names <- valid_data$names
 
   # Calculate Alpha and Omega
-  resultA <- psych::alpha(as.data.frame(in_data))
-  resultO <- psych::omega(in_data, plot = FALSE)
+  if (!is.null(input$si_reli_reversed_items))
+  {
+    reversed_int <- strtoi(input$si_reli_reversed_items)
+    reversed_keys <- rep(1, ncol(in_data))
+    reversed_keys[reversed_int] <- -1
+    resultA <- psych::alpha(as.data.frame(in_data), keys = reversed_keys)
+    resultO <- psych::omega(in_data, plot = FALSE, key = reversed_keys)
+  }
+  else
+  {
+    resultA <- psych::alpha(as.data.frame(in_data))
+    resultO <- psych::omega(in_data, plot = FALSE)
+  }
 
   # Calculate composite reliability from https://www.r-bloggers.com/five-ways-to-calculate-internal-consistency/
   items <- paste0(colnames(in_data), collapse = "+")
@@ -41,6 +54,7 @@ ds.reliability <- function() {
   # Prepare drop table
   tableB <- data.frame(resultA$alpha.drop[c(1, 3)])
   colnames(tableB) <- c(i18n$t("Альфа при отбросе"), i18n$t("Лямбда-6 при отбросе"))
+  rownames(tableB) <- data_names
 
   # Render UI
   output[["reliability_table_1"]] <- renderTable(tableA, rownames = TRUE, digits = 4)

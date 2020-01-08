@@ -3,28 +3,19 @@ fill_inputs <- function() {
   data_names <- get_names()
   num_vars <- ncol(in_data)
 
-  selections_tis <- list()
-  selections_mis <- list()
-  selections_cor <- list()
+  selections_any <- data_names %isnameof% 1:num_vars
+  selections_num <- selections_any[sapply(in_data, is.numeric)]
+  selections_two <- selections_any[sapply(in_data, function(x) {
+    length(levels(as.factor(x))) == 2
+  })]
 
-  for (index in 1:num_vars)
-  {
-    names(index) <- data_names[index]
-    if (length(levels(factor(in_data[[index]]))) == 2) {
-      selections_tis <- append(selections_tis, index)
-    }
-    selections_mis <- append(selections_mis, index)
-    if (is.numeric(in_data[[index]])) {
-      selections_cor <- append(selections_cor, index)
-    }
-  }
-
-  updatePickerInput(session, "si_var_ctis", choices = selections_tis, selected = selections_tis[1])
-  updatePickerInput(session, "si_var_cmis", choices = selections_mis, selected = "")
-  updatePickerInput(session, "si_vars_manova", choices = selections_mis)
-  updatePickerInput(session, "si_vars_regression", choices = selections_mis)
-  updatePickerInput(session, "si_var1_corr", choices = selections_cor)
-  updatePickerInput(session, "si_var2_corr", choices = selections_cor)
+  updatePickerInput(session, "si_var_ctis", choices = selections_two)
+  updatePickerInput(session, "si_var_cmis", choices = selections_any, selected = "")
+  updatePickerInput(session, "si_vars_manova", choices = selections_any)
+  updatePickerInput(session, "si_vars_regression", choices = selections_any)
+  updatePickerInput(session, "si_var1_corr", choices = selections_num)
+  updatePickerInput(session, "si_var2_corr", choices = selections_num)
+  updatePickerInput(session, "si_reli_vars", choices = selections_num)
   updateNumericInput(session, "factors_number", max = ncol(Filter(is.numeric, get_data())))
   updateNumericInput(session, "clusters_number", max = nrow(na.omit(get_data())))
 }

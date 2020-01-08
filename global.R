@@ -1,4 +1,3 @@
-# TODO: Replace glue with safer approach
 library(shiny)
 library(shinyWidgets)
 library(shinydashboard)

@@ -42,10 +42,7 @@ ds.cis <- function(method = "t") {
 
   # Retrieve data, extract independent and dependent variables
   ind_var_i <- strtoi(ifelse(multiple, indep_var_cmis(), indep_var_ctis()))
-  ind_var <- get_data()[[ind_var_i]]
-  if (!is.factor(ind_var)) {
-    ind_var <- factor(ind_var)
-  }
+  ind_var <- as.factor(get_data()[[ind_var_i]])
   valid_data <- check_data(get_data()[-ind_var_i], get_names()[-ind_var_i])
   in_data <- valid_data$data
   data_names <- valid_data$names
@@ -61,13 +58,21 @@ ds.cis <- function(method = "t") {
     # Calculate means/medians and analysis results
     aggs <- aggregate(in_data[[index]], by = list(ind_var), FUN = ifelse(parametric, "mean", "median"), na.rm = TRUE)
     result <- switch(method,
-      "t" = t.test(in_data[[index]] ~ ind_var, data = in_data, na.rm = TRUE),
-      "U" = wilcox.test(in_data[[index]] ~ ind_var, data = in_data, correct = FALSE, na.rm = TRUE, exact = FALSE),
+      "t" = t.test(in_data[[index]] ~ ind_var, na.rm = TRUE),
+      "U" = wilcox.test(in_data[[index]] ~ ind_var, na.rm = TRUE, exact = FALSE),
       "D" = ks.test(in_data[ind_var == levels(ind_var)[1], ][[index]], in_data[ind_var == levels(ind_var)[2], ][[index]], exact = FALSE),
-      "Z" = DescTools::RunsTest(in_data[[index]] ~ ind_var, data = in_data, na.rm = TRUE),
-      "F" = oneway.test(in_data[[index]] ~ ind_var, data = in_data),
-      "H" = kruskal.test(in_data[[index]] ~ ind_var, data = in_data)
+      "Z" = DescTools::RunsTest(in_data[[index]] ~ ind_var, na.rm = TRUE),
+      "F" = oneway.test(in_data[[index]] ~ ind_var),
+      "H" = kruskal.test(in_data[[index]] ~ ind_var)
     )
+
+    # Dirtiest hack for proper U value
+    if (method == "U") {
+      result2 = wilcox.test(in_data[[index]] ~ factor(ind_var, levels = unique(ind_var)), na.rm = TRUE, exact = FALSE)
+      if (result$statistic > result2$statistic) {
+        result = result2
+      }
+    }
 
     # Fill the resulting table
     for (y in 1:length(levels(ind_var))) {

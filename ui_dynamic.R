@@ -25,7 +25,7 @@ output$sdb_body <- renderUI({
       box(
         selectInput("file_encoding", h5(i18n$t("Кодировка файла")), choices = list("UTF-8" = "UTF-8", "Windows 1251" = "windows-1251", "Windows 1252" = "windows-1252"), selected = "UTF-8"),
         helpText(i18n$t("Если текст в таблицах отображается некорректно, выберите другую кодировку и загрузите файл данных заново")),
-        fileInput("upload", label = i18n$t("Загрузить файл данных"))
+        fileInput("upload", label = i18n$t("Загрузить файл данных"), buttonLabel = i18n$t("Обзор"), placeholder = i18n$t("Файл не выбран"), accept = c(".xlsx", ".xls"))
       ),
       box(
         helpText(i18n$t("Если требуется исключить некоторые переменные из анализа (например, группирующие переменные при сравнении зависимых выборок), укажите их в следующем списке")),
@@ -139,6 +139,8 @@ output$sdb_body <- renderUI({
     tabItem(
       "reliability",
       hidden_box(
+        ds_picker("si_reli_vars", i18n$t("Выбор переменных для анализа"), TRUE, TRUE),
+        ds_picker("si_reli_reversed_items", i18n$t("Обратные пункты/шкалы"), TRUE, TRUE),
         actionButton("ab_reliability", i18n$t("Альфа Кронбаха и др."))
       ),
       fluidRow(hidden_box(
