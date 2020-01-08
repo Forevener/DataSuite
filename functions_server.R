@@ -62,18 +62,22 @@ ds.execute <- function(func, hideSelector = NULL, showSelector = NULL) {
   }
   inputs <- names(input)
   disable.all(inputs)
-  # result <- try(func)
-  #
-  # if (any(class(result) == "try-error")) {
-  #   showModal(
-  #     modalDialog(
-  #       title = i18n$t("Ошибка"),
-  #       footer = modalButton(i18n$t("ОК")),
-  #       result
-  #     )
-  #   )
-  # }
-  func
+  if (isLocal && input$ps_handle_errors) {
+    result <- try(func)
+
+    if (any(class(result) == "try-error")) {
+      showModal(
+        modalDialog(
+          title = i18n$t("Ошибка"),
+          footer = modalButton(i18n$t("ОК")),
+          result
+        )
+      )
+    }
+  }
+  else
+    func
+
   enable.all(inputs)
 }
 

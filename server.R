@@ -1,4 +1,4 @@
-# TODO: Various import formats
+# TODO: Various import formats, clearUI()
 shinyServer(function(input, output, session) {
   # Embed separate files
   source("functions_server.R", encoding = "utf-8", local = TRUE)
@@ -70,7 +70,14 @@ shinyServer(function(input, output, session) {
   })
 
   # Where are we running?
-  isServer <- nzchar(Sys.getenv("SHINY_PORT"))
+  isLocal <- !nzchar(Sys.getenv("SHINY_PORT"))
+
+  onSessionStart = isolate({
+    cat(file = stderr(), paste0("Session started: ", session$token, "\r\n")) # USER TESTING TRACING
+  })
+  onSessionEnded(function() {
+    cat(file = stderr(), paste0("Session ended: ", session$token, "\r\n")) # USER TESTING TRACING
+  })
 
   # Internationalization
   i18n <- Translator$new(translation_csvs_path = "./translations")
@@ -111,71 +118,33 @@ shinyServer(function(input, output, session) {
   })
 
   output$additionalItems <- renderUI({
-    if (!isServer) {
+    if (isLocal) {
       tagList(
         "Debug options:",
-        actionLink("ab_debug_browser", "browser()")
+        actionLink("ab_debug_browser", "browser()"),
         # prettyRadioButtons("rb_error_action", "action on error", choices = c("NULL", "recover", "browser"))
+        prettySwitch("ps_handle_errors", "Error handling", value = TRUE, status = "success")
       )
     }
   })
 
   observeEvent(input$upload, {
     in_file <- input$upload
+    cat(file = stderr(), paste0("File uploaded: ", in_file$name, "\r\n")) # USER TESTING TRACING
 
     if (is.null(in_file)) {
       return(NULL)
     }
 
-    temp_data <- xlsx::read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc())
-    temp_names <- colnames(xlsx::read.xlsx(file = in_file$datapath, sheetIndex = 1, header = TRUE, encoding = enc(), rowIndex = c(1, 2), check.names = FALSE))
+    temp_data <- readxl::read_excel(in_file$datapath)
+    temp_data <- janitor::remove_empty(temp_data)
+    temp_names <- colnames(temp_data)
+    colnames(temp_data) = janitor::make_clean_names(temp_names, case = "none")
+    cat(file = stderr(), paste0("File structure: ", capture.output(str(temp_data)), "\r\n")) # USER TESTING TRACING
 
-    selections <- list()
-
-    # Removing empty columns
-    index <- 1
-    e_cols <- 0
-    repeat                {
-      if (index > ncol(temp_data)) {
-        break
-      }
-      if (all(is.na(temp_data[index]))) {
-        temp_data <- temp_data[-index]
-        if (index <= length(temp_names)) {
-          temp_names <- temp_names[-index]
-        }
-        e_cols <- e_cols + 1
-      }
-      else {
-        names(index) <- temp_names[index]
-        selections <- append(selections, index)
-        index <- index + 1
-      }
-    }
-    if (e_cols > 0) {
-      showNotification(glue(i18n$t("Удалено пустых столбцов: {e_cols}")))
-    }
-
-    # Removing empty rows
-    index <- 1
-    e_rows <- 0
-    repeat                {
-      if (index > nrow(temp_data)) {
-        break
-      }
-      if (all(is.na(temp_data[index, ]))) {
-        temp_data <- temp_data[-index, ]
-        e_rows <- e_rows + 1
-      }
-      else {
-        index <- index + 1
-      }
-    }
-    if (e_rows > 0) {
-      showNotification(glue(i18n$t("Удалено пустых строк: {e_rows}")))
-    }
-
+    selections <- temp_names %isnameof% 1:length(temp_names)
     updatePickerInput(session, "si_include_vars", choices = selections, selected = selections)
+
     base_data(temp_data)
     base_names(temp_names)
 
