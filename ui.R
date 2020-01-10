@@ -7,19 +7,26 @@ dashboardPagePlus(
         badgeStatus = NULL,
         prettyRadioButtons(
           "rb_language",
-          NULL,
-          choices = c("English", "Russian")
+          label = NULL,
+          choices = c("English", "Russian"),
+          selected = NULL
         )
       )
     ),
+    enable_rightsidebar = TRUE,
+    rightSidebarIcon = "question-circle",
     title = "Data Suite"
   ),
   dashboardSidebar(
     width = 270,
-    uiOutput("sdb_sidebar")
+    uiOutput("sdb_l_sidebar")
   ),
   dashboardBody(
     useShinyjs(),
+    extendShinyjs("www/ds-cookies.js"),
     uiOutput("sdb_body")
+  ),
+  rightSidebar(
+    .items = uiOutput("sdb_r_sidebar")
   )
 )

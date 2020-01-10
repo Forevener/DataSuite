@@ -58,11 +58,22 @@ shinyServer(function(input, output, session) {
   optimize_glm <- reactive({
     input$cb_optimal_glm
   })
+  current_tab <- reactive({
+    input$sidebar_tabs
+  })
+  observeEvent(input$cookie_lang, {
+    lang = input$cookie_lang
+    if (!any(lang == i18n$languages)) {
+      lang <- "English"
+    }
+
+    updatePrettyRadioButtons(session, "rb_language", selected = lang)
+  })
+
   observeEvent(input$si_reli_vars, {
     selections <- data_names[strtoi(input$si_reli_vars)] %isnameof% 1:length(input$si_reli_vars)
     updatePickerInput(session, "si_reli_reversed_items", choices = selections)
   })
-
 
   # Data variables
   base_data <- reactiveVal()
@@ -90,19 +101,19 @@ shinyServer(function(input, output, session) {
 
   observeEvent(session$clientData, {
     lang <- parseQueryString(session$clientData$url_search)$lang
-    if (any(lang == i18n$languages)) {
-      updatePrettyRadioButtons(session, "rb_language", selected = lang)
-    } else {
-      updatePrettyRadioButtons(session, "rb_language", selected = "English")
+
+    if (is.null(lang)) {
+      js$getCookie("lang")
     }
   })
 
   observeEvent(
-    input$rb_language, # ignoreInit = TRUE # when English is not first in the list of choices
+    input$rb_language, ignoreInit = TRUE,
     {
       i18n$set_translation_language(input$rb_language)
       source("ui_dynamic.R", encoding = "utf-8", local = TRUE)
       updateTabItems(session, "sidebar_tabs", "data_upload")
+      js$setCookie("lang", input$rb_language, 100000)
     }
   )
 
