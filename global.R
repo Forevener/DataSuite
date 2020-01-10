@@ -34,3 +34,5 @@ requireNamespace("GPArotation", quietly = TRUE)
 requireNamespace("Rcsdp", quietly = TRUE)
 
 source("functions_global.R", encoding = "utf-8")
+
+addResourcePath("js", "www")
