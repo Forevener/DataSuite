@@ -1,0 +1,26 @@
+<p style="text-align: center;"><strong>Correlation analysis</strong></p>
+<p>The following statistical criteria are presented on this page:</p>
+<table style="border-collapse: collapse; width: 100%;" border="1">
+  <tbody>
+    <tr>
+      <td style="width: 50%;">Type</td>
+      <td style="width: 50%;">Criterion</td>
+    </tr>
+    <tr>
+      <td style="width: 50%;">Parametric</td>
+      <td style="width: 50%;">Pearson's r-test</td>
+    </tr>
+    <tr>
+      <td style="width: 50%;">Nonparametric</td>
+      <td style="width: 50%;">Spearman's rho test<br />Kendall's tau test</td>
+    </tr>
+  </tbody>
+</table>
+<p>When you run any type of analysis on this page, any non-numeric variables and numerical variables with zero variance ​​are automatically deleted from the data table.</p>
+<p>All types of analysis on this page allow you to find the strength and significance of the relationships between variables.</p>
+<p>The choice of a parametric or non-parametric analysis method depends on the size and distribution of the sample (and also criteria-specific requirements).</p>
+<p>Structure of the output table of correlation coefficients: the horizontal and vertical axis lists the variables selected in the corresponding fields, each cell shows the coefficient when calculating the correlation of variables from the corresponding column and row.</p>
+<p>The structure of the output table of p-levels: the horizontal and vertical axis lists the variables selected in the corresponding fields, each cell shows the p-level when calculating the correlation of variables from the corresponding column and row.</p>
+<p>Highlighting of the correlation coefficient and p-level in bold is happens in accordance with the value set in the application settings.</p>
+<p>Scatter plots are built using the <code>ggplot2</code> package. For each correlation (that is, pairs of variables), a separate graph is constructed. In graphs of this type, the first variable is plotted on the horizontal axis, and the second variable on the vertical axis. Then all observations / subjects are plotted based on the values ​​of the axial variables.</p>
+<p>A local regression curve with an error corridor is also superimposed on the graphs.</p>

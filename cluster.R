@@ -33,7 +33,7 @@ ds.dendro <- function() {
   )
 
   # Retrieve and prepare the data
-  in_data <- check_data(get_data(), nas = TRUE)$data
+  in_data <- check_data(nas = TRUE, zeroVar = TRUE)$data
   scaled <- scale(in_data)
   result <- dist(scaled)
   hc <- hclust(result)
@@ -131,10 +131,10 @@ ds.clusteranalysis <- function() {
   )
 
   # Retrieve and prepare the valid data
-  in_data <- check_data(get_data(), nas = TRUE)$data
+  in_data <- check_data(nas = TRUE, zeroVar = TRUE)$data
   scaled <- scale(in_data)
   k_dist <- dist(scaled)
-  clusters <- clusters_num()
+  clusters <- input$clusters_number
 
   # Perform clustering
   result <- kmeans(scaled, center = clusters, nstart = floor(nrow(in_data) / 5))

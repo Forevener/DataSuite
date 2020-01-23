@@ -1,0 +1,23 @@
+<p style="text-align: center;"><strong>Distribution analysis</strong></p>
+<p>This page provides three types of analysis:</p>
+<ul>
+  <li>Frequency tables</li>
+  <li>Distribution Histograms</li>
+  <li>Verification of the normality of the distribution by Shapiro-Wilk's test</li>
+</ul>
+<p>The calculation of frequency tables is carried out using the <code>questionr</code> package. This type of analysis allows you to find out how many times each value of each variable was observed in the sample.</p>
+<p>Frequency table structure:</p>
+<ul>
+  <li>Variable Value</li>
+  <li>Number of observations / subjects having this value</li>
+  <li>Percentage of observations / subjects having this value</li>
+</ul>
+<p>Distribution graphs are built using the <code>ggplot2</code> package. This is a simple visualization of frequency tables.</p>
+<p>When calculating the Shapiro-Wilk criterion, any non-numeric variables and numerical variables with zero variance ​​are automatically deleted from the data table. This type of analysis allows you to find out if the distribution of each variable is normal.</p>
+<p>Normality check table structure:</p>
+<ul>
+  <li>The output value of the Shapiro-Wilk test (the result of calculating the formula)</li>
+  <li>Probability of statistical error (p-level)</li>
+  <li>Distribution inference</li>
+</ul>
+<p>The conclusion about the normality of the distribution and the highlighting of the p-level in bold happens in accordance with the value set in the application settings.</p>

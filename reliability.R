@@ -1,20 +1,33 @@
 # TODO: Reversed items selection, more descriptives for drop table
 ds.reliability <- function() {
   # Prepare UI
-  removeUI(selector = "#reliability_tables")
+  removeUI(
+    selector = "div[id^=reliability_tables_]",
+    multiple = TRUE
+  )
   insertUI(
     selector = "#key_div_reli_table",
     ui = tags$div(
-      id = "reliability_tables",
+      id = "reliability_tables_main",
       tags$p(i18n$t("Результаты анализа надёжности")),
       tableOutput("reliability_table_1"),
       tags$p(i18n$t("Таблица отбросов")),
       tableOutput("reliability_table_2")
     )
   )
+  insertUI(
+    selector = "#key_div_reli_details",
+    ui = tags$div(
+      id = "reliability_tables_details",
+      tags$p(i18n$t("Таблица отбросов")),
+      tableOutput("reliability_table_3"),
+      tags$p(i18n$t("Статистика элементов")),
+      tableOutput("reliability_table_4")
+    )
+  )
 
   # Filter numeric valid data
-  valid_data <- check_data(get_data()[strtoi(input$si_reli_vars)], nas = TRUE)
+  valid_data <- check_data(strtoi(input$si_reli_vars), nas = TRUE)
   in_data <- valid_data$data
   data_names <- valid_data$names
 
@@ -56,7 +69,20 @@ ds.reliability <- function() {
   colnames(tableB) <- c(i18n$t("Альфа при отбросе"), i18n$t("Лямбда-6 при отбросе"))
   rownames(tableB) <- data_names
 
+  # Prepare detailed drop table
+  tableC = as.data.frame(rbind(as.matrix(resultA$total), as.matrix(cbind(resultA$alpha.drop[-c(7, 8)], resultA$item.stats[c(6, 7)], resultA$alpha.drop[8]))))
+  rownames(tableC) <- c(i18n$t("Общее"), data_names)
+  colnames(tableC) <- c(i18n$t("Альфа"), i18n$t("Стандартизированная Альфа"), i18n$t("Лямбда-6"), i18n$t("Средняя корреляция"), i18n$t("Сигнал/Шум"), i18n$t("Стандартная ошибка Альфы"), i18n$t("Среднее"), i18n$t("Стандартное отклонение"), i18n$t("Медианная корреляция"))
+
+  # Prepare frequency table
+  tableD <- resultA$item.stats[-c(6, 7)]
+  tableD[[1]] <- as.integer(tableD[[1]])
+  rownames(tableD) <- data_names
+  colnames(tableD) <- c(i18n$t("Количество"), i18n$t("Корреляция с общим"), i18n$t("Корреляция с общим стандартизированная"), i18n$t("Скорректированная корреляция с общим"), i18n$t("Корреляция при отбросе"))
+
   # Render UI
   output[["reliability_table_1"]] <- renderTable(tableA, rownames = TRUE, digits = 4)
   output[["reliability_table_2"]] <- renderTable(tableB, rownames = TRUE, digits = 4)
+  output[["reliability_table_3"]] <- renderTable(tableC, rownames = TRUE, digits = 4)
+  output[["reliability_table_4"]] <- renderTable(tableD, rownames = TRUE, digits = 4)
 }

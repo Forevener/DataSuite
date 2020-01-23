@@ -1,0 +1,33 @@
+<p style="text-align: center;"><strong>Cluster analysis</strong></p>
+<p>This page provides statistical criteria for conducting cluster analysis.</p>
+<p>When you run any kind of analysis on this page, any non-numeric variables and numeric variables with zero variance are automatically removed from the data table. Theoretically, the sample for cluster analysis should satisfy the requirements of parametric criteria.</p>
+<p>Cluster analysis allows you to identify relatively stable groups of observations / subjects, similar to each other in terms of variables participating in the analysis. The conclusion about the similarity is made on the basis of the Euclidean distance between the observations/subjects in a multidimensional space, where the variables are dimensions.</p>
+<p>Selecting the number of clusters allows to find the optimal number of clusters for the sample.</p>
+<p>The <code>NbClust</code> package calculates the values of 30 criteria for the quality of clustering and discovers the optimal quantity based on the maximum quality values ​​for most criteria.</p>
+<p>Some of these criteria and some additional ones are expressed graphically:</p>
+<ol>
+ <li>Dendrogram (hierarchical clustering graph) - shows the Euclidean distance at which all subjects / observations were located, and in what order they would be combined into clusters. Clustering for this graph is done using the complete linkage method.</li>
+ <li>Сlustering tree (<code>clustree</code> package) - shows the ratio and process of breaking up clusters with different numbers of clusters during the clustering process using the K-means method.</li>
+ <li>Cluster scree graph (<code>factoextra</code> package) - shows the intra-cluster sums of squares for various numbers of clusters during the clustering process using the K-means method. Theoretically, you need to choose the number of clusters that is on the "knee" of the chart.</li>
+ <li>Cluster silhouette graph (<code>factoextra</code> package) - shows the average cluster silhouette width for various numbers of clusters during the clustering process using the K-means method. Theoretically, you need to select the number of clusters for which the average width of the silhouettes is maximal.</li>
+ <li>Clusterization Quality Index Graph (<code>ggplot2</code> package) - shows which clustering models have the maximum support according to criteria of the <code>NbClust</code> package.</li>
+</ol>
+<p>To conduct cluster analysis, you must specify the number of clusters. The analysis is carried out using the K-means method, and allows to obtain the following results:</p>
+<ol>
+ <li>The cluster composition table shows how many observations / subjects were included in each cluster.</li>
+ <li>The average table shows what average values ​​for each variable in each cluster.</li>
+ <li>Clustering Quality Indices:
+   <ul>
+     <li>Intercluster distance (the average distance between objects of different clusters - the larger the better)</li>
+     <li>Intracluster distance (the average distance between objects of the same cluster - the smaller the better)</li>
+     <li>The average width of the silhouette (the degree of difference between the distance between the objects of its cluster and the distance to the objects of another cluster - measured from -1 to +1. The larger the better)</li>
+     <li>Dunn indices (a measure of cluster compactness and their distance from each other - the more the better)</li>
+     </ul>
+	</li>
+</ol>
+<p>The most important result of clustering is a data table indicating each row belongs to the cluster. This table can be downloaded from the link at the end of the main results block.</p>
+<p>Clustering Graphs:</p>
+<ol>
+ <li>Graph of the position of objects (<code>factoextra</code> package) - shows the position and belonging of each object along two main axes obtained from variables by analyzing the main components</li>
+ <li>Silhouette graph (<code>factoextra</code> package) - shows the silhouette of each object in each cluster</li>
+</ol>

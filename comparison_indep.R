@@ -41,9 +41,9 @@ ds.cis <- function(method = "t") {
   }
 
   # Retrieve data, extract independent and dependent variables
-  ind_var_i <- strtoi(ifelse(multiple, indep_var_cmis(), indep_var_ctis()))
+  ind_var_i <- strtoi(ifelse(multiple, input$si_var_cmis, input$si_var_ctis))
   ind_var <- as.factor(get_data()[[ind_var_i]])
-  valid_data <- check_data(get_data()[-ind_var_i], get_names()[-ind_var_i])
+  valid_data <- check_data(-ind_var_i)
   in_data <- valid_data$data
   data_names <- valid_data$names
 
@@ -55,6 +55,13 @@ ds.cis <- function(method = "t") {
 
   # Perform analysis
   lapply(1:num_vars, function(index) {
+    # Skip zero-variance columns for parametric criteria
+    if (parametric) {
+      if (sum(by(in_data[[index]], ind_var, is.constant)) > 1) {
+        return(NULL)
+      }
+    }
+
     # Calculate means/medians and analysis results
     aggs <- aggregate(in_data[[index]], by = list(ind_var), FUN = ifelse(parametric, "mean", "median"), na.rm = TRUE)
     result <- switch(method,
@@ -79,7 +86,7 @@ ds.cis <- function(method = "t") {
       out_data[index, y] <<- sprintf(round(aggs[y, 2], 2), fmt = "%#.2f")
     }
     out_data[index, y + 1] <<- sprintf(round(result$statistic[[1]], 4), fmt = "%#.4f")
-    out_data[index, y + 2] <<- sprintf(round(result$p.value, 6), fmt = "%#.6f")
+    out_data[index, y + 2] <<- format_if(result$p.value, condition = paste0("{x}<=", settings()$p))
     out_data[index, y + 3] <<- ifelse(result$p.value > 0.05, i18n$t("Отсутствуют"), i18n$t("Присутствуют"))
 
     if (multiple) {
@@ -88,7 +95,7 @@ ds.cis <- function(method = "t") {
         "F" = pairwise.t.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value,
         "H" = pairwise.wilcox.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value
       )
-      pwc[] <- strong_p(pwc, 0.05)
+      pwc[] <- format_if(pwc, condition = paste0("{x}<=", settings()$p))
 
       # Prepare and render detailed tables
       nt <- paste0("cis_table_", index)
@@ -96,12 +103,11 @@ ds.cis <- function(method = "t") {
         selector = "#cis_details",
         ui = tagList(
           tags$p(data_names[index]),
-          tableOutput(nt)
+          tableOutput(nt),
+          tags$br()
         )
       )
-      output[[nt]] <- renderTable(pwc, rownames = TRUE, sanitize.text.function = function(x) {
-        x
-      })
+      output[[nt]] <- renderTable(pwc, rownames = TRUE, sanitize.text.function = identity)
     }
 
     # Generate and render the plots
@@ -110,7 +116,8 @@ ds.cis <- function(method = "t") {
       selector = "#cis_plots",
       ui = tagList(
         tags$p(data_names[index]),
-        plotOutput(n)
+        plotOutput(n),
+        tags$br()
       )
     )
     if (parametric) {
@@ -133,5 +140,5 @@ ds.cis <- function(method = "t") {
   })
 
   # Render UI
-  output$cis_result_table <- renderTable(out_data, rownames = TRUE, na = "")
+  output$cis_result_table <- renderTable(out_data, rownames = TRUE, sanitize.text.function = identity, na = "")
 }

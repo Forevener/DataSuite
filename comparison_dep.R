@@ -41,12 +41,12 @@ ds.cds <- function(method = "t") {
   }
 
   # Excluding non-numeric variables could lead to unpredictable results - so it's better to just throw an error and let user check the data manually
-  if (length(check_data(get_data(), get_names())$cols) < ncol(get_data())) {
+  if (length(check_data()$cols) < ncol(get_data())) {
     stop(i18n$t("Были обнаружены нечисловые переменные. Сравнение выборок отменено, рекомендуется внимательно проверить и убрать лишние столбцы из анализа."))
   }
 
   # Retrieve data, set variables
-  n_measures <- ifelse(multiple, strtoi(measures_input()), 2)
+  n_measures <- ifelse(multiple, strtoi(input$measures_number), 2)
   in_data <- get_data()
   num_vars <- ncol(in_data) / n_measures
   data_names <- get_names()[1:num_vars]
@@ -63,19 +63,27 @@ ds.cds <- function(method = "t") {
     func <- ifelse(parametric, "mean", "median")
     aggs <- aggregate(new_data[[index]], by = list(measure), FUN = func, na.rm = TRUE)
     result <- switch(method,
-      "t" = t.test(in_data[[index]], in_data[[index + n_measures]], paired = TRUE),
-      "Z" = DescTools::SignTest(in_data[[index]], in_data[[index + n_measures]], na.rm = F),
-      "W" = wilcox.test(in_data[[index]], in_data[[index + n_measures]], paired = TRUE, na.rm = F),
+      "t" = t.test(in_data[[index]], in_data[[index + num_vars]], paired = TRUE),
+      "Z" = DescTools::SignTest(in_data[[index]], in_data[[index + num_vars]], na.rm = F),
+      "W" = wilcox.test(in_data[[index]], in_data[[index + num_vars]], paired = TRUE, na.rm = F),
       "F" = oneway.test(new_data[[index]] ~ measure),
       "Q" = friedman.test(extract(in_data, index, n_measures))
     )
+
+    # Dirtiest hack for proper W value (is it really proper?)
+    if (method == "W") {
+      result2 = wilcox.test(in_data[[index + num_vars]], in_data[[index]], paired = TRUE, na.rm = F)
+      if (result$statistic > result2$statistic) {
+        result = result2
+      }
+    }
 
     # Fill the resulting table
     for (y in 1:n_measures) {
       out_data[index, y] <<- sprintf(round(aggs[y, 2], 2), fmt = "%#.2f")
     }
     out_data[index, y + 1] <<- sprintf(round(result$statistic[[1]], 3), fmt = "%#.3f")
-    out_data[index, y + 2] <<- strong_p(result$p.value, 0.05)
+    out_data[index, y + 2] <<- format_if(result$p.value, condition = paste0("{x}<=", settings()$p))
     out_data[index, y + 3] <<- ifelse(result$p.value > 0.05, i18n$t("Отсутствуют"), i18n$t("Присутствуют"))
 
     if (multiple) {
@@ -84,7 +92,7 @@ ds.cds <- function(method = "t") {
         "F" = pairwise.t.test(new_data[[index]], measure, p.adjust.method = "BH", paired = TRUE, na.rm = TRUE)$p.value,
         "Q" = pairwise.wilcox.test(new_data[[index]], measure, p.adjust.method = "BH", paired = TRUE, na.rm = TRUE)$p.value
       )
-      pwc[] <- strong_p(pwc, 0.05)
+      pwc[] <- format_if(pwc, condition = paste0("{x}<=", settings()$p))
 
       # Prepare and render detailed tables
       nt <- paste0("cds_table_", index)
@@ -92,21 +100,21 @@ ds.cds <- function(method = "t") {
         selector = "#cds_details",
         ui = tagList(
           tags$p(data_names[index]),
-          tableOutput(nt)
+          tableOutput(nt),
+          tags$br()
         )
       )
-      output[[nt]] <- renderTable(pwc, rownames = TRUE, sanitize.text.function = function(x) {
-        x
-      })
+      output[[nt]] <- renderTable(pwc, rownames = TRUE, sanitize.text.function = identity)
     }
 
     # Generate the name for the plot and insert its UI
-    n <- paste0("cds_plot_", index - 1)
+    n <- paste0("cds_plot_", index)
     insertUI(
       selector = "#cds_plots",
       ui = tagList(
-        tags$p(data_names[index - 1]),
-        plotOutput(n)
+        tags$p(data_names[index]),
+        plotOutput(n),
+        tags$br()
       )
     )
 
@@ -130,7 +138,5 @@ ds.cds <- function(method = "t") {
     )
   })
 
-  output$cds_result_table <- renderTable(out_data, rownames = TRUE, sanitize.text.function = function(x) {
-    x
-  }, na = "")
+  output$cds_result_table <- renderTable(out_data, rownames = TRUE, sanitize.text.function = identity, na = "")
 }

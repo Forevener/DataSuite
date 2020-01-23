@@ -18,8 +18,7 @@ custom_melt <- function(dataset, times) {
     }
     result[[1]] <- factor(result[[1]])
     return(result)
-  }
-  else {
+  } else {
     warning("Argument 'times' is not integer")
   }
 }
@@ -36,22 +35,28 @@ extract <- function(dataset, column_n, measures) {
   return(result)
 }
 
-last <- function(x) {
-  return(x[length(x)])
+last <- function(object) {
+  tail(object, 1)
 }
 
-strong_p <- function(data, level) {
-  sapply(data, function(x) {
-    if (!is.na(x) && is.numeric(x)) {
-      if (x <= level) {
-        return(paste0("<strong>", sprintf(round(x, 5), fmt = "%#.5f"), "</strong>"))
-      } else {
-        return(sprintf(round(x, 5), fmt = "%#.5f"))
+format_if <- function(in_data, tags_format = "strong", condition = "{x}<=0.05", f_digits = 5) {
+  sapply(in_data, function(x) {
+    if (!is.na(x)) {
+      if (is.numeric(x)) {
+        out <- ifelse(is.integer(x),
+          x,
+          formatC(x, digits = f_digits, format = "f")
+        )
+
+        x <- ifelse(evaluate(glue(condition)),
+          as.character(tags[[tags_format]](out)),
+          out
+        )
       }
+    } else {
+      x <- NA
     }
-    else {
-      return(x)
-    }
+    return(x)
   })
 }
 
@@ -59,7 +64,55 @@ strong_p <- function(data, level) {
   setNames(object, name)
 }
 
+list_to_query <- function(in_list) {
+  if (length(in_list) < 1) {
+    stop("list was empty")
+  }
+  paste0(
+    "?",
+    paste0(
+      lapply(1:length(in_list), function(i) {
+        paste0(names(in_list[i]), "=", in_list[i])
+      }),
+      collapse = "&"
+    )
+  )
+}
+
 update_translation <- function() {
-  base = xlsx::read.xlsx("./translations/source.xlsx", sheetIndex = 1, encoding = "UTF-8")
+  base <- xlsx::read.xlsx("./translations/source.xlsx", sheetIndex = 1, encoding = "UTF-8")
   write.csv(base, "./translations/base.csv", row.names = FALSE, fileEncoding = "UTF-8")
+}
+
+update_list <- function(in_list, named_values) {
+  for (i in 1:length(named_values)) {
+    name <- names(named_values)[i]
+    if (!is.null(in_list[[name]])) {
+      in_list[[name]] <- named_values[[i]]
+    }
+  }
+  return(in_list)
+}
+
+evaluate <- function(string) {
+  eval(parse(text = string))
+}
+
+named_diff <- function(list_base, list_compare) {
+  num <- length(list_compare)
+  diff <- list()
+  for (index in 1:num) {
+    if (list_base[[names(list_compare[index])]] != list_compare[[index]]) {
+      diff[names(list_compare[index])] <- list_compare[index]
+    }
+  }
+  return(diff)
+}
+
+is_constant <- function(x) {
+  if (is.factor(x)) {
+    length(levels(x)) == 1
+  } else {
+    var(x, na.rm = TRUE) == 0
+  }
 }

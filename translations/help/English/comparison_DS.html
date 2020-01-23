@@ -1,0 +1,48 @@
+<p style="text-align: center;"><strong>Comparison of dependent samples</strong></p>
+<p>The following statistical criteria are presented on this page:</p>
+<table style="border-collapse: collapse; width: 100%;" border="1">
+  <tbody>
+    <tr>
+      <td style="width: 33.3333%;"></td>
+      <td style="width: 33.3333%;">Two samples</td>
+      <td style="width: 33.3333%;">Multiple samples</td>
+    </tr>
+    <tr>
+      <td style="width: 33.3333%;">Parametric</td>
+      <td style="width: 33.3333%;">Student t-test</td>
+      <td style="width: 33.3333%;">Analysis of repeated observations</td>
+    </tr>
+    <tr>
+      <td style="width: 33.3333%;">Nonparametric</td>
+      <td style="width: 33.3333%;">Wilcoxon W-test<br/>Sign test</td>
+      <td style="width: 33.3333%;">Friedman’s Q-test</td>
+    </tr>
+  </tbody>
+</table>
+<p>To carry out this type of analysis, the data table should be organized as follows: for each subject, all the variables of the first measurement are listed first, then in the same order all the subjects of the second measurement, and so on. Thus,<em>the total number of columns should correspond to the number of variables times the number of measurements</em>. This type of table is called "wide." No other methods are required to separate dependent samples. This allows you to compare any number of variables for any number of measurements in the most convenient way.</p>
+<p>If non-numeric variables are detected, the analysis is canceled. If the presence of non-numeric variables is necessary for separating independent samples in a complex study, you must first filter the desired selection on the data uploading and filtering page, and then exclude the grouping variable from the analysis.</p>
+<p>In the process of calculating the criteria for comparing multiple samples, the data table is automatically converted to the "long" format. Also, a "long" format is needed when plotting.</p>
+<p>Sign test is calculated using the <code>DescTools</code> package.</p>
+<p>All types of analysis on this page allow you to find the strength and significance of the differences between measurements / samples for each variable. Values ​​of the central tendency for each variable are also added to the summary tables for easy comparison of measurements / samples.</p>
+<p>The choice of a parametric or non-parametric analysis method depends on the size and distribution of the sample, and also criteria-specific requirements.</p>
+<p>Columns of the main output table:</p>
+<ul>
+  <li>Central tendency for each measurement / sample</li>
+  <li>The output value of the test (the result of calculating the formula)</li>
+  <li>Probability of statistical error (p-level)</li>
+  <li>Difference inference</li>
+</ul>
+<p>The rows of the main output table are all numeric variables of the data table.</p>
+<p>The conclusion about the presence of differences and the highlighting of the p-level in bold is happens in accordance with the value set in the application settings.</p>
+<p>In case of comparing several samples, in addition to the results of comparing all measurements / samples, tables of pairwise comparisons are built:</p>
+<ul>
+  <li>By Student's test when applying the analysis of repeated observations</li>
+  <li>By the Wilcoxon's test when applying the Friedman test</li>
+</ul>
+<p>Structure of pairwise comparison tables: samples are listed along the horizontal and vertical axis, in each cell the adjusted p-level is indicated when comparing samples from the corresponding column and row.</p>
+<p>The construction of violin plots of differences is carried out using the <code>ggplot2</code> package. In graphs of this type, measurement / sample is situated along the horizontal axis, and values ​​of variable along the vertical axis. The width of the figure shows the proportion of observations / subjects who received correspondent value. Technically, the violin plot is a distribution density plot - rotated 90 degrees and mirrored along the vertical axis.</p>
+<p>The following values ​​are also superimposed on charts:</p>
+<ul>
+  <li>Average for parametric tests</li>
+  <li>Median, lower and upper quartiles for nonparametric tests</li>
+</ul>

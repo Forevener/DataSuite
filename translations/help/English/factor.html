@@ -1,0 +1,45 @@
+<p style="text-align: center;"><strong>Factor analysis</strong></p>
+<p>This page provides tools for factor analysis and analysis of principal components from the <code>psych</code> package.</p>
+<p>When you run any type of analysis on this page, any non-numeric variables and numerical variables with zero variance ​​are automatically deleted from the data table. Theoretically, a sample for factor analysis should satisfy the requirements of parametric criteria.</p>
+<p>Factor analysis allows you to "compress" the data, extracting factors from related variables. The connectedness of variables can be interpreted in various ways - for example, variables describe the same phenomenon, or some latent structure controls the variables. Thus, factor analysis can help in optimizing the data model by cutting off unnecessary variables, or in finding some hidden patterns or phenomena.</p>
+<p>Before conducting factor analysis, it is necessary to choose the factorization method and the method of rotation of the matrix of loadings.</p>
+<p>Selection of the number of factors allows you to set the optimal number of factors for this sample.</p>
+<p>The <code>psycho</code> package calculates the values ​​of 7 criteria of factorization's quality and concludes the optimal quantity, based on the maximum quality values ​​for most criteria.</p>
+<p>Some of these criteria and some additional criteria are expressed as follows:</p>
+<ol>
+  <li>Scree plot (<code>ggplot2</code> package) - shows the eigenvalues for various amounts of factors. Theoretically, you need to choose the number of factors that are at the “turning point” ("knee") of the chart.</li>
+  <li>Parallel analysis method - is built on the basis of a scree graph with the addition of simulated data. Theoretically, you need to choose the number of factors whose eigenvalues ​​exceed the eigenvalues ​​of the simulated factors.</li>
+  <li>Kaiser criterion - recommends choosing the number of factors whose eigenvalues ​​exceed one. On the scree plot, the level is indicated with a black line.</li>
+</ol>
+<p>For carrying out factor analysis, it is necessary to indicate the number of factors and select the normalization of the rotation of the matrix (not applicable for the Equamax rotation).</p>
+<p>The main result of the analysis is the loadings table, in which the loadings of each variable in each factor are indicated. In this table, absolute loadings smaller than cut-off settings are not shown. Absolute loadings larger than highlight setting are marked in bold.</p>
+<p>Additional results:</p>
+<ol>
+  <li>The detailed table of loadings shows all loadings without cut-off, but still highlights them in accordance to settings. In addition, the following values ​​are added to the table:
+    <ul>
+      <li>Uniqueness (that part of the variance of a factor that does not intersect with the variances of other factors)</li>
+      <li>Difficulties (Hoffman Index - a measure of the loading of a variable across all factors)</li>
+      <li>Communities (that part of the variance of a factor that intersects with the variances of other factors)</li>
+    </ul>
+  </li>
+  <li>The factor information table shows four indicators for each factor:
+    <ul>
+      <li>Eigenvalue</li>
+      <li>Explained Variance</li>
+      <li>Percentage of total variance</li>
+      <li>Percentage of explained variance</li>
+    </ul>
+  </li>
+  <li>Factorization quality indices:
+    <ul>
+      <li>Root Mean Square Residual (the closer to zero the better)</li>
+      <li>Root Mean Square Error of Approximation (preferably 0.05 or less)</li>
+      <li>Tucker-Lewis Index (preferably 0.95 or more)</li>
+    </ul>
+  </li>
+</ol>
+<p>Factorization Plots:</p>
+<ol>
+  <li>Variable relationship graph (<code>psych</code> package) - shows which component or factor each variable belongs to, with the loading and its direction (negative loads are highlighted in red and have a dashed line)</li>
+  <li>Loading graph (<code>ggplot2</code> package) - shows the load of each factor for each variable on the radar type graph. Loadings smaller than cut-off settings are not displayed.</li>
+</ol>

@@ -1,0 +1,25 @@
+<p style="text-align: center;"><strong>Multivariate analysis of variance</strong></p>
+<p>This page provides multivariate analysis of variance.</p>
+<p>To carry out this type of analysis, grouping variables should be present in the data table that determines the category (sample) of each observation / subject. This type of table is called "long." No other way is needed to separate independent samples.</p>
+<p>All variables from the data table are added into the list of potential independent variables (except for variables with zero variables). Numeric independent variables will be converted into factor variables during the analysis.</p>
+<p>When you run analysis on this page, any non-numeric variables and numerical variables with zero variance ​​are automatically removed from the list of dependent variables.</p>
+<p>This analysis allows us to establish the strength and significance of differences between sub-samples selected by several criteria for each variable. For example, if you want to identify differences between different species of turtles, while taking their gender into account, the study will feature two independent variables - species and gender. For these two variables, sub-samples will be compiled that have all possible combinations of species and gender (it should be noted that multivariate analysis of variance should be carried out when all possible combinations are actually present in the data in sufficient quantities).</p>
+<p>Theoretically, the selection should satisfy the requirements of parametric criteria.</p>
+<p>Columns of the main output table:</p>
+<ol>
+  <li>Degrees of freedom</li>
+  <li>Sum of squares</li>
+  <li>Mean squares</li>
+  <li>F - output value</li>
+  <li>p - probability of statistical error</li>
+</ol>
+<p>The rows of the main output table are different combinations of independent variables and the residuals (discrepancies between the expected and observed data).</p>
+<p>The conclusion about the presence of differences and the highlighting of the p-level in bold is happens in accordance with the value set in the application settings.</p>
+<p>Structure of pairwise comparison tables: the rows indicate the pairs of sub-samples, the columns indicate the following values:</p>
+<ol>
+  <li>Average difference</li>
+  <li>Lower boundary of the distribution interval</li>
+  <li>Upper boundary of the distribution interval</li>
+  <li>Adjusted p-level for multiple measurements (highlighted in bold according to the application settings)</li>
+</ol>
+<p>Interaction graphs - independent variables are plotted along the horizontal axis, and variable values ​​along the vertical axis. For each variable, an axis is also plotted on which the average values ​​for each level are marked. This way you can detect independent variables that have a greater effect.</p>

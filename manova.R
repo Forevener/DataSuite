@@ -19,7 +19,7 @@ ds.manova <- function() {
 
   # Prepare variables, factorize independent ones
   num_vars <- ncol(in_data)
-  ind_vars_i <- strtoi(indep_vars_css())
+  ind_vars_i <- strtoi(input$si_vars_manova)
   for (i in 1:length(ind_vars_i))
   {
     x <- ind_vars_i[i]
@@ -28,13 +28,10 @@ ds.manova <- function() {
     }
   }
   ind_vars_n <- colnames(in_data)[ind_vars_i]
+  check_data(-ind_vars_i)
 
   # Prepare the formula
-  comm <- ind_vars_n[1]
-  for (i in 2:length(ind_vars_n))
-  {
-    comm <- paste0(comm, " * ", ind_vars_n[i])
-  }
+  comm <- paste0(ind_vars_n, collapse = " * ")
 
   # Perform MANOVA
   series <- (1:num_vars)[-ind_vars_i]
@@ -47,13 +44,13 @@ ds.manova <- function() {
 
       # Effects table
       tableA <- summary(model)[[1]]
-      tableA[[5]] <- strong_p(tableA[[5]], 0.05)
+      tableA[[5]] <- format_if(tableA[[5]], condition = paste0("{x}<=", settings()$p))
       colnames(tableA) <- c(i18n$t("Степени свободы"), i18n$t("Сумма квадратов"), i18n$t("Среднее квадратов"), "F", "p")
       rownames(tableA) <- sub("Residuals", i18n$t("Остаток"), rownames(tableA), fixed = TRUE)
 
       # Pairwise comparisons table
       tableB <- as.data.frame(last(TukeyHSD(model))[[1]])
-      tableB[[4]] <- strong_p(tableB[[4]], 0.05)
+      tableB[[4]] <- format_if(tableB[[4]], condition = paste0("{x}<=", settings()$p))
       colnames(tableB) <- c(i18n$t("Разница средних"), i18n$t("Нижняя граница интервала"), i18n$t("Верхняя граница интервала"), i18n$t("Корректированный p"))
 
       # Adding the UI elements
@@ -67,24 +64,22 @@ ds.manova <- function() {
           tags$p(i18n$t("Общая таблица")),
           tableOutput(n1),
           tags$p(i18n$t("Попарные сравнения")),
-          tableOutput(n2)
+          tableOutput(n2),
+          tags$br()
         )
       )
       insertUI(
         selector = "#manova_plots",
         ui = tagList(
           tags$p(data_names[index]),
-          plotOutput(np)
+          plotOutput(np),
+          tags$br()
         )
       )
 
       # Render UI
-      output[[n1]] <- renderTable(tableA, rownames = TRUE, sanitize.text.function = function(x) {
-        x
-      })
-      output[[n2]] <- renderTable(tableB, rownames = TRUE, sanitize.text.function = function(x) {
-        x
-      })
+      output[[n1]] <- renderTable(tableA, rownames = TRUE, sanitize.text.function = identity)
+      output[[n2]] <- renderTable(tableB, rownames = TRUE, sanitize.text.function = identity)
       output[[np]] <- renderCachedPlot(
         {
           plot.design(form, data = in_data, xlab = i18n$t("Факторы"), ylab = data_names[index])

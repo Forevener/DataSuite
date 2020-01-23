@@ -1,4 +1,4 @@
-# TODO: Various import formats, clearUI()
+# TODO: graceful UI reset on tab switch, plot size settings
 shinyServer(function(input, output, session) {
   # Embed separate files
   source("functions_server.R", encoding = "utf-8", local = TRUE)
@@ -13,56 +13,62 @@ shinyServer(function(input, output, session) {
   source("manova.R", encoding = "utf-8", local = TRUE)
   source("regression.R", encoding = "utf-8", local = TRUE)
 
-  enc <- reactive({
-    input$file_encoding
+  # Where are we running?
+  isLocal <- !nzchar(Sys.getenv("SHINY_PORT"))
+
+  # Inputs were not filled with data yet
+  ui_ready <- FALSE
+
+  # Session start/end functionality
+  onSessionStart <- isolate({
+    cat(file = stderr(), paste0("Session started: ", session$token, "\r\n")) # USER TESTING TRACING
   })
-  indep_var_ctis <- reactive({
-    input$si_var_ctis
+  onSessionEnded(function() {
+    cat(file = stderr(), paste0("Session ended: ", session$token, "\r\n")) # USER TESTING TRACING
   })
-  indep_var_cmis <- reactive({
-    input$si_var_cmis
+
+  # Internationalization
+  i18n <- Translator$new(translation_csvs_path = "./translations")
+  # Should specify config.yaml somewhere
+
+  # Application settings
+  settings_default <- list(
+    lang = "English",
+    p = 0.05,
+    fa_cut = 0.3,
+    fa_load = 0.5
+  )
+  settings <- reactiveVal()
+  observeEvent(session, {
+    q <- getQueryString()
+    if (length(q) > 0) {
+      s <- update_list(settings_default, q)
+    } else {
+      s <- settings_default
+    }
+    settings(s)
   })
-  indep_vars_css <- reactive({
-    input$si_vars_manova
+
+  observe({
+    s <- settings()
+    current_lang <- i18n$translation_language
+    if (length(current_lang) < 1) {
+      current_lang <- ""
+    }
+    if (current_lang != s$lang) {
+      set_language(s$lang)
+    }
+    user_settings <- named_diff(settings_default, settings())
+    q <- ifelse(length(user_settings) > 0, list_to_query(user_settings), "")
+    updateQueryString(q, mode = "replace")
   })
-  indep_vars_reg <- reactive({
-    input$si_vars_regression
-  })
-  measures_input <- reactive({
-    input$measures_number
-  })
-  corr1_var_list <- reactive({
-    input$si_var1_corr
-  })
-  corr2_var_list <- reactive({
-    input$si_var2_corr
-  })
+
   included_vars <- reactive({
     input$si_include_vars
   })
-  factors_limit <- reactive({
-    input$factors_number
+  current_tab <- reactive({
+    input$sidebar_tabs
   })
-  factoring_method <- reactive({
-    input$si_factoring_method
-  })
-  factor_rotation <- reactive({
-    input$si_factor_rotation
-  })
-  factor_normalize <- reactive({
-    input$cb_normalize
-  })
-  clusters_num <- reactive({
-    input$clusters_number
-  })
-  optimize_glm <- reactive({
-    input$cb_optimal_glm
-  })
-  observeEvent(input$si_reli_vars, {
-    selections <- data_names[strtoi(input$si_reli_vars)] %isnameof% 1:length(input$si_reli_vars)
-    updatePickerInput(session, "si_reli_reversed_items", choices = selections)
-  })
-
 
   # Data variables
   base_data <- reactiveVal()
@@ -74,39 +80,57 @@ shinyServer(function(input, output, session) {
     base_names()[strtoi(included_vars())]
   })
 
-  # Where are we running?
-  isLocal <- !nzchar(Sys.getenv("SHINY_PORT"))
-
-  onSessionStart = isolate({
-    cat(file = stderr(), paste0("Session started: ", session$token, "\r\n")) # USER TESTING TRACING
-  })
-  onSessionEnded(function() {
-    cat(file = stderr(), paste0("Session ended: ", session$token, "\r\n")) # USER TESTING TRACING
-  })
-
-  # Internationalization
-  i18n <- Translator$new(translation_csvs_path = "./translations")
-  # Should specify config.yaml somewhere
-
-  observeEvent(session$clientData, {
-    lang <- parseQueryString(session$clientData$url_search)$lang
-    if (any(lang == i18n$languages)) {
-      updatePrettyRadioButtons(session, "rb_language", selected = lang)
-    } else {
-      updatePrettyRadioButtons(session, "rb_language", selected = "English")
-    }
-  })
-
   observeEvent(
-    input$rb_language, # ignoreInit = TRUE # when English is not first in the list of choices
+    input$rb_language,
+    ignoreInit = TRUE,
     {
-      i18n$set_translation_language(input$rb_language)
-      source("ui_dynamic.R", encoding = "utf-8", local = TRUE)
-      updateTabItems(session, "sidebar_tabs", "data_upload")
+      if (settings()$lang != input$rb_language) {
+        settings(update_list(settings(), c("lang" = input$rb_language)))
+      }
     }
   )
 
-  ui_ready <- FALSE
+  observeEvent(
+    input$sli_fa_cut,
+    ignoreInit = TRUE,
+    {
+      if (settings()$fa_cut != input$sli_fa_cut) {
+        settings(update_list(settings(), c("fa_cut" = input$sli_fa_cut)))
+      }
+    }
+  )
+
+  observeEvent(
+    input$sli_fa_load,
+    ignoreInit = TRUE,
+    {
+      if (settings()$fa_load != input$sli_fa_load) {
+        settings(update_list(settings(), c("fa_load" = input$sli_fa_load)))
+      }
+    }
+  )
+
+  observeEvent(
+    input$ni_p_level,
+    ignoreInit = TRUE,
+    {
+      p = as.numeric(input$ni_p_level)
+      if (is.numeric(p) && settings()$p != input$ni_p_level) {
+        settings(update_list(settings(), c("p" = p)))
+      }
+    }
+  )
+
+  observeEvent(input$al_credits, {
+    showModal(
+      modalDialog(
+        footer = NULL,
+        size = "l",
+        easyClose = TRUE,
+        HTML(readr::read_file(glue("./translations/help/{i18n$translation_language}/credits.html")))
+      )
+    )
+  })
 
   output$data_info <- renderText({
     if (!is.null(base_data())) {
@@ -133,31 +157,10 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  observeEvent(input$upload, {
-    in_file <- input$upload
-    cat(file = stderr(), paste0("File uploaded: ", in_file$name, "\r\n")) # USER TESTING TRACING
-
-    if (is.null(in_file)) {
-      return(NULL)
+  output$sdb_r_sidebar <- renderUI({
+    if (!is.null(current_tab())) {
+      HTML(readr::read_file(glue("./translations/help/{i18n$translation_language}/{current_tab()}.html")))
     }
-
-    temp_data <- readxl::read_excel(in_file$datapath)
-    temp_data <- janitor::remove_empty(temp_data, c("rows", "cols"))
-    temp_names <- colnames(temp_data)
-    colnames(temp_data) = janitor::make_clean_names(temp_names, case = "none")
-    cat(file = stderr(), paste0("File structure: ", capture.output(str(temp_data)), "\r\n")) # USER TESTING TRACING
-
-    selections <- temp_names %isnameof% 1:length(temp_names)
-    updatePickerInput(session, "si_include_vars", choices = selections, selected = selections)
-
-    base_data(temp_data)
-    base_names(temp_names)
-
-    clear_ui()
-
-    output$in_table <- renderDT(base_data(), filter = list(position = "top"), options = list(language = list(url = glue("//cdn.datatables.net/plug-ins/1.10.11/i18n/{i18n$translation_language}.json"))))
-    show("databox")
-    showNotification(i18n$t("Файл успешно загружен!"), type = "message")
   })
 
   observeEvent(input$sidebar_tabs, {
@@ -170,20 +173,41 @@ shinyServer(function(input, output, session) {
             fill_inputs()
             show(selector = "div.hidden_div")
             ui_ready <<- TRUE
-          }
-          else {
+          } else {
             hide(selector = "div.hidden_div")
             showNotification(i18n$t("Данные для обработки отсутствуют, проверьте фильтры."), type = "warning")
           }
-        }
-        else {
+        } else {
           showNotification(i18n$t("Не загружены данные для обработки!"), type = "warning")
         }
       }
-    }
-    else {
+    } else {
       ui_ready <<- FALSE
     }
+  })
+
+  observeEvent(input$si_reli_vars, {
+    selections <- get_names()[strtoi(input$si_reli_vars)] %isnameof% 1:length(input$si_reli_vars)
+    updatePickerInput(session, "si_reli_reversed_items", choices = selections)
+  })
+
+  observeEvent(input$si_dep_vars_regression, {
+    conflict <- intersect(input$si_dep_vars_regression, input$si_ind_vars_regression)
+    if (length(conflict) > 0) {
+      updatePickerInput(session, "si_ind_vars_regression", selected = setdiff(input$si_ind_vars_regression, conflict))
+    }
+  })
+
+  observeEvent(input$si_ind_vars_regression, {
+    conflict <- intersect(input$si_dep_vars_regression, input$si_ind_vars_regression)
+    if (length(conflict) > 0) {
+      updatePickerInput(session, "si_dep_vars_regression", selected = setdiff(input$si_dep_vars_regression, conflict))
+    }
+  })
+
+  # Analyzes launchers
+  observeEvent(input$upload, {
+    ds_execute(upload_file(input$upload))
   })
 
   observeEvent(input$ab_parametric_desc, {
@@ -207,7 +231,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_waldwolfowitz, {
-    if (is.null(indep_var_ctis())) {
+    if (is.null(input$si_var_ctis)) {
       showNotification(i18n$t("Нет подходящих независимых переменных для данного вида анализа"), type = "error")
     } else {
       ds_execute(ds.cis("Z"), "div[class^=cis_box_b", "div[class^=cis_box_a")
@@ -215,7 +239,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_kolmogorovsmirnov, {
-    if (is.null(indep_var_ctis())) {
+    if (is.null(input$si_var_ctis)) {
       showNotification(i18n$t("Нет подходящих независимых переменных для данного вида анализа"), type = "error")
     } else {
       ds_execute(ds.cis("D"), "div[class^=cis_box_b", "div[class^=cis_box_a")
@@ -223,7 +247,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_mannwhitney, {
-    if (is.null(indep_var_ctis())) {
+    if (is.null(input$si_var_ctis)) {
       showNotification(i18n$t("Нет подходящих независимых переменных для данного вида анализа"), type = "error")
     } else {
       ds_execute(ds.cis("U"), "div[class^=cis_box_b", "div[class^=cis_box_a")
@@ -231,7 +255,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_ttestindependent, {
-    if (is.null(indep_var_ctis())) {
+    if (is.null(input$si_var_ctis)) {
       showNotification(i18n$t("Нет подходящих независимых переменных для данного вида анализа"), type = "error")
     } else {
       ds_execute(ds.cis("t"), "div[class^=cis_box_b", "div[class^=cis_box_a")
@@ -239,7 +263,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_kruskallwallis, {
-    if (is.null(indep_var_cmis())) {
+    if (is.null(input$si_var_cmis)) {
       showNotification(i18n$t("Не выбрана независимая переменная!"), type = "error")
     } else {
       ds_execute(ds.cis("H"), showSelector = "div[class^=cis_box")
@@ -247,7 +271,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_welch, {
-    if (is.null(indep_var_cmis())) {
+    if (is.null(input$si_var_cmis)) {
       showNotification(i18n$t("Не выбрана независимая переменная!"), type = "error")
     } else {
       ds_execute(ds.cis("F"), showSelector = "div[class^=cis_box")
@@ -279,7 +303,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_friedman, {
-    if (ncol(get_data()) %% strtoi(measures_input()) != 0) {
+    if (ncol(get_data()) %% strtoi(input$measures_number) != 0) {
       showNotification(i18n$t("Количество столбцов не делится на количество замеров - проверьте наличие нужных данных и отсутствие лишних"), type = "error")
     } else {
       ds_execute(ds.cds("Q"), showSelector = "div[class^=cds_box")
@@ -287,7 +311,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_repeatedmeasures, {
-    if (ncol(get_data()) %% strtoi(measures_input()) != 0) {
+    if (ncol(get_data()) %% strtoi(input$measures_number) != 0) {
       showNotification(i18n$t("Количество столбцов не делится на количество замеров - проверьте наличие нужных данных и отсутствие лишних"), type = "error")
     } else {
       ds_execute(ds.cds("F"), showSelector = "div[class^=cds_box")
@@ -295,7 +319,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_cor_pearson, {
-    if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1)) {
+    if ((length(input$si_var1_corr) < 1) || (length(input$si_var1_corr) < 1)) {
       showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
     } else {
       ds_execute(ds.correlations("pearson"), showSelector = "div[class^=corr_box")
@@ -303,7 +327,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_cor_kendall, {
-    if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1)) {
+    if ((length(input$si_var1_corr) < 1) || (length(input$si_var1_corr) < 1)) {
       showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
     } else {
       ds_execute(ds.correlations("kendall"), showSelector = "div[class^=corr_box")
@@ -311,7 +335,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_cor_spearman, {
-    if ((length(corr1_var_list()) < 1) || (length(corr1_var_list()) < 1)) {
+    if ((length(input$si_var1_corr) < 1) || (length(input$si_var1_corr) < 1)) {
       showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
     } else {
       ds_execute(ds.correlations("spearman"), showSelector = "div[class^=corr_box")
@@ -343,18 +367,30 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$ab_manova, {
-    if (length(indep_vars_css()) < 2) {
+    if (length(input$si_vars_manova) < 2) {
       showNotification(i18n$t("Не выбрано достаточно независимых переменных!"), type = "error")
     } else {
       ds_execute(ds.manova(), showSelector = "div[class^=manova_box")
     }
   })
 
-  observeEvent(input$ab_regression, {
-    if (length(indep_vars_reg()) < 1) {
+  observeEvent(input$ab_glm, {
+    if (length(input$si_ind_vars_regression) < 1) {
       showNotification(i18n$t("Не выбраны независимые переменные!"), type = "error")
+    } else if (length(input$si_dep_vars_regression) < 1) {
+      showNotification(i18n$t("Не выбраны зависимые переменные!"), type = "error")
     } else {
-        ds_execute(ds.regression(optimize_glm()), showSelector = "div[class^=regression_box")
+      ds_execute(ds.glm(), showSelector = "div[class^=regression_box")
+    }
+  })
+
+  observeEvent(input$ab_optimalglms, {
+    if (length(input$si_ind_vars_regression) < 1) {
+      showNotification(i18n$t("Не выбраны независимые переменные!"), type = "error")
+    } else if (length(input$si_dep_vars_regression) < 1) {
+      showNotification(i18n$t("Не выбраны зависимые переменные!"), type = "error")
+    } else {
+      ds_execute(ds.optimalglms(), "div[class^=regression_box_b", "div[class^=regression_box_a")
     }
   })
 

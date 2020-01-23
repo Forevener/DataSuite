@@ -20,7 +20,8 @@ ds.frequencytables <- function() {
       selector = "#dist_output",
       ui = tagList(
         tags$p(data_names[index]),
-        tableOutput(n)
+        tableOutput(n),
+        tags$br()
       )
     )
 
@@ -54,7 +55,8 @@ ds.distributionplots <- function() {
       selector = "#dist_output",
       ui = tagList(
         tags$p(data_names[index]),
-        plotOutput(n)
+        plotOutput(n),
+        tags$br()
       )
     )
 
@@ -116,7 +118,7 @@ ds.shapirowilk <- function() {
   )
 
   # Retrieve the data
-  valid_data <- check_data(get_data())
+  valid_data <- check_data(zeroVar = TRUE)
   in_data <- valid_data$data
   data_names <- valid_data$names
 

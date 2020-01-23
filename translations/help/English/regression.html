@@ -1,0 +1,22 @@
+<p style="text-align: center;"><strong>Regression analysis</strong></p>
+<p>This page provides tools for performing regression analysis.</p>
+<p>Theoretically, a sample for regression analysis should satisfy the requirements of parametric criteria.</p>
+<p>Regression analysis allows you to identify independent variables that affect the dependent variable, to determine the degree of this influence and its statistical significance. It should be noted that the conclusion that the dependent variable is determined by independent cannot be made on the basis of only regression analysis.</p>
+<p>Conventionally, regression analysis allows you to establish the "formula" of the dependent variable - ideally, its value will be equal to the sum of the values ​​of independent variables multiplied by their coefficients.</p>
+<p>All variables from the data table are added into the list of potential independent variables (except for variables with zero variance). All numerical variables from the data table are added in the list of potential dependent variables (except for variables with zero variance).</p>
+<p>Before starting the analysis, you must select dependent and independent variables. If several dependent variables are selected, the analysis will be carried out for each of them separately.</p>
+<p>A model is a set of independent variables whose influence the analysis should establish.</p>
+<p style="text-align: center;"><em>Generalized linear models</em></p>
+<p>Linear models are designed to identify linear patterns.</p>
+<p>Optimizing the model with the <code>leaps</code> package allows you to calculate the quality index for each possible model and thus find the model with the highest quality.</p>
+<p>The main result is a graph of models. The vertical axis indicates quality (adjusted r<sup>2</sup>), the horizontal axis shows all independent variables (in the case of non-numeric variables, their specific values ​​are indicated). Variables present in the model are marked in black blocks, absent ones in white. Thus, the variables from the highest quality model are marked by black blocks on the top line of the chart.</p>
+<p>It should be noted that the optimization of the model is not a desirable procedure in all cases, therefore it is recommended to it carry out only if it is explicitly described in the research tasks.</p>
+<p>The main result of the analysis is a coefficient table. The rows of the table are independent variables, as well as the unaccounted effect - intercept. The columns of the table are:</p>
+<ul>
+  <li>r - regression coefficient</li>
+  <li>Standard error - standard deviation of the coefficient in the sample</li>
+  <li>t - coefficient divided by standard error</li>
+  <li>p - probability of a statistical error (highlighted in bold according to the application settings)</li>
+</ul>
+<p>Also, three model quality indices are calculated for the dependent variable. When comparing different models, preference should be given to models with the lowest values ​​of the Akaike and Bayes criteria, and the highest values ​​for the logarithmic likelihood.</p>
+<p>The regression graph (<code>sjPlot</code> package) displays the coefficient values ​​for each independent variable, and also separately colors positive and negative coefficients.</p>

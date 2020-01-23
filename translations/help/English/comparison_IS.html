@@ -1,0 +1,49 @@
+<p style="text-align: center;"><strong>Comparisons of independent samples</strong></p>
+<p>The following statistical criteria are presented on this page:</p>
+<table style="border-collapse: collapse; width: 100%;" border="1">
+  <tbody>
+    <tr>
+      <td style="width: 33.3333%;"></td>
+      <td style="width: 33.3333%;">Two samples</td>
+      <td style="width: 33.3333%;">Multiple samples</td>
+    </tr>
+    <tr>
+      <td style="width: 33.3333%;">Parametric</td>
+      <td style="width: 33.3333%;">Student t-test</td>
+      <td style="width: 33.3333%;">Welch F-test</td>
+    </tr>
+    <tr>
+      <td style="width: 33.3333%;">Nonparametric</td>
+      <td style="width: 33.3333%;">Mann-Whitney-Wilcoxon U-test<br/>Kolmogorov-Smirnov D-test<br/>Wald-Wolfowitz Z-test</td>
+      <td style="width: 33.3333%;">Kruskal-Wallis H-test</td>
+    </tr>
+  </tbody>
+</table>
+<p>To carry out this type of analysis, a grouping variable must be present in the data table that determines the category (sample) of each observation / subject. This type of table is called "long." No other way is needed to separate independent samples.</p>
+<p>When loading or filtering the source data table, all variables that have only two possible values ​​are added to the list of potential independent variables for comparing two independent samples. If you want to compare two dependent samples by a variable that contains more possible values, then first you need to filter out the extra values ​​on the data upload and filtering page.</p>
+<p>All variables from the data table are added into the list of potential independent variables for comparing several independent samples (except for variables with a zero variance). Numeric independent variables will be converted into factor variables during the analysis.</p>
+<p>When you run any type of analysis on this page, any non-numeric variables and numerical variables with zero variance ​​are automatically removed from the data table.</p>
+<p>The Wald-Wolfowitz Z-test is calculated using the <code>DescTools</code> package.</p>
+<p>All types of analysis on this page allow you to find the strength and significance of the differences between the samples for each variable. Values ​​of the central tendency for each variable are also added to the summary tables for easy comparison of samples.</p>
+<p>The choice of a parametric or non-parametric analysis method depends on the size and distribution of the sample (and also criteria-specific requirements).</p>
+<p>Columns of the main output table:</p>
+<ul>
+  <li>Central tendency for each sample</li>
+  <li>The output value of the test (the result of calculating the formula)</li>
+  <li>Probability of statistical error (p-level)</li>
+  <li>Difference inference</li>
+</ul>
+<p>The rows of the main output table are all numeric variables of the data table.</p>
+<p>The conclusion about the presence of differences and the highlighting of the p-level in bold is happens in accordance with the value set in the application settings.</p>
+<p>In the case of comparing several samples, in addition to the results of comparing all samples, tables of pairwise comparisons are constructed:</p>
+<ul>
+  <li>By the Student's test when applying the Welch test</li>
+  <li>By the Mann-Whitney-Wilcoxon's test when applying the Kruskal-Wallis test</li>
+</ul>
+<p>Structure of pairwise comparison tables: samples are listed along the horizontal and vertical axis, in each cell the adjusted p-level is indicated when comparing samples from the corresponding column and row.</p>
+<p>The construction of violin plots of differences is carried out using the <code>ggplot2</code> package. In graphs of this type, the sample is laid out along the horizontal axis, and the values ​​of the variables along the vertical axis. The width of the figure shows the proportion of observations / subjects which received this value. Technically, the violin plot is a distribution density plot - rotated 90 degrees and mirrored along the vertical axis.</p>
+<p>The following values ​​are also superimposed on charts:</p>
+<ul>
+  <li>Average for parametric analyzes</li>
+  <li>Median, lower and upper quartiles for nonparametric analyzes</li>
+</ul>

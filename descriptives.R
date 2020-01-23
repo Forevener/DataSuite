@@ -1,17 +1,18 @@
 ds.descriptives <- function(method = "parametric") {
   # Prepare UI
   removeUI(selector = "#desc_table")
+  txt = ifelse(method == "parametric", i18n$t("Параметрическая описательная статистика"), i18n$t("Непараметрическая описательная статистика"))
   insertUI(
     selector = "#key_div_desc",
     ui = tags$div(
       id = "desc_table",
-      tags$p(i18n$t("Параметрическая описательная статистика")),
+      tags$p(txt),
       tableOutput("desc_main_table")
     )
   )
 
   # Retrieve valid data and save original names
-  valid_data <- check_data(get_data())
+  valid_data <- check_data()
   in_data <- data.matrix(valid_data$data)
   data_names <- valid_data$names
 

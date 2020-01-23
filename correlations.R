@@ -29,8 +29,8 @@ ds.correlations <- function(method) {
   data_names <- get_names()
 
   # Get variables
-  vars1 <- strtoi(corr1_var_list())
-  vars2 <- strtoi(corr2_var_list())
+  vars1 <- strtoi(input$si_var1_corr)
+  vars2 <- strtoi(input$si_var2_corr)
   names <- list(data_names[vars1], data_names[vars2])
 
   # Prepare the resulting tables
@@ -60,7 +60,8 @@ ds.correlations <- function(method) {
         selector = "#corr_plots",
         ui = tagList(
           tags$p(paste(data_names[x], " & ", data_names[y])),
-          plotOutput(n)
+          plotOutput(n),
+          tags$br()
         )
       )
 
@@ -77,10 +78,6 @@ ds.correlations <- function(method) {
   })
 
   # Render the results
-  output$corr_table_r <- renderTable(out_data_r, rownames = TRUE, sanitize.text.function = function(x) {
-    x
-  })
-  output$corr_table_p <- renderTable(out_data_p, rownames = TRUE, sanitize.text.function = function(x) {
-    x
-  })
+  output$corr_table_r <- renderTable(out_data_r, rownames = TRUE, sanitize.text.function = identity)
+  output$corr_table_p <- renderTable(out_data_p, rownames = TRUE, sanitize.text.function = identity)
 }

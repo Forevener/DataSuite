@@ -18,5 +18,5 @@ ds_picker <- function(id, label = NULL, multiSelect = FALSE, actionsBox = FALSE)
 }
 
 hidden_box <- function(..., class = "hidden_div", id = NULL) {
-  return(hidden(div(id = id, class = class, box(...))))
+  hidden(div(id = id, class = class, box(...)))
 }

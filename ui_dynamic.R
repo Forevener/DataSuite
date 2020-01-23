@@ -1,6 +1,7 @@
+# TODO: Citations for each analysis/plot
 source("functions_ui.R", encoding = "utf-8", local = TRUE)
 
-output$sdb_sidebar <- renderUI({
+output$sdb_l_sidebar <- renderUI({
   sidebarMenu(
     id = "sidebar_tabs",
     menuItem(i18n$t("Ввод и отбор данных"), tabName = "data_upload"),
@@ -23,13 +24,13 @@ output$sdb_body <- renderUI({
     tabItem(
       "data_upload",
       box(
-        selectInput("file_encoding", h5(i18n$t("Кодировка файла")), choices = list("UTF-8" = "UTF-8", "Windows 1251" = "windows-1251", "Windows 1252" = "windows-1252"), selected = "UTF-8"),
+        selectInput("file_encoding", h5(i18n$t("Кодировка файла")), choices = list(i18n$t("Автовыбор"), "UTF-8 / Unicode", "windows-1251 / CP1251", "windows-1252 / CP1252", "ISO-8859-1 / Latin1") %isnameof% list("NULL", "UTF-8", "windows-1251", "windows-1252", "ISO-8859-1")),
         helpText(i18n$t("Если текст в таблицах отображается некорректно, выберите другую кодировку и загрузите файл данных заново")),
-        fileInput("upload", label = i18n$t("Загрузить файл данных"), buttonLabel = i18n$t("Обзор"), placeholder = i18n$t("Файл не выбран"), accept = c(".xlsx", ".xls"))
+        fileInput("upload", label = i18n$t("Загрузить файл данных"), buttonLabel = i18n$t("Обзор"), placeholder = i18n$t("Файл не выбран"), accept = c(".xlsx", ".xls", ".tsv", ".csv", ".ods", ".dta", ".por", ".sas", ".sav", ".zsav", ".xpt"))
       ),
       box(
         helpText(i18n$t("Если требуется исключить некоторые переменные из анализа (например, группирующие переменные при сравнении зависимых выборок), укажите их в следующем списке")),
-        ds_picker("si_include_vars", i18n$t("Выбор переменных для анализа"), TRUE, TRUE),
+        ds_picker("si_include_vars", i18n$t("Выбор переменных для анализа"), multiSelect = TRUE, actionsBox = TRUE),
         verbatimTextOutput("data_info")
       ),
       fluidRow(
@@ -121,8 +122,8 @@ output$sdb_body <- renderUI({
     tabItem(
       "correlations",
       hidden_box(
-        ds_picker("si_var1_corr", i18n$t("Строки матрицы"), TRUE),
-        ds_picker("si_var2_corr", i18n$t("Столбцы матрицы"), TRUE),
+        ds_picker("si_var1_corr", i18n$t("Строки матрицы"), multiSelect = TRUE, actionsBox = TRUE),
+        ds_picker("si_var2_corr", i18n$t("Столбцы матрицы"), multiSelect = TRUE, actionsBox = TRUE),
         actionButton("ab_cor_pearson", i18n$t("r-критерий Пирсона")),
         actionButton("ab_cor_kendall", i18n$t("тау-критерий Кендалла")),
         actionButton("ab_cor_spearman", i18n$t("ро-критерий Спирмена"))
@@ -139,13 +140,17 @@ output$sdb_body <- renderUI({
     tabItem(
       "reliability",
       hidden_box(
-        ds_picker("si_reli_vars", i18n$t("Выбор переменных для анализа"), TRUE, TRUE),
-        ds_picker("si_reli_reversed_items", i18n$t("Обратные пункты/шкалы"), TRUE, TRUE),
+        ds_picker("si_reli_vars", i18n$t("Выбор переменных для анализа"), multiSelect = TRUE, actionsBox = TRUE),
+        ds_picker("si_reli_reversed_items", i18n$t("Обратные пункты/шкалы"), multiSelect = TRUE, actionsBox = TRUE),
         actionButton("ab_reliability", i18n$t("Альфа Кронбаха и др."))
       ),
       fluidRow(hidden_box(
         class = "reli_box", width = 12, title = i18n$t("Результаты"),
         tags$div(id = "key_div_reli_table", style = "overflow-x: auto")
+      )),
+      fluidRow(hidden_box(
+        class = "reli_box", width = 12, title = i18n$t("Подробности"), collapsible = TRUE, collapsed = TRUE,
+        tags$div(id = "key_div_reli_details", style = "overflow-x: auto")
       ))
     ),
     tabItem(
@@ -154,10 +159,16 @@ output$sdb_body <- renderUI({
         flowLayout(
           selectInput("si_factoring_method", h5(i18n$t("Метод факторизации")), choices = list(i18n$t("Главные компоненты"), i18n$t("Минимальные остатки"), i18n$t("Наименьшие квадраты"), i18n$t("Эмпирические наименьшие квадраты"), i18n$t("Взвешенные наименьшие квадраты"), i18n$t("Обобщённые взвешенные наименьшие квадраты"), i18n$t("Главные оси"), i18n$t("Максимальное сходство"), i18n$t("Минимальный хи-квадрат"), i18n$t("Минимальный ранг"), i18n$t("Альфа Кайзера-Коффи")) %isnameof% list("pc", "minres", "uls", "ols", "wls", "gls", "pa", "ml", "minchi", "minrank", "alpha")),
           selectInput("si_factor_rotation", h5(i18n$t("Вращение матрицы")), choices = list(i18n$t("Нет"), i18n$t("Варимакс"), i18n$t("Квартимакс"), i18n$t("Т Бентлера"), i18n$t("Эквамакс"), i18n$t("Варимин"), i18n$t("Т Геомин"), i18n$t("Двухфакторное"), i18n$t("Промакс"), i18n$t("Облимин"), i18n$t("Симплимакс"), i18n$t("Q Бентлера"), i18n$t("Q Геомин"), i18n$t("Биквартимин"), i18n$t("Кластерное")) %isnameof% list("none", "varimax", "quartimax", "bentlerT", "equamax", "varimin", "geominT", "bifactor", "Promax", "oblimin", "simplimax", "bentlerQ", "geominQ", "biquartimin", "cluster"), selected = "varimax"),
-          actionButton("ab_screeplot", i18n$t("График осыпи")),
+          actionButton("ab_screeplot", i18n$t("Подбор количества факторов")),
           numericInput("factors_number", h5(i18n$t("Количество факторов")), value = 1, min = 1),
           checkboxInput("cb_normalize", i18n$t("Нормализация вращения"), TRUE),
           actionButton("ab_factoranalysis", i18n$t("Факторный анализ"))
+        )
+      ),
+      hidden_box(
+        flowLayout(
+          sliderInput("sli_fa_cut", i18n$t("Отсекать нагрузки"), min = 0, max = 1, step = 0.01, value = isolate(settings()$fa_cut)),
+          sliderInput("sli_fa_load", i18n$t("Выделять нагрузки"), min = 0, max = 1, step = 0.01, value = isolate(settings()$fa_load))
         )
       ),
       fluidRow(hidden_box(
@@ -192,7 +203,7 @@ output$sdb_body <- renderUI({
     tabItem(
       "manova",
       hidden_box(
-        ds_picker("si_vars_manova", i18n$t("Независимые переменные"), TRUE),
+        ds_picker("si_vars_manova", i18n$t("Независимые переменные"), multiSelect = TRUE, actionsBox = TRUE),
         actionButton("ab_manova", i18n$t("Многофакторный дисперсионный анализ"))
       ),
       fluidRow(hidden_box(
@@ -207,18 +218,28 @@ output$sdb_body <- renderUI({
     tabItem(
       "regression",
       hidden_box(
-        ds_picker("si_vars_regression", i18n$t("Независимые переменные"), TRUE),
-        prettyCheckbox("cb_optimal_glm", i18n$t("Выбирать оптимальную модель")),
-        actionButton("ab_regression", i18n$t("Обобщённая линейная регрессия"))
+        ds_picker("si_dep_vars_regression", i18n$t("Зависимые переменные"), multiSelect = TRUE, actionsBox = TRUE),
+        ds_picker("si_ind_vars_regression", i18n$t("Независимые переменные"), multiSelect = TRUE, actionsBox = TRUE),
+        actionButton("ab_optimalglms", i18n$t("Оптимальные модели")),
+        actionButton("ab_glm", i18n$t("Обобщённая линейная регрессия"))
       ),
       fluidRow(hidden_box(
-        class = "regression_box", width = 12, title = i18n$t("Результаты"),
+        class = "regression_box_a", width = 12, title = i18n$t("Результаты"),
         tags$div(id = "key_div_regression_tables", style = "overflow-x: auto")
       )),
       fluidRow(hidden_box(
-        class = "regression_box", width = 12, title = i18n$t("Графики"), collapsible = TRUE, collapsed = TRUE,
+        class = "regression_box_b", width = 12, title = i18n$t("Графики"), collapsible = TRUE, collapsed = TRUE,
         tags$div(id = "key_div_regression_plots", style = "overflow-x: auto")
       ))
     )
+  )
+})
+
+output$ui_settings <- renderUI({
+  tagList(
+    i18n$t("Настройки"),
+    tags$br(),
+    tags$br(),
+    numericInput("ni_p_level", i18n$t("Значимый p-уровень"), isolate(settings()$p), min = 0, max = 1, step = 0.01)
   )
 })
