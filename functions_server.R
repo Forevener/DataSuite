@@ -68,7 +68,7 @@ ds_execute <- function(func, hideSelector = NULL, showSelector = NULL) {
   enable_all(inputs)
 }
 
-check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE) {
+check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE, ignoreCols = NULL) {
   if (is.null(columns)) {
     in_data <- get_data()
     data_names <- get_names()
@@ -84,6 +84,7 @@ check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE)
     logi_num <- sapply(valid_cols, function(v) {
       is.numeric(in_data[[v]])
     })
+    logi_num[ignoreCols] <- TRUE
     non_valid_cols <- valid_cols[!logi_num]
     valid_cols <- valid_cols[logi_num]
 
@@ -238,6 +239,7 @@ upload_file <- function(in_file) {
 
   selections <- temp_names %isnameof% 1:length(temp_names)
   updatePickerInput(session, "si_include_vars", choices = selections, selected = selections)
+  updateCheckboxGroupInput(session, "cbg_by_group", choices = selections, selected = NULL)
 
   base_data(temp_data)
   base_names(temp_names)
@@ -257,7 +259,11 @@ set_language <- function(lang) {
   i18n$set_translation_language(lang)
   source("ui_dynamic.R", encoding = "utf-8", local = TRUE)
   updateTabItems(session, "sidebar_tabs", "data_upload")
-  if (input$rb_language != lang) {
-    updatePrettyRadioButtons(session, "rb_language", selected = lang)
+}
+
+remove_selected <- function(input_1, input_2) {
+  conflict <- intersect(input[[input_1]], input[[input_2]])
+  if (length(conflict) > 0) {
+    updatePickerInput(session, input_1, selected = setdiff(input[[input_1]], conflict))
   }
 }

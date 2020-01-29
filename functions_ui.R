@@ -1,12 +1,14 @@
-ds_picker <- function(id, label = NULL, multiSelect = FALSE, actionsBox = FALSE) {
+ds_picker <- function(id, label = NULL, choices = NULL, selected = NULL, multiSelect = FALSE, actionsBox = FALSE, rightAlign = "auto", ...) {
   pickerInput(
     inputId = id,
     label = label,
-    choices = NULL,
-    selected = NULL,
+    choices = choices,
+    selected = selected,
     multiple = multiSelect,
+    ...,
     options = list(
       `actions-box` = actionsBox,
+      `dropdown-Align-Right` = rightAlign,
       `live-search` = TRUE,
       `live-Search-Placeholder` = i18n$t("Поиск переменной по имени..."),
       `select-All-Text` = i18n$t("Выбрать все"),
@@ -18,5 +20,21 @@ ds_picker <- function(id, label = NULL, multiSelect = FALSE, actionsBox = FALSE)
 }
 
 hidden_box <- function(..., class = "hidden_div", id = NULL) {
-  hidden(div(id = id, class = class, box(...)))
+  hidden(
+    div(
+      id = id,
+      class = class,
+      box(...)
+    )
+  )
+}
+
+wide_box <- function(...) {
+  fluidRow(
+    box(
+      width = 12,
+      style = "overflow-x: auto",
+      ...
+    )
+  )
 }
