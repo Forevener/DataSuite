@@ -121,6 +121,7 @@ output$sdb_body <- renderUI({
       hidden_box(
         ds_picker("si_var1_corr", i18n$t("Строки матрицы"), multiSelect = TRUE, actionsBox = TRUE),
         ds_picker("si_var2_corr", i18n$t("Столбцы матрицы"), multiSelect = TRUE, actionsBox = TRUE),
+        ds_picker("si_adj_corr", i18n$t("Поправка на множественные измерения"), choices = list(i18n$t("Холм"), i18n$t("Хохберг"), i18n$t("Хоммель"), i18n$t("Бонферрони"), i18n$t("Бенджамини-Хохберг"), i18n$t("Бенджамини-Иекутиели"), i18n$t("Нет")) %isnameof% list("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "none")),
         actionButton("ab_cor_pearson", i18n$t("r-критерий Пирсона")),
         actionButton("ab_cor_kendall", i18n$t("тау-критерий Кендалла")),
         actionButton("ab_cor_spearman", i18n$t("ро-критерий Спирмена"))

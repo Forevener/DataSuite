@@ -33,9 +33,12 @@ ds.correlations <- function(method) {
   vars2 <- strtoi(input$si_var2_corr)
   names <- list(data_names[vars1], data_names[vars2])
 
-  # Prepare the resulting tables
+  # Prepare the output
   out_data_r <- matrix(nrow = length(vars1), ncol = length(vars2), dimnames = names)
-  out_data_p <- matrix(nrow = length(vars1), ncol = length(vars2), dimnames = names)
+  out_data_p <- out_data_r
+
+  # Calculate the correlations adjusted for multiple testing
+  result = psych::corr.test(in_data[vars1], in_data[vars2], method = method, adjust = input$si_adj_corr)
 
   lapply(1:length(vars1), function(i) {
     x <- vars1[i]
@@ -43,16 +46,16 @@ ds.correlations <- function(method) {
     lapply(1:length(vars2), function(j) {
       y <- vars2[j]
 
-      # Calculating correlations
-      result <- cor.test(in_data[[x]], in_data[[y]], method = method)
-      if (result$p.value <= 0.05) {
-        out_data_r[i, j] <<- paste0("<strong>", sprintf(round(result$estimate[1], 4), fmt = "%#.4f"), "</strong>")
-        out_data_p[i, j] <<- paste0("<strong>", sprintf(round(result$p.value, 5), fmt = "%#.5f"), "</strong>")
+      # Format output (and employ a little hack to remove negative zeroes)
+      result_r <- formatC(result$r[i, j], digits = 4, format = "f")
+      result_p <- formatC(result$p[i, j] + 0, digits = 5, format = "f")
+
+      if (result$p[i, j] <= settings()$p) {
+        result_r <- as.character(tags$strong(result_r))
+        result_p <- as.character(tags$strong(result_p))
       }
-      else {
-        out_data_r[i, j] <<- sprintf(round(result$estimate[1], 4), fmt = "%#.4f")
-        out_data_p[i, j] <<- sprintf(round(result$p.value, 5), fmt = "%#.5f")
-      }
+      out_data_r[i, j] <<- result_r
+      out_data_p[i, j] <<- result_p
 
       # Drawing scatterplots
       n <- paste0("corr_plot_", i, "x", j)
