@@ -7,20 +7,18 @@ ds.descriptives <- function(method = "parametric") {
   data_names <- valid_data$names
   grouping_names <- colnames(get_data()[grouping_vars])
 
-  # Prepare by-group data
-  if (length(grouping_vars) > 0) {
-    combinations <- tidyr::crossing(main_data[grouping_names])
-    colnames(combinations) <- colnames(main_data[grouping_names])
-    series <- nrow(combinations)
-  } else {
-    series <- 1
-  }
+  source("by_group_combinations.R", encoding = "utf-8", local = TRUE)
 
   # Prepare UI
   output$results_descriptive <- renderUI({
     lapply(1:series, function(x) {
       wide_box(
-        title = ifelse(length(grouping_vars) > 0, paste0(t(combinations[x, ]), collapse = " & "), i18n$t("Результаты")),
+        title = ifelse(length(grouping_vars) > 0,
+                       paste0(lapply(1:ncol(combinations), function(y) {
+                         paste0(colnames(combinations)[y], " = ", as.character(combinations[[x, y]]))
+                       }),
+                       collapse = " & "),
+                       i18n$t("Результаты")),
         tags$p(ifelse(method == "parametric",
           i18n$t("Параметрическая описательная статистика"),
           i18n$t("Непараметрическая описательная статистика")
@@ -32,19 +30,8 @@ ds.descriptives <- function(method = "parametric") {
   })
 
   lapply(1:series, function(index) {
-    if (length(grouping_vars) > 0) {
-      condition <- apply(
-        sapply(1:ncol(combinations), function(col_n) {
-          base_data()[[names(combinations)[col_n]]] == combinations[[index, col_n]]
-        }),
-        1,
-        all
-      )
-
-      in_data <- data.matrix(main_data[condition, ])
-    } else {
-      in_data <- data.matrix(main_data)
-    }
+    source("by_group_filter.R", encoding = "utf-8", local = TRUE)
+    in_data <- data.matrix(in_data)
 
     # Perform analysis
     if (method == "parametric") {
@@ -63,7 +50,11 @@ ds.descriptives <- function(method = "parametric") {
     }
 
     # Set pretty names
-    rownames(out_data) <- data_names
+    if (length(grouping_vars) > 0) {
+      rownames(out_data) <- data_names[columns]
+    } else {
+      rownames(out_data) <- data_names
+    }
 
     # Render the resulting table
     output[[paste0("desc_main_table_", index)]] <- renderTable(out_data, rownames = TRUE)

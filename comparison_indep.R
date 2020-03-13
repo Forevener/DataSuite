@@ -57,7 +57,7 @@ ds.cis <- function(method = "t") {
   lapply(1:num_vars, function(index) {
     # Skip zero-variance columns for parametric criteria
     if (parametric) {
-      if (sum(by(in_data[[index]], ind_var, is.constant)) > 1) {
+      if (sum(by(in_data[[index]], ind_var, is_constant)) > 1) {
         return(NULL)
       }
     }
