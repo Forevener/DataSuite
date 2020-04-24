@@ -1,4 +1,5 @@
 # TODO: graceful UI reset on tab switch, plot size settings
+options(shiny.maxRequestSize=50*1024^2)
 shinyServer(function(input, output, session) {
   # Embed separate files
   source("functions_server.R", encoding = "utf-8", local = TRUE)

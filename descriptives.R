@@ -7,7 +7,14 @@ ds.descriptives <- function(method = "parametric") {
   data_names <- valid_data$names
   grouping_names <- colnames(get_data()[grouping_vars])
 
-  source("by_group_combinations.R", encoding = "utf-8", local = TRUE)
+  #source("by_group_combinations.R", encoding = "utf-8", local = TRUE)
+  if (length(grouping_vars) > 0) {
+    combinations <- tidyr::crossing(main_data[grouping_names])
+    colnames(combinations) <- colnames(main_data[grouping_names])
+    series <- nrow(combinations)
+  } else {
+    series <- 1
+  }
 
   # Prepare UI
   output$results_descriptive <- renderUI({
@@ -30,7 +37,21 @@ ds.descriptives <- function(method = "parametric") {
   })
 
   lapply(1:series, function(index) {
-    source("by_group_filter.R", encoding = "utf-8", local = TRUE)
+    #source("by_group_filter.R", encoding = "utf-8", local = TRUE)
+    if (length(grouping_vars) > 0) {
+      condition <- apply(
+        sapply(1:ncol(combinations), function(col_n) {
+          main_data[[names(combinations)[col_n]]] == combinations[[index, col_n]]
+        }),
+        1,
+        all
+      )
+      columns <- !(colnames(main_data) %in% grouping_names)
+      in_data <- main_data[condition, columns]
+    } else {
+      in_data <- main_data
+    }
+
     in_data <- data.matrix(in_data)
 
     # Perform analysis
