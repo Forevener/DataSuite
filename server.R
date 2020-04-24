@@ -74,7 +74,7 @@ shinyServer(function(input, output, session) {
   base_data <- reactiveVal()
   base_names <- reactiveVal()
   get_data <- reactive({
-    base_data()[input$in_table_rows_all, strtoi(included_vars()), drop = FALSE]
+    droplevels(base_data()[input$in_table_rows_all, strtoi(included_vars()), drop = FALSE])
   })
   get_names <- reactive({
     base_names()[strtoi(included_vars())]
