@@ -76,6 +76,12 @@ check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE,
     in_data <- get_data()[columns]
     data_names <- get_names()[columns]
   }
+  grouping_vars <- strtoi(input$cbg_by_group)
+  if (length(grouping_vars) > 0)
+  {
+    in_data <- in_data[-grouping_vars]
+    data_names <- data_names[-grouping_vars]
+  }
   result <- ""
   valid_cols <- c(1:ncol(in_data))
   valid_rows <- c(1:nrow(in_data))
@@ -160,7 +166,19 @@ check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE,
     )
   }
 
-  return(list("data" = in_data[valid_rows, valid_cols], "names" = data_names[valid_cols], "cols" = valid_cols, "rows" = valid_rows))
+  combinations <- NULL
+  group <- rep(1, length(valid_rows))
+  if (length(grouping_vars) > 0)
+  {
+    grouping_data <- get_data()[valid_rows, grouping_vars]
+
+    combinations <- tidyr::crossing(grouping_data)
+    group <- dplyr::inner_join(
+      cbind("group" = 1:nrow(combinations), combinations), grouping_data
+    )[1]
+  }
+
+  return(list("data" = in_data[valid_rows, valid_cols], "names" = data_names[valid_cols], "cols" = valid_cols, "rows" = valid_rows, "combinations" = combinations, "group" = group))
 }
 
 compose_fa_plot_data <- function(real, simulated, resampled) {

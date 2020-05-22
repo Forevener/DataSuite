@@ -1,31 +1,25 @@
 ds.descriptives <- function(method = "parametric") {
-  grouping_vars <- strtoi(input$cbg_by_group)
 
   # Retrieve valid data and save original names
-  valid_data <- check_data(ignoreCols = grouping_vars)
+  valid_data <- check_data()
   main_data <- valid_data$data
   data_names <- valid_data$names
-  grouping_names <- colnames(get_data()[grouping_vars])
 
-  #source("by_group_combinations.R", encoding = "utf-8", local = TRUE)
-  if (length(grouping_vars) > 0) {
-    combinations <- tidyr::crossing(main_data[grouping_names])
-    colnames(combinations) <- colnames(main_data[grouping_names])
-    series <- nrow(combinations)
-  } else {
-    series <- 1
-  }
+  by_group <- !is.null(valid_data$combinations)
+  series <- ifelse(by_group, nrow(valid_data$combinations), 1)
 
   # Prepare UI
   output$results_descriptive <- renderUI({
     lapply(1:series, function(x) {
       wide_box(
-        title = ifelse(length(grouping_vars) > 0,
-                       paste0(lapply(1:ncol(combinations), function(y) {
-                         paste0(colnames(combinations)[y], " = ", as.character(combinations[[x, y]]))
-                       }),
-                       collapse = " & "),
-                       i18n$t("Результаты")),
+        title = ifelse(by_group,
+          paste0(lapply(1:ncol(valid_data$combinations), function(y) {
+            paste0(colnames(valid_data$combinations)[y], " = ", as.character(valid_data$combinations[[x, y]]))
+          }),
+          collapse = " & "
+          ),
+          i18n$t("Результаты")
+        ),
         tags$p(ifelse(method == "parametric",
           i18n$t("Параметрическая описательная статистика"),
           i18n$t("Непараметрическая описательная статистика")
@@ -37,22 +31,7 @@ ds.descriptives <- function(method = "parametric") {
   })
 
   lapply(1:series, function(index) {
-    #source("by_group_filter.R", encoding = "utf-8", local = TRUE)
-    if (length(grouping_vars) > 0) {
-      condition <- apply(
-        sapply(1:ncol(combinations), function(col_n) {
-          main_data[[names(combinations)[col_n]]] == combinations[[index, col_n]]
-        }),
-        1,
-        all
-      )
-      columns <- !(colnames(main_data) %in% grouping_names)
-      in_data <- main_data[condition, columns]
-    } else {
-      in_data <- main_data
-    }
-
-    in_data <- data.matrix(in_data)
+    in_data <- data.matrix(main_data[valid_data$group == index, ])
 
     # Perform analysis
     if (method == "parametric") {
@@ -71,11 +50,11 @@ ds.descriptives <- function(method = "parametric") {
     }
 
     # Set pretty names
-    if (length(grouping_vars) > 0) {
-      rownames(out_data) <- data_names[columns]
-    } else {
+    # if (by_group) {
+    #   rownames(out_data) <- data_names[columns]
+    # } else {
       rownames(out_data) <- data_names
-    }
+    # }
 
     # Render the resulting table
     output[[paste0("desc_main_table_", index)]] <- renderTable(out_data, rownames = TRUE)
