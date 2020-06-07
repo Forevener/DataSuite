@@ -1,25 +1,7 @@
 dashboardPagePlus(
   dashboardHeaderPlus(
-    left_menu = tagList(
-      dropdownBlock(
-        id = "ddb_language",
-        icon = "globe",
-        badgeStatus = NULL,
-        prettyRadioButtons(
-          "rb_language",
-          label = icon("language"),
-          choices = list.files("./translations/help")
-        )
-      ),
-      dropdownBlock(
-        id = "ddb_settings",
-        icon = "gear",
-        badgeStatus = NULL,
-        uiOutput("ui_settings")
-      )
-    ),
     enable_rightsidebar = TRUE,
-    rightSidebarIcon = "question-circle",
+    rightSidebarIcon = "gear",
     title = "Data Suite"
   ),
   dashboardSidebar(
@@ -32,8 +14,11 @@ dashboardPagePlus(
     uiOutput("sdb_body")
   ),
   rightSidebar(
-    width = 400,
+    width = 300,
     .items = uiOutput("sdb_r_sidebar")
   ),
-  dashboardFooter(left_text = actionLink("al_credits", glue("Mikhail Khukhrin, {format(Sys.time(), '%Y')}")))
+  dashboardFooter(
+    left_text = actionLink("al_credits", glue("Mikhail Khukhrin, {format(Sys.time(), '%Y')}")),
+    right_text = actionLink("al_help", label = NULL, icon = icon("question-circle"))
+  )
 )

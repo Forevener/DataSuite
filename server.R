@@ -1,7 +1,9 @@
 # TODO: graceful UI reset on tab switch, plot size settings
+options(shiny.maxRequestSize=50*1024^2)
 shinyServer(function(input, output, session) {
   # Embed separate files
   source("functions_server.R", encoding = "utf-8", local = TRUE)
+  source("functions_ui.R", encoding = "utf-8", local = TRUE)
   source("descriptives.R", encoding = "utf-8", local = TRUE)
   source("distribution.R", encoding = "utf-8", local = TRUE)
   source("comparison_indep.R", encoding = "utf-8", local = TRUE)
@@ -20,7 +22,7 @@ shinyServer(function(input, output, session) {
   ui_ready <- FALSE
 
   # Session start/end functionality
-  onSessionStart <- isolate({
+  onSessionStarted <- isolate({
     cat(file = stderr(), paste0("Session started: ", session$token, "\r\n")) # USER TESTING TRACING
   })
   onSessionEnded(function() {
@@ -81,11 +83,11 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(
-    input$rb_language,
+    input$si_language,
     ignoreInit = TRUE,
     {
-      if (settings()$lang != input$rb_language) {
-        settings(update_list(settings(), c("lang" = input$rb_language)))
+      if (settings()$lang != input$si_language) {
+        settings(update_list(settings(), c("lang" = input$si_language)))
       }
     }
   )
@@ -132,6 +134,19 @@ shinyServer(function(input, output, session) {
     )
   })
 
+  observeEvent(input$al_help, {
+    if (!is.null(current_tab())) {
+      showModal(
+        modalDialog(
+          footer = NULL,
+          size = "l",
+          easyClose = TRUE,
+          HTML(readr::read_file(glue("./translations/help/{i18n$translation_language}/{current_tab()}.html")))
+        )
+      )
+    }
+  })
+
   output$data_info <- renderText({
     if (!is.null(base_data())) {
       selected_cols <- length(included_vars())
@@ -146,6 +161,7 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  # Debug menu
   output$additionalItems <- renderUI({
     if (isLocal) {
       tagList(
@@ -154,12 +170,6 @@ shinyServer(function(input, output, session) {
         # prettyRadioButtons("rb_error_action", "action on error", choices = c("NULL", "recover", "browser"))
         prettySwitch("ps_handle_errors", "Error handling", value = TRUE, status = "success")
       )
-    }
-  })
-
-  output$sdb_r_sidebar <- renderUI({
-    if (!is.null(current_tab())) {
-      HTML(readr::read_file(glue("./translations/help/{i18n$translation_language}/{current_tab()}.html")))
     }
   })
 
@@ -192,17 +202,20 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$si_dep_vars_regression, {
-    conflict <- intersect(input$si_dep_vars_regression, input$si_ind_vars_regression)
-    if (length(conflict) > 0) {
-      updatePickerInput(session, "si_ind_vars_regression", selected = setdiff(input$si_ind_vars_regression, conflict))
-    }
+    remove_selected("si_ind_vars_regression", "si_dep_vars_regression")
   })
 
   observeEvent(input$si_ind_vars_regression, {
-    conflict <- intersect(input$si_dep_vars_regression, input$si_ind_vars_regression)
-    if (length(conflict) > 0) {
-      updatePickerInput(session, "si_dep_vars_regression", selected = setdiff(input$si_dep_vars_regression, conflict))
-    }
+    remove_selected("si_dep_vars_regression", "si_ind_vars_regression")
+  })
+
+  observeEvent(input$si_include_vars, {
+    selections <- get_names() %isnameof% 1:length(get_names())
+    updateCheckboxGroupInput(session, "cbg_by_group", choices = selections)
+  })
+
+  observeEvent(input$ab_by_group, {
+    toggle(id = "panel_by_group")
   })
 
   # Analyzes launchers

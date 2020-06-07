@@ -68,13 +68,19 @@ ds_execute <- function(func, hideSelector = NULL, showSelector = NULL) {
   enable_all(inputs)
 }
 
-check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE) {
+check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE, ignoreCols = NULL) {
   if (is.null(columns)) {
     in_data <- get_data()
     data_names <- get_names()
   } else {
     in_data <- get_data()[columns]
     data_names <- get_names()[columns]
+  }
+  grouping_vars <- strtoi(input$cbg_by_group)
+  if (length(grouping_vars) > 0)
+  {
+    in_data <- in_data[-grouping_vars]
+    data_names <- data_names[-grouping_vars]
   }
   result <- ""
   valid_cols <- c(1:ncol(in_data))
@@ -84,6 +90,7 @@ check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE)
     logi_num <- sapply(valid_cols, function(v) {
       is.numeric(in_data[[v]])
     })
+    logi_num[ignoreCols] <- TRUE
     non_valid_cols <- valid_cols[!logi_num]
     valid_cols <- valid_cols[logi_num]
 
@@ -159,7 +166,19 @@ check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE)
     )
   }
 
-  return(list("data" = in_data[valid_rows, valid_cols], "names" = data_names[valid_cols], "cols" = valid_cols, "rows" = valid_rows))
+  combinations <- NULL
+  group <- rep(1, length(valid_rows))
+  if (length(grouping_vars) > 0)
+  {
+    grouping_data <- get_data()[valid_rows, grouping_vars]
+
+    combinations <- tidyr::crossing(grouping_data)
+    group <- dplyr::inner_join(
+      cbind("group" = 1:nrow(combinations), combinations), grouping_data
+    )[1]
+  }
+
+  return(list("data" = in_data[valid_rows, valid_cols], "names" = data_names[valid_cols], "cols" = valid_cols, "rows" = valid_rows, "combinations" = combinations, "group" = group))
 }
 
 compose_fa_plot_data <- function(real, simulated, resampled) {
@@ -238,6 +257,7 @@ upload_file <- function(in_file) {
 
   selections <- temp_names %isnameof% 1:length(temp_names)
   updatePickerInput(session, "si_include_vars", choices = selections, selected = selections)
+  updateCheckboxGroupInput(session, "cbg_by_group", choices = selections, selected = NULL)
 
   base_data(temp_data)
   base_names(temp_names)
@@ -257,7 +277,11 @@ set_language <- function(lang) {
   i18n$set_translation_language(lang)
   source("ui_dynamic.R", encoding = "utf-8", local = TRUE)
   updateTabItems(session, "sidebar_tabs", "data_upload")
-  if (input$rb_language != lang) {
-    updatePrettyRadioButtons(session, "rb_language", selected = lang)
+}
+
+remove_selected <- function(input_1, input_2) {
+  conflict <- intersect(input[[input_1]], input[[input_2]])
+  if (length(conflict) > 0) {
+    updatePickerInput(session, input_1, selected = setdiff(input[[input_1]], conflict))
   }
 }

@@ -1,5 +1,5 @@
 # TODO: Citations for each analysis/plot
-source("functions_ui.R", encoding = "utf-8", local = TRUE)
+
 
 output$sdb_l_sidebar <- renderUI({
   sidebarMenu(
@@ -46,10 +46,7 @@ output$sdb_body <- renderUI({
         actionButton("ab_parametric_desc", i18n$t("Параметрическая")),
         actionButton("ab_nonparametric_desc", i18n$t("Непараметрическая"))
       ),
-      fluidRow(hidden_box(
-        class = "desc_box", width = 12, title = i18n$t("Результаты"),
-        tags$div(id = "key_div_desc", style = "overflow-x: auto")
-      ))
+      uiOutput("results_descriptive")
     ),
     tabItem(
       "distribution",
@@ -124,6 +121,7 @@ output$sdb_body <- renderUI({
       hidden_box(
         ds_picker("si_var1_corr", i18n$t("Строки матрицы"), multiSelect = TRUE, actionsBox = TRUE),
         ds_picker("si_var2_corr", i18n$t("Столбцы матрицы"), multiSelect = TRUE, actionsBox = TRUE),
+        ds_picker("si_adj_corr", i18n$t("Поправка на множественные измерения"), choices = list(i18n$t("Холм"), i18n$t("Хохберг"), i18n$t("Хоммель"), i18n$t("Бонферрони"), i18n$t("Бенджамини-Хохберг"), i18n$t("Бенджамини-Иекутиели"), i18n$t("Нет")) %isnameof% list("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "none")),
         actionButton("ab_cor_pearson", i18n$t("r-критерий Пирсона")),
         actionButton("ab_cor_kendall", i18n$t("тау-критерий Кендалла")),
         actionButton("ab_cor_spearman", i18n$t("ро-критерий Спирмена"))
@@ -235,11 +233,48 @@ output$sdb_body <- renderUI({
   )
 })
 
-output$ui_settings <- renderUI({
+output$sdb_r_sidebar <- renderUI({
   tagList(
-    i18n$t("Настройки"),
+    tags$div(tags$h4(i18n$t("Настройки")), style = "text-align: center"),
     tags$br(),
+    ds_picker(
+      "si_language",
+      label = icon("language"),
+      choices = i18n$languages[-1],
+      selected = i18n$translation_language,
+      choicesOpt = list(
+        subtext = t(i18n$translations["Русский", ])
+      )
+    ),
     tags$br(),
-    numericInput("ni_p_level", i18n$t("Значимый p-уровень"), isolate(settings()$p), min = 0, max = 1, step = 0.01)
+    numericInput(
+      "ni_p_level",
+      i18n$t("Значимый p-уровень"),
+      isolate(settings()$p),
+      min = 0,
+      max = 1,
+      step = 0.01
+    ),
+    tags$br(),
+    # ds_picker(
+    #   "si_by_group",
+    #   i18n$t("Группирующие переменные для анализа по группам"),
+    #   multiSelect = TRUE,
+    #   actionsBox = TRUE,
+    #   rightAlign = FALSE
+    # ),
+    actionButton("ab_by_group", i18n$t("Выбрать группирующие переменные")),
+    hidden(
+      tags$div(
+        id = "panel_by_group",
+        panel(
+          style = "height:300px; overflow-y: auto",
+          checkboxGroupInput(
+            "cbg_by_group",
+            label = NULL
+          )
+        )
+      )
+    )
   )
 })
