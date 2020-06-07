@@ -39,8 +39,8 @@ ds.dendro <- function() {
   hc <- hclust(result)
 
   # Variables
-  max_clusters <- floor(nrow(in_data) / 10)
-  repeats <- floor(nrow(in_data) / 5)
+  max_clusters <- min(floor(nrow(in_data) / 10), 20)
+  repeats <- min(floor(nrow(in_data) / 5), 50)
 
   # Prepare the data for clustree
   clustering_data <- data.frame("K1" = kmeans(scaled, center = 1, nstart = repeats)$cluster)
@@ -137,7 +137,7 @@ ds.clusteranalysis <- function() {
   clusters <- input$clusters_number
 
   # Perform clustering
-  result <- kmeans(scaled, center = clusters, nstart = floor(nrow(in_data) / 5))
+  result <- kmeans(scaled, center = clusters, nstart = min(floor(nrow(in_data) / 5), 50))
 
   # Clustering stats
   s <- fpc::cluster.stats(k_dist, result$cluster)
@@ -173,7 +173,7 @@ ds.clusteranalysis <- function() {
   )
   output[["clust_plot_1"]] <- renderCachedPlot(
     {
-      factoextra::fviz_cluster(result, in_data, repel = TRUE, main = NULL)
+      factoextra::fviz_cluster(result, in_data, geom = "point", main = NULL)
     },
     cacheKeyExpr = list(result, in_data)
   )

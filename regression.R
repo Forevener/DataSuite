@@ -123,7 +123,7 @@ ds.optimalglms <- function() {
     # new_data <- data.frame(in_data[ind_vars_i], "y" = in_data[[index]])
     # best_models <- bestglm::bestglm(new_data)
     form <- as.formula(paste0(colnames(in_data)[index], " ~ ", form_right))
-    models <- leaps::regsubsets(form, in_data, nvmax = NULL)
+    models <- leaps::regsubsets(form, in_data, nvmax = 10)
 
     # Adding the UI elements
     n <- paste0("regression_plot_", index)
