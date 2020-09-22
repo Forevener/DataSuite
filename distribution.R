@@ -105,14 +105,19 @@ ds.distributionplots <- function() {
   })
 }
 
-ds.shapirowilk <- function() {
+ds.normalitycheck <- function(method) {
   # Prepare UI
   removeUI(selector = "#dist_output")
+  method_title <- switch(method,
+                         "kolmogorov-smirnov" = i18n$t("Критерий Колмогорова-Смирнова"),
+                         "lilliefors" = i18n$t("Критерий Лиллиефорса"),
+                         "shapiro-wilk" = i18n$t("Критерий Шапиро-Уилка")
+  )
   insertUI(
     selector = "#key_div_dist",
     ui = tags$div(
       id = "dist_output",
-      tags$p(i18n$t("Критерий Шапиро-Уилка для проверки нормальности распределения")),
+      tags$p(glue(i18n$t("{method_title} для проверки нормальности распределения"))),
       tableOutput("dist_sw_table")
     )
   )
@@ -124,13 +129,16 @@ ds.shapirowilk <- function() {
 
   # Variables
   num_vars <- ncol(in_data)
-  names <- list(data_names, c("W", "p", i18n$t("Распределение")))
+  names <- list(data_names, c(ifelse(method == "shapiro-wilk", "W", "D"), "p", i18n$t("Распределение")))
   out_data <- matrix(nrow = num_vars, ncol = 3, dimnames = names)
 
   # Perform analysis
   for (index in 1:num_vars)
   {
-    result <- shapiro.test(in_data[[index]])
+    result <- switch(method,
+                     "kolmogorov-smirnov" = stats::ks.test(in_data[[index]], "dnorm"),
+                     "lilliefors" = DescTools::LillieTest(in_data[[index]]),
+                     "shapiro-wilk" = shapiro.test(in_data[[index]]))
     out_data[index, 1] <- sprintf(round(result$statistic, 5), fmt = "%#.5f")
     out_data[index, 2] <- sprintf(round(result$p.value, 6), fmt = "%#.6f")
     out_data[index, 3] <- ifelse(result$p.value > 0.05, i18n$t("Нормальное"), i18n$t("Отличается от нормального"))

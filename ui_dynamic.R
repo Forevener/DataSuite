@@ -53,6 +53,8 @@ output$sdb_body <- renderUI({
       hidden_box(
         actionButton("ab_frequency_tables", i18n$t("Частоты встречаемости")),
         actionButton("ab_distplots", i18n$t("Графики распределения")),
+        actionButton("ab_kolmogorovsmirnov_normality", i18n$t("Критерий Колмогорова-Смирнова")),
+        actionButton("ab_lilliefors", i18n$t("Критерий Лиллиефорса")),
         actionButton("ab_shapirowilk", i18n$t("Критерий Шапиро-Уилка"))
       ),
       fluidRow(hidden_box(

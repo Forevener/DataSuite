@@ -239,8 +239,16 @@ shinyServer(function(input, output, session) {
     ds_execute(ds.distributionplots(), showSelector = "div[class^=dist_box")
   })
 
+  observeEvent(input$ab_kolmogorovsmirnov_normality, {
+    ds_execute(ds.normalitycheck("kolmogorov-smirnov"), showSelector = "div[class^=dist_box")
+  })
+
+  observeEvent(input$ab_lilliefors, {
+    ds_execute(ds.normalitycheck("lilliefors"), showSelector = "div[class^=dist_box")
+  })
+
   observeEvent(input$ab_shapirowilk, {
-    ds_execute(ds.shapirowilk(), showSelector = "div[class^=dist_box")
+    ds_execute(ds.normalitycheck("shapiro-wilk"), showSelector = "div[class^=dist_box")
   })
 
   observeEvent(input$ab_waldwolfowitz, {
