@@ -116,3 +116,25 @@ is_constant <- function(x) {
     var(x, na.rm = TRUE) == 0
   }
 }
+
+
+mode <- function(x, na.rm = FALSE) {
+  # https://stackoverflow.com/a/45216553/12449965
+  if (na.rm) {
+    x <- na.omit(x)
+  }
+  ux <- unique(x)
+  freq <- tabulate(match(x, ux))
+  mode_loc <- which(freq==max(freq))
+
+  return(list("mode" = ifelse(length(mode_loc) > 1, "multiple", ux[mode_loc]), "frequency" = which.max(freq)))
+}
+
+se <- function(x, na.rm=FALSE) {
+  # https://stackoverflow.com/a/7220087/12449965
+  if (na.rm) {
+    x <- na.omit(x)
+  }
+
+  sqrt(var(x) / length(x))
+}

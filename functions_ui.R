@@ -29,6 +29,15 @@ hidden_box <- function(..., class = "hidden_div", id = NULL) {
   )
 }
 
+hidden_box_plus <- function(..., class = "hidden_div", id = NULL) {
+  hidden(
+    div(
+      id = id,
+      class = class,
+      boxPlus(closable = FALSE, ...)
+    )
+  )
+}
 wide_box <- function(...) {
   fluidRow(
     box(

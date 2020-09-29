@@ -21,6 +21,9 @@ shinyServer(function(input, output, session) {
   # Inputs were not filled with data yet
   ui_ready <- FALSE
 
+  # Are we using grouped data?
+  by_group <- FALSE
+
   # Session start/end functionality
   onSessionStarted <- isolate({
     cat(file = stderr(), paste0("Session started: ", session$token, "\r\n")) # USER TESTING TRACING
@@ -218,6 +221,10 @@ shinyServer(function(input, output, session) {
     toggle(id = "panel_by_group")
   })
 
+  observeEvent(input$cbg_by_group, {
+    by_group <<- length(input$cbg_by_group) > 0
+  })
+
   # Analyzes launchers
   observeEvent(input$upload, {
     ds_execute(upload_file(input$upload))
@@ -229,6 +236,15 @@ shinyServer(function(input, output, session) {
 
   observeEvent(input$ab_nonparametric_desc, {
     ds_execute(ds.descriptives("nonparametric"), showSelector = "div[class^=desc_box")
+  })
+
+  observeEvent(input$ab_custom_desc, {
+    if (is.null(input$cbg_custom_desc)) {
+      showNotification(i18n$t("Не указаны желаемые виды анализа"), type = "error")
+    } else {
+      toggleDropdownButton("ddb_custom_desc")
+      ds_execute(ds.descriptives("custom"))
+    }
   })
 
   observeEvent(input$ab_frequency_tables, {

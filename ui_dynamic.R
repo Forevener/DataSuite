@@ -5,8 +5,8 @@ output$sdb_l_sidebar <- renderUI({
   sidebarMenu(
     id = "sidebar_tabs",
     menuItem(i18n$t("Ввод и отбор данных"), tabName = "data_upload"),
-    menuItem(i18n$t("Описательная статистика"), tabName = "descriptive"),
     menuItem(i18n$t("Распределение"), tabName = "distribution"),
+    menuItem(i18n$t("Описательная статистика"), tabName = "descriptive"),
     menuItem(i18n$t("Сравнение независимых выборок"), tabName = "comparison_IS"),
     menuItem(i18n$t("Сравнение зависимых выборок"), tabName = "comparison_DS"),
     menuItem(i18n$t("Корреляционный анализ"), tabName = "correlations"),
@@ -41,14 +41,6 @@ output$sdb_body <- renderUI({
       )
     ),
     tabItem(
-      "descriptive",
-      hidden_box(
-        actionButton("ab_parametric_desc", i18n$t("Параметрическая")),
-        actionButton("ab_nonparametric_desc", i18n$t("Непараметрическая"))
-      ),
-      uiOutput("results_descriptive")
-    ),
-    tabItem(
       "distribution",
       hidden_box(
         actionButton("ab_frequency_tables", i18n$t("Частоты встречаемости")),
@@ -57,10 +49,44 @@ output$sdb_body <- renderUI({
         actionButton("ab_lilliefors", i18n$t("Критерий Лиллиефорса")),
         actionButton("ab_shapirowilk", i18n$t("Критерий Шапиро-Уилка"))
       ),
-      fluidRow(hidden_box(
-        class = "dist_box", width = 12, title = i18n$t("Результаты"),
-        tags$div(id = "key_div_dist", style = "overflow-x: auto")
-      ))
+      uiOutput("results_distribution")
+    ),
+    tabItem(
+      "descriptive",
+      hidden_box(
+        actionButton("ab_parametric_desc", i18n$t("Параметрическая")),
+        actionButton("ab_nonparametric_desc", i18n$t("Непараметрическая")),
+        dropdownButton(
+          icon = icon("wrench"),
+          circle = FALSE,
+          inputId = "ddb_custom_desc",
+          tagList(
+            checkboxGroupInput(
+              inputId = "cbg_custom_desc",
+              label = NULL,
+              choices = list(
+                i18n$t("Крайние значения"),
+                i18n$t("Размах"),
+                i18n$t("Среднее"),
+                i18n$t("Стандартная ошибка среднего"),
+                i18n$t("Среднее абсолютное отклонение"),
+                i18n$t("Дисперсия"),
+                i18n$t("Стандартное отклонение"),
+                i18n$t("Коридор нормы"),
+                i18n$t("Доверительный интервал"),
+                i18n$t("Мода"),
+                i18n$t("Медиана"),
+                i18n$t("Квартили"),
+                i18n$t("Квартильный размах"),
+                i18n$t("Эксцесс"),
+                i18n$t("Асимметрия")
+              )
+            ),
+            actionButton("ab_custom_desc", i18n$t("Рассчитать"))
+          )
+        )
+      ),
+      uiOutput("results_descriptive")
     ),
     tabItem(
       "comparison_IS",

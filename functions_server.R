@@ -168,17 +168,20 @@ check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE,
 
   combinations <- NULL
   group <- rep(1, length(valid_rows))
-  if (length(grouping_vars) > 0)
+  if (by_group)
   {
-    grouping_data <- get_data()[valid_rows, grouping_vars]
+    grouping_data <- get_data()[valid_rows, grouping_vars, drop = FALSE]
 
     combinations <- tidyr::crossing(grouping_data)
     group <- dplyr::inner_join(
       cbind("group" = 1:nrow(combinations), combinations), grouping_data
     )[1]
+    series <- nrow(combinations)
+  } else {
+    series <- 1
   }
 
-  return(list("data" = in_data[valid_rows, valid_cols], "names" = data_names[valid_cols], "cols" = valid_cols, "rows" = valid_rows, "combinations" = combinations, "group" = group))
+  return(list("data" = in_data[valid_rows, valid_cols, drop = FALSE], "names" = data_names[valid_cols], "cols" = valid_cols, "rows" = valid_rows, "combinations" = combinations, "group" = group, "series" = series))
 }
 
 compose_fa_plot_data <- function(real, simulated, resampled) {
