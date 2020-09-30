@@ -46,7 +46,7 @@ ds.cds <- function(method = "t") {
   }
 
   # Retrieve data, set variables
-  n_measures <- ifelse(multiple, strtoi(input$measures_number), 2)
+  n_measures <- ifelse(multiple, strtoi(input$measures_number), 2L)
   in_data <- get_data()
   num_vars <- ncol(in_data) / n_measures
   data_names <- get_names()[1:num_vars]

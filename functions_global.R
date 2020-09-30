@@ -1,4 +1,4 @@
-custom_melt <- function(dataset, times) {
+custom_melt_slow <- function(dataset, times) {
   repeats <- as.integer(times)
   if (is.integer(repeats)) {
     rows <- nrow(dataset)
@@ -19,7 +19,32 @@ custom_melt <- function(dataset, times) {
     result[[1]] <- factor(result[[1]])
     return(result)
   } else {
-    warning("Argument 'times' is not integer")
+    stop("Argument 'times' is not integer")
+  }
+}
+
+custom_melt <- function(dataset, times) {
+  if (is.integer(times)) {
+    rows <- nrow(dataset)
+    cols <- ncol(dataset)
+    new_cols <- cols / times
+
+    result <- dataset[1:new_cols]
+    for (x in 1:(times - 1))
+    {
+      start <- 1 + new_cols * x
+      end <- new_cols * (x + 1)
+      result <- rbind(result, setNames(dataset[start:end], colnames(result)))
+    }
+
+    result <- cbind(
+      "Measure" = factor(rep(1:times, each = rows)),
+      result
+    )
+
+    return(result)
+  } else {
+    stop("Argument 'times' is not integer")
   }
 }
 
