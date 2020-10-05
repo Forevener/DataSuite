@@ -33,6 +33,7 @@ library(clustree) # clustree likes to be loaded
 # library(readr)
 # library(readODS)
 # library(moments)
+# library(pwr)
 
 # Hidden requirements from other packages - Shiny would like to know them
 requireNamespace("ggraph", quietly = TRUE)

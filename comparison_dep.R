@@ -8,8 +8,8 @@ ds.cds <- function(method = "t") {
     "Q" = i18n$t("Q-критерия Фридмана"),
     "F" = i18n$t("анализа повторяющихся наблюдений")
   )
-  parametric <- ifelse(method == "t" || method == "F", TRUE, FALSE)
-  multiple <- ifelse(method == "Q" || method == "F", TRUE, FALSE)
+  parametric <- method == "t" || method == "F"
+  multiple <- method == "Q" || method == "F"
   method_agg <- ifelse(parametric, i18n$t("Среднее"), i18n$t("Медиана"))
 
   # Prepare UI

@@ -136,7 +136,7 @@ ds.distributionplots <- function() {
       )
     })
   })
-  jqui_resizable(ui = "div[id^='dist_plot_']")
+  jqui_resizable(ui = "div[id^='dist_plot_']", options = list(alsoResize = "div[class~='ui-resizable']"))
 }
 
 ds.normalitycheck <- function(method) {
@@ -181,7 +181,7 @@ ds.normalitycheck <- function(method) {
     for (index in 1:num_vars)
     {
       result <- switch(method,
-        "kolmogorov-smirnov" = stats::ks.test(in_data[[index]], "dnorm"),
+        "kolmogorov-smirnov" = ks.test(in_data[[index]], "dnorm"),
         "lilliefors" = DescTools::LillieTest(in_data[[index]]),
         "shapiro-wilk" = shapiro.test(in_data[[index]])
       )

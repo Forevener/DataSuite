@@ -15,6 +15,7 @@ output$sdb_l_sidebar <- renderUI({
     menuItem(i18n$t("Кластерный анализ"), tabName = "cluster"),
     menuItem(i18n$t("МФ-дисперсионный анализ"), tabName = "manova"),
     menuItem(i18n$t("Регрессионный анализ"), tabName = "regression"),
+    menuItem(i18n$t("Анализ мощности"), tabName = "power"),
     uiOutput("additionalItems")
   )
 })
@@ -102,7 +103,8 @@ output$sdb_body <- renderUI({
         title = i18n$t("Несколько выборок"),
         ds_picker("si_var_cmis", i18n$t("Независимая переменная")),
         actionButton("ab_kruskallwallis", i18n$t("H-критерий Краскела-Уоллиса")),
-        actionButton("ab_welch", i18n$t("F-критерий Уэлча"))
+        actionButton("ab_welch", i18n$t("F-критерий Уэлча")),
+        actionButton("ab_chi_square", i18n$t("Критерий хи-квадрат"))
       ),
       fluidRow(hidden_box(
         class = "cis_box_a", width = 12, title = i18n$t("Результаты"),
@@ -257,6 +259,36 @@ output$sdb_body <- renderUI({
         class = "regression_box_b", width = 12, title = i18n$t("Графики"), collapsible = TRUE, collapsed = TRUE,
         tags$div(id = "key_div_regression_plots", style = "overflow-x: auto")
       ))
+    ),
+    tabItem(
+      "power",
+      box(
+        width = 12,
+        selectInput("si_pwr_type", i18n$t("Тип критерия"), choices = list(
+          i18n$t("Пропорция"),
+          paste(i18n$t("Две пропорции"), i18n$t("(одинаковые размеры выборок)")),
+          paste(i18n$t("Две пропорции"), i18n$t("(различные размеры выборок)")),
+          paste(i18n$t("t-критерий"), i18n$t("(одинаковые размеры выборок)")),
+          paste(i18n$t("t-критерий"), i18n$t("(различные размеры выборок)")),
+          i18n$t("Однофакторный дисперсионный анализ"),
+          i18n$t("Хи-квадрат"),
+          i18n$t("Корреляционный анализ"),
+          i18n$t("Обобщённая линейная модель")) %isnameof% list(
+            "p", "2p", "2p2n", "t", "t2n", "anova", "chisq", "r", "f2"
+          )
+        ),
+        column(
+          4,
+          sliderInput("sl_pwr_power", i18n$t("Мощность"), min = 0.8, max = 1, value = 0.8, step = 0.01),
+          sliderInput("sl_pwr_p_value", i18n$t("Вероятность ошибки 1-го рода"), min = 0, max = 0.05, value = 0.05, step = 0.0001),
+          sliderInput("sl_pwr_sample_size", i18n$t("Размер выборки"), min = 0, max = 1500, value = 30, step = 1),
+          sliderInput("sl_pwr_es", i18n$t("Величина эффекта"), min = 0, max = 1, value = 0.8, step = 0.01)
+        ),
+        column(
+          8,
+          tableOutput("to_pwr_output")
+        )
+      )
     )
   )
 })

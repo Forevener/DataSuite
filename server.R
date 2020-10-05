@@ -14,6 +14,7 @@ shinyServer(function(input, output, session) {
   source("cluster.R", encoding = "utf-8", local = TRUE)
   source("manova.R", encoding = "utf-8", local = TRUE)
   source("regression.R", encoding = "utf-8", local = TRUE)
+  source("power.R", encoding = "utf-8", local = TRUE)
 
   # Where are we running?
   isLocal <- !nzchar(Sys.getenv("SHINY_PORT"))
@@ -169,7 +170,7 @@ shinyServer(function(input, output, session) {
     if (isLocal) {
       tagList(
         "Debug options:",
-        actionLink("ab_debug_browser", "browser()"),
+        actionLink("al_debug_browser", "Debug"),
         # prettyRadioButtons("rb_error_action", "action on error", choices = c("NULL", "recover", "browser"))
         prettySwitch("ps_handle_errors", "Error handling", value = TRUE, status = "success")
       )
@@ -177,7 +178,7 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$sidebar_tabs, {
-    if (input$sidebar_tabs != "data_upload") {
+    if (!input$sidebar_tabs %in% c("data_upload", "power")) {
       if (!ui_ready) {
         if (!is.null(base_data())) {
           in_data <- get_data()
@@ -315,6 +316,14 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  observeEvent(input$ab_chi_square, {
+    if (is.null(input$si_var_cmis)) {
+      showNotification(i18n$t("Нет подходящих независимых переменных для данного вида анализа"), type = "error")
+    } else {
+      ds_execute(ds.cis("X"), showSelector = "div[class^=cis_box")
+    }
+  })
+
   observeEvent(input$ab_ttestdependent, {
     if (ncol(get_data()) %% 2 != 0) {
       showNotification(i18n$t("Количество столбцов нечётное - проверьте наличие нужных данных и отсутствие лишних"), type = "error")
@@ -432,7 +441,7 @@ shinyServer(function(input, output, session) {
   })
 
   # Debug options
-  observeEvent(input$ab_debug_browser, {
+  observeEvent(input$al_debug_browser, {
     browser()
   })
 

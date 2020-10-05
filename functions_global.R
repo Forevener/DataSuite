@@ -148,18 +148,43 @@ mode <- function(x, na.rm = FALSE) {
   if (na.rm) {
     x <- na.omit(x)
   }
+  if (is.factor(x)) {
+    x <- as.character(x)
+  }
   ux <- unique(x)
   freq <- tabulate(match(x, ux))
-  mode_loc <- which(freq==max(freq))
+  mode_loc <- which(freq == max(freq))
 
   return(list("mode" = ifelse(length(mode_loc) > 1, "multiple", ux[mode_loc]), "frequency" = which.max(freq)))
 }
 
-se <- function(x, na.rm=FALSE) {
+se <- function(x, na.rm = FALSE) {
   # https://stackoverflow.com/a/7220087/12449965
   if (na.rm) {
     x <- na.omit(x)
   }
 
   sqrt(var(x) / length(x))
+}
+
+grouped_freq <- function(variable, group_var) {
+  group_var <- as.factor(group_var)
+
+  result <- purrr::reduce(
+    lapply(levels(group_var), function(x) {
+      setNames(
+        data.frame(
+          table(variable[group_var == x])
+        ),
+        c("value", x)
+      )
+    }),
+    dplyr::full_join,
+    by = "value"
+  )
+  rownames(result) <- result$value
+  result$value <- NULL
+  result[is.na(result)] <- 0L
+
+  return(result)
 }
