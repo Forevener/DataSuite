@@ -1,3 +1,6 @@
+renv::restore()
+
+# Manual installation
 install.packages(
   c(
      "DT",
