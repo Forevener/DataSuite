@@ -91,48 +91,74 @@ ds.distributionplots <- function() {
         )
       )
 
-      # Prepare plots for numeric data
-      if (is.numeric(in_data[[index]])) {
-        fact <- levels(factor(in_data[[index]]))
-        dmin <- min(in_data[[index]], na.rm = TRUE)
-        dmax <- max(in_data[[index]], na.rm = TRUE)
-        scale_step <- min(diff(as.numeric(fact)))
-        plot_breaks <- seq(dmin, dmax, by = scale_step)
-        hist_call <- ggplot(in_data, aes(in_data[[index]]))
-        if (length(plot_breaks) > 18) {
-          new_step <- scale_step * round(length(plot_breaks) / 14)
-          plot_breaks <- seq(dmin, dmax, by = new_step)
-          bw <- abs(dmax - dmin) / (length(plot_breaks) - 2)
-          hist_call <- hist_call + geom_histogram(fill = "white", colour = "black", binwidth = bw, center = 0.5, closed = "left", na.rm = TRUE)
-        }
-        else {
-          bw <- abs(dmax - dmin) / (length(plot_breaks) - 1)
-          hist_call <- hist_call + geom_histogram(fill = "white", colour = "black", binwidth = bw, na.rm = TRUE)
-        }
-        hist_call <- hist_call +
-          stat_function(
-            fun = function(x) {
-              dnorm(x,
-                mean = mean(in_data[[index]], na.rm = TRUE),
-                sd = sd(in_data[[index]], na.rm = TRUE)
-              ) * bw * length(na.omit(in_data[[index]]))
-            },
-            color = "red", size = 1, na.rm = TRUE
-          ) +
-          scale_x_continuous(breaks = plot_breaks)
-      }
-      # Prepare plots for categorical data
-      else {
-        hist_call <- ggplot(NULL, aes(na.omit(in_data[[index]]))) +
-          geom_bar(fill = "white", colour = "black")
-      }
-
       # Render plots
       output[[n]] <- renderCachedPlot(
         {
-          hist_call + labs(x = i18n$t("Значения"), y = i18n$t("Количество"))
+          n <- sym(colnames(in_data)[index])
+          # Prepare plots for numeric data
+          if (is.numeric(in_data[[index]])) {
+            type <- isolate(input$rb_distplot_num)
+
+            if (type == "hist") {
+              ggplot(in_data, aes(!!n)) +
+                geom_histogram() +
+                labs(x = i18n$t("Значения"), y = i18n$t("Количество"))
+            } else if (type == "bar") {
+              ggplot(in_data, aes(!!n)) +
+                geom_bar(na.rm = TRUE) +
+                labs(x = i18n$t("Значения"), y = i18n$t("Количество"))
+            } else if (type == "density") {
+              ggplot(in_data, aes(!!n)) +
+                geom_density() +
+                labs(x = i18n$t("Значения"), y = i18n$t("Плотность"))
+            } else if (type == "ecdf") {
+              ggplot(in_data, aes(!!n)) +
+                stat_ecdf(geom = "step", pad = FALSE) +
+                labs(x = i18n$t("Значения"), y = i18n$t("Общее количество"))
+            } else if (type == "poly") {
+              ggplot(in_data, aes(!!n)) +
+                geom_freqpoly() +
+                labs(x = i18n$t("Значения"), y = i18n$t("Количество"))
+            } else if (type == "bw") {
+              ggplot(in_data, aes(x = 1, y = !!n)) +
+                geom_boxplot() +
+                labs(y = i18n$t("Значения")) +
+                theme(axis.title.x = element_blank(),
+                      axis.text.x = element_blank(),
+                      axis.ticks.x = element_blank())
+            } else if (type == "viol") {
+              ggplot(in_data, aes(x = 1, y = !!n)) +
+                geom_violin() +
+                labs(x = i18n$t("Плотность"), y = i18n$t("Значения"))
+            } else if (type == "dot") {
+              ggplot(in_data, aes(!!n)) +
+                geom_dotplot() +
+                labs(x = i18n$t("Значения"), y = i18n$t("Плотность"))
+            }
+          }
+          # Prepare plots for categorical data
+          else {
+            type <- isolate(input$rb_distplot_cat)
+
+            if (type == "bar") {
+              ggplot(in_data, aes(!!n)) +
+                geom_bar() +
+                scale_x_discrete(na.translate = FALSE) +
+                labs(x = i18n$t("Значения"), y = i18n$t("Количество"))
+            } else if (type == "pie") {
+              d <- as.data.frame(table(in_data[[index]]))
+              colnames(d)[1] <- "value"
+
+              #https://www.r-graph-gallery.com/piechart-ggplot2.html
+              ggplot(d, aes(x = "", y = Freq, fill = value)) +
+                geom_bar(stat = "identity", width = 1, color = "white") +
+                coord_polar("y", start = 0) +
+                theme_void() +
+                theme(legend.title=element_blank())
+            }
+          }
         },
-        cacheKeyExpr = in_data[[index]]
+        cacheKeyExpr = list(in_data[[index]], isolate(input$rb_distplot_cat), isolate(input$rb_distplot_num))
       )
     })
   })

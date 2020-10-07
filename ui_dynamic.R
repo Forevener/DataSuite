@@ -45,10 +45,19 @@ output$sdb_body <- renderUI({
       "distribution",
       hidden_box(
         actionButton("ab_frequency_tables", i18n$t("Частоты встречаемости")),
-        actionButton("ab_distplots", i18n$t("Графики распределения")),
         actionButton("ab_kolmogorovsmirnov_normality", i18n$t("Критерий Колмогорова-Смирнова")),
         actionButton("ab_lilliefors", i18n$t("Критерий Лиллиефорса")),
         actionButton("ab_shapirowilk", i18n$t("Критерий Шапиро-Уилка"))
+      ),
+      hidden_box(
+        dropdownButton(
+          icon = icon("wrench"),
+          circle = FALSE,
+          inputId = "ddb_distplot_type",
+          radioButtons("rb_distplot_num", i18n$t("Тип графиков для числовых переменных"), choices = list("Гистограмма", "Полосный", "Плотность распределения", "Кумулятивный", "Полигональный", "Ящик с усами", "Скрипичный", "Точечный") %isnameof% list("hist", "bar", "density", "ecdf", "poly", "bw", "viol", "dot")),
+          radioButtons("rb_distplot_cat", i18n$t("Тип графиков для нечисловых переменных"), choices = list("Полосный", "Круговой") %isnameof% list("bar", "pie"))
+        ),
+        actionButton("ab_distplots", i18n$t("Графики распределения")),
       ),
       uiOutput("results_distribution")
     ),
@@ -280,7 +289,7 @@ output$sdb_body <- renderUI({
         column(
           4,
           sliderInput("sl_pwr_power", i18n$t("Мощность"), min = 0.8, max = 1, value = 0.8, step = 0.01),
-          sliderInput("sl_pwr_p_value", i18n$t("Вероятность ошибки 1-го рода"), min = 0, max = 0.05, value = 0.05, step = 0.0001),
+          sliderInput("sl_pwr_p_value", "p", min = 0, max = 0.05, value = 0.05, step = 0.0001),
           sliderInput("sl_pwr_sample_size", i18n$t("Размер выборки"), min = 0, max = 1500, value = 30, step = 1),
           sliderInput("sl_pwr_es", i18n$t("Величина эффекта"), min = 0, max = 1, value = 0.8, step = 0.01)
         ),

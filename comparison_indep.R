@@ -124,7 +124,7 @@ ds.cis <- function(method = "t") {
           "F" = pairwise.t.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value,
           "H" = pairwise.wilcox.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value
         )
-        additional[] <- format_if(pwc, condition = paste0("{x}<=", settings()$p))
+        additional[] <- format_if(additional, condition = paste0("{x}<=", settings()$p))
       } else {
       # Output grouped frequencies
         additional <- g_freq

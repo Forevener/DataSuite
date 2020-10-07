@@ -178,7 +178,9 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$sidebar_tabs, {
-    if (!input$sidebar_tabs %in% c("data_upload", "power")) {
+    if (input$sidebar_tabs == "power") {
+
+    } else if (input$sidebar_tabs != "data_upload") {
       if (!ui_ready) {
         if (!is.null(base_data())) {
           in_data <- get_data()
