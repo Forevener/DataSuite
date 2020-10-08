@@ -57,7 +57,7 @@ shinyServer(function(input, output, session) {
 
   observe({
     s <- settings()
-    current_lang <- i18n$translation_language
+    current_lang <- get_current_language()
     if (length(current_lang) < 1) {
       current_lang <- ""
     }
@@ -133,7 +133,7 @@ shinyServer(function(input, output, session) {
         footer = NULL,
         size = "l",
         easyClose = TRUE,
-        HTML(readr::read_file(glue("./translations/help/{i18n$translation_language}/credits.html")))
+        HTML(readr::read_file(glue("./translations/help/{get_current_language()}/credits.html")))
       )
     )
   })
@@ -145,7 +145,7 @@ shinyServer(function(input, output, session) {
           footer = NULL,
           size = "l",
           easyClose = TRUE,
-          HTML(readr::read_file(glue("./translations/help/{i18n$translation_language}/{current_tab()}.html")))
+          HTML(readr::read_file(glue("./translations/help/{get_current_language()}/{current_tab()}.html")))
         )
       )
     }

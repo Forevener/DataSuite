@@ -273,7 +273,7 @@ upload_file <- function(in_file) {
 }
 
 set_language <- function(lang) {
-  if (!any(lang == i18n$languages)) {
+  if (!any(lang == i18n$get_languages())) {
     lang <- "English"
   }
 
@@ -287,4 +287,8 @@ remove_selected <- function(input_1, input_2) {
   if (length(conflict) > 0) {
     updatePickerInput(session, input_1, selected = setdiff(input[[input_1]], conflict))
   }
+}
+
+get_current_language <- function() {
+  i18n$.__enclos_env__$private$translation_language
 }

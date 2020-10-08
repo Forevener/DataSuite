@@ -309,10 +309,10 @@ output$sdb_r_sidebar <- renderUI({
     ds_picker(
       "si_language",
       label = icon("language"),
-      choices = i18n$languages[-1],
-      selected = i18n$translation_language,
+      choices = i18n$get_languages()[-1],
+      selected = get_current_language(),
       choicesOpt = list(
-        subtext = t(i18n$translations["Русский", ])
+        subtext = t(i18n$get_translations()["Русский", ])
       )
     ),
     tags$br(),
