@@ -34,7 +34,7 @@ hidden_box_plus <- function(..., class = "hidden_div", id = NULL) {
     div(
       id = id,
       class = class,
-      boxPlus(closable = FALSE, ...)
+      shinydashboardPlus::box(closable = FALSE, ...)
     )
   )
 }

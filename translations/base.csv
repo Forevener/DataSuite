@@ -59,7 +59,7 @@
 "Выбрать группирующие переменные","Select grouping variables","Выбрать группирующие переменные"
 "Вывод:","Conclusion:","Вывод:"
 "Выводы NbClust::NbClust:","NbClust::NbClust conclusions:","Выводы NbClust::NbClust:"
-"Выводы psycho::n_factors:","psycho::n_factors conclusions:","Выводы psycho::n_factors:"
+"Выводы parameters::n_factors:","parameters::n_factors conclusions:","Выводы parameters::n_factors:"
 "Выделять нагрузки","Highlight loadings","Выделять нагрузки"
 "Главные компоненты","Principal Components","Главные компоненты"
 "Главные оси","Principal Axis","Главные оси"

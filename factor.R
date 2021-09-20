@@ -14,8 +14,8 @@ ds.screeplot <- function() {
       tags$p(i18n$t("Вывод:")),
       textOutput("fa_text_1"),
       textOutput("fa_text_2"),
-      tags$p(i18n$t("Выводы psycho::n_factors:")),
-      textOutput("fa_text_3")
+      tags$p(i18n$t("Выводы parameters::n_factors:")),
+      tableOutput("fa_table")
     )
   )
 
@@ -55,7 +55,7 @@ ds.screeplot <- function() {
   # No reactivity for the following output
   rot <- input$si_factor_rotation
   met <- input$si_factoring_method
-  output[["fa_text_3"]] <- renderPrint(psycho::n_factors(in_data, rotate = rot, fm = met))
+  output[["fa_table"]] <- renderTable(parameters::n_factors(in_data, rotation = rot, algorithm = met))
 }
 
 ds.factoranalysis <- function() {

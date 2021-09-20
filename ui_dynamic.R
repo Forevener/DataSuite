@@ -1,6 +1,5 @@
 # TODO: Citations for each analysis/plot
 
-
 output$sdb_l_sidebar <- renderUI({
   sidebarMenu(
     id = "sidebar_tabs",
@@ -53,11 +52,12 @@ output$sdb_body <- renderUI({
         dropdownButton(
           icon = icon("wrench"),
           circle = FALSE,
+          inline = TRUE,
           inputId = "ddb_distplot_type",
           radioButtons("rb_distplot_num", i18n$t("Тип графиков для числовых переменных"), choices = list("Гистограмма", "Полосный", "Плотность распределения", "Кумулятивный", "Полигональный", "Ящик с усами", "Скрипичный", "Точечный") %isnameof% list("hist", "bar", "density", "ecdf", "poly", "bw", "viol", "dot")),
           radioButtons("rb_distplot_cat", i18n$t("Тип графиков для нечисловых переменных"), choices = list("Полосный", "Круговой") %isnameof% list("bar", "pie"))
         ),
-        actionButton("ab_distplots", i18n$t("Графики распределения")),
+        actionButton("ab_distplots", i18n$t("Графики распределения"))
       ),
       uiOutput("results_distribution")
     ),
@@ -69,6 +69,7 @@ output$sdb_body <- renderUI({
         dropdownButton(
           icon = icon("wrench"),
           circle = FALSE,
+          inline = TRUE,
           inputId = "ddb_custom_desc",
           tagList(
             checkboxGroupInput(
@@ -282,10 +283,10 @@ output$sdb_body <- renderUI({
           i18n$t("Однофакторный дисперсионный анализ"),
           i18n$t("Хи-квадрат"),
           i18n$t("Корреляционный анализ"),
-          i18n$t("Обобщённая линейная модель")) %isnameof% list(
-            "p", "2p", "2p2n", "t", "t2n", "anova", "chisq", "r", "f2"
-          )
-        ),
+          i18n$t("Обобщённая линейная модель")
+        ) %isnameof% list(
+          "p", "2p", "2p2n", "t", "t2n", "anova", "chisq", "r", "f2"
+        )),
         column(
           4,
           sliderInput("sl_pwr_power", i18n$t("Мощность"), min = 0.8, max = 1, value = 0.8, step = 0.01),
@@ -302,19 +303,9 @@ output$sdb_body <- renderUI({
   )
 })
 
-output$sdb_r_sidebar <- renderUI({
+output$sdb_r_sidebar_settings <- renderUI({
   tagList(
     tags$div(tags$h4(i18n$t("Настройки")), style = "text-align: center"),
-    tags$br(),
-    ds_picker(
-      "si_language",
-      label = icon("language"),
-      choices = i18n$get_languages()[-1],
-      selected = get_current_language(),
-      choicesOpt = list(
-        subtext = t(i18n$get_translations()["Русский", ])
-      )
-    ),
     tags$br(),
     numericInput(
       "ni_p_level",
@@ -325,13 +316,6 @@ output$sdb_r_sidebar <- renderUI({
       step = 0.01
     ),
     tags$br(),
-    # ds_picker(
-    #   "si_by_group",
-    #   i18n$t("Группирующие переменные для анализа по группам"),
-    #   multiSelect = TRUE,
-    #   actionsBox = TRUE,
-    #   rightAlign = FALSE
-    # ),
     actionButton("ab_by_group", i18n$t("Выбрать группирующие переменные")),
     hidden(
       tags$div(
@@ -345,5 +329,19 @@ output$sdb_r_sidebar <- renderUI({
         )
       )
     )
+  )
+})
+
+output$sdb_r_sidebar_language <- renderUI({
+  radioGroupButtons(
+    "si_language",
+    choiceNames = t(i18n$get_translations()["Русский", ]),
+    choiceValues = i18n$get_languages()[-1],
+    selected = get_current_language(),
+    direction = "vertical",
+    checkIcon = list(
+      yes = icon("check")
+    ),
+    justified = TRUE
   )
 })

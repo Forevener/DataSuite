@@ -23,7 +23,7 @@ shinyServer(function(input, output, session) {
   ui_ready <- FALSE
 
   # Are we using grouped data?
-  by_group <- FALSE
+  #by_group <- FALSE
 
   # Session start/end functionality
   onSessionStarted <- isolate({
@@ -84,6 +84,9 @@ shinyServer(function(input, output, session) {
   })
   get_names <- reactive({
     base_names()[strtoi(included_vars())]
+  })
+  by_group <- reactive({
+    length(input$cbg_by_group) > 0
   })
 
   observeEvent(
@@ -218,15 +221,16 @@ shinyServer(function(input, output, session) {
   observeEvent(input$si_include_vars, {
     selections <- get_names() %isnameof% 1:length(get_names())
     updateCheckboxGroupInput(session, "cbg_by_group", choices = selections)
+	  #by_group <<- FALSE
   })
 
   observeEvent(input$ab_by_group, {
     toggle(id = "panel_by_group")
   })
 
-  observeEvent(input$cbg_by_group, {
-    by_group <<- length(input$cbg_by_group) > 0
-  })
+  #observeEvent(input$cbg_by_group, {
+#    by_group <<- length(input$cbg_by_group) > 0
+  #}, ignoreNULL = FALSE)
 
   # Analyzes launchers
   observeEvent(input$upload, {

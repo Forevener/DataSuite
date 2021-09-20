@@ -9,7 +9,7 @@ ds.frequencytables <- function() {
   output$results_distribution <- renderUI({
     lapply(1:valid_data$series, function(x) {
       wide_box(
-        title = ifelse(by_group,
+        title = ifelse(by_group(),
           paste0(lapply(1:ncol(valid_data$combinations), function(y) {
             paste0(colnames(valid_data$combinations)[y], " = ", as.character(valid_data$combinations[[x, y]]))
           }),
@@ -60,7 +60,7 @@ ds.distributionplots <- function() {
   output$results_distribution <- renderUI({
     lapply(1:valid_data$series, function(x) {
       wide_box(
-        title = ifelse(by_group,
+        title = ifelse(by_group(),
           paste0(lapply(1:ncol(valid_data$combinations), function(y) {
             paste0(colnames(valid_data$combinations)[y], " = ", as.character(valid_data$combinations[[x, y]]))
           }),
@@ -180,7 +180,7 @@ ds.normalitycheck <- function(method) {
   output$results_distribution <- renderUI({
     lapply(1:valid_data$series, function(x) {
       wide_box(
-        title = ifelse(by_group,
+        title = ifelse(by_group(),
           paste0(lapply(1:ncol(valid_data$combinations), function(y) {
             paste0(colnames(valid_data$combinations)[y], " = ", as.character(valid_data$combinations[[x, y]]))
           }),

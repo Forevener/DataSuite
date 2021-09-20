@@ -1,7 +1,7 @@
 library(shiny)
 library(shinyWidgets)
 library(shinydashboard)
-library(shinydashboardPlus)
+#library(shinydashboardPlus) #after they renamed functions to mirror shinydashboard all calls should be made explicitly
 library(shinyjs)
 library(shinyjqui)
 library(shiny.i18n)
@@ -18,7 +18,7 @@ library(glue)
 library(ggplot2)
 # library(DescTools)
 library(psych)
-# library(psycho)
+# library(parameters)
 # library(fpc)
 # library(cluster)
 library(clustree) # clustree likes to be loaded
@@ -39,5 +39,6 @@ library(clustree) # clustree likes to be loaded
 requireNamespace("ggraph", quietly = TRUE)
 requireNamespace("GPArotation", quietly = TRUE)
 requireNamespace("Rcsdp", quietly = TRUE)
+requireNamespace("nFactors", quietly = TRUE)
 
 source("functions_global.R", encoding = "utf-8")

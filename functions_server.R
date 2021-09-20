@@ -76,9 +76,9 @@ check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE,
     in_data <- get_data()[columns]
     data_names <- get_names()[columns]
   }
-  grouping_vars <- strtoi(input$cbg_by_group)
-  if (length(grouping_vars) > 0)
+  if (by_group())
   {
+    grouping_vars <- strtoi(input$cbg_by_group)
     in_data <- in_data[-grouping_vars]
     data_names <- data_names[-grouping_vars]
   }
@@ -168,7 +168,7 @@ check_data <- function(columns = NULL, num = TRUE, nas = FALSE, zeroVar = FALSE,
 
   combinations <- NULL
   group <- rep(1, length(valid_rows))
-  if (by_group)
+  if (by_group())
   {
     grouping_data <- get_data()[valid_rows, grouping_vars, drop = FALSE]
 
@@ -261,13 +261,14 @@ upload_file <- function(in_file) {
   selections <- temp_names %isnameof% 1:length(temp_names)
   updatePickerInput(session, "si_include_vars", choices = selections, selected = selections)
   updateCheckboxGroupInput(session, "cbg_by_group", choices = selections, selected = NULL)
+  #by_group <<- FALSE
 
   base_data(temp_data)
   base_names(temp_names)
 
   clear_ui()
 
-  output$in_table <- renderDT(base_data(), filter = list(position = "top"), options = list(language = list(url = glue("//cdn.datatables.net/plug-ins/1.10.11/i18n/{i18n$translation_language}.json"))))
+  output$in_table <- renderDT(base_data(), filter = list(position = "top"), options = list(language = list(url = glue("//cdn.datatables.net/plug-ins/1.10.11/i18n/{get_current_language()}.json"))))
   show("databox")
   showNotification(i18n$t("Файл успешно загружен!"), type = "message")
 }

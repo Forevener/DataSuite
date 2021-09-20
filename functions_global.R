@@ -155,7 +155,7 @@ mode <- function(x, na.rm = FALSE) {
   freq <- tabulate(match(x, ux))
   mode_loc <- which(freq == max(freq))
 
-  return(list("mode" = ifelse(length(mode_loc) > 1, "multiple", ux[mode_loc]), "frequency" = which.max(freq)))
+  return(list("mode" = ifelse(length(mode_loc) > 1, "multiple", ux[mode_loc]), "frequency" = max(freq)))
 }
 
 se <- function(x, na.rm = FALSE) {
