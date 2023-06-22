@@ -1,6 +1,20 @@
 shinydashboardPlus::dashboardPage(
   header = shinydashboardPlus::dashboardHeader(
-    title = "Data Suite"
+    title = "Data Suite",
+    leftUi = tagList(
+      tags$li(
+        class="dropdown",
+        id="header_button_donate",
+        tags$a(
+          icon("hand-holding-heart"),
+          "Поддержать проект",
+          href="https://yoomoney.ru/to/410013947982843",
+          class="p-10",
+          target="_blank",
+          rel="noreferrer noopener"
+        )
+      )
+    )
   ),
   sidebar = shinydashboardPlus::dashboardSidebar(
     width = 270,
@@ -8,7 +22,6 @@ shinydashboardPlus::dashboardPage(
   ),
   body = dashboardBody(
     useShinyjs(),
-    #???# tags$head(tags$style(HTML(".controlbar { height: 90vh; overflow-y: auto; }"))),
     uiOutput("sdb_body")
   ),
   controlbar = shinydashboardPlus::dashboardControlbar(
@@ -18,7 +31,7 @@ shinydashboardPlus::dashboardPage(
         uiOutput("sdb_r_sidebar_settings")
       ),
       shinydashboardPlus::controlbarItem(
-        icon("language"),
+        icon("globe"),
         uiOutput("sdb_r_sidebar_language")
       )
     ),

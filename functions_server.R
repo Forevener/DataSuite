@@ -275,7 +275,7 @@ upload_file <- function(in_file) {
 
 set_language <- function(lang) {
   if (!any(lang == i18n$get_languages())) {
-    lang <- "English"
+    lang <- "en"
   }
 
   i18n$set_translation_language(lang)

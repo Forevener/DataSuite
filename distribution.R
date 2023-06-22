@@ -82,16 +82,23 @@ ds.distributionplots <- function() {
     lapply(1:ncol(in_data), function(index) {
       # Prepare UI
       n <- paste0("dist_plot_", x, "-", index)
+      ply <- paste0(n, "_ply")
       insertUI(
         selector = paste0("#dist_output", x),
         ui = tagList(
           tags$p(data_names[index]),
           plotOutput(n),
+          plotly::plotlyOutput(ply),
           tags$br()
         )
       )
 
       # Render plots
+      output[[ply]] <- plotly::renderPlotly({
+        plotly::plot_ly(data = in_data, x = ~get(colnames(in_data)[index]), type="histogram")%>%
+          plotly::layout(xaxis = list(title = i18n$t("Значения")),
+                 yaxis = list(title = i18n$t("Количество")))
+      })
       output[[n]] <- renderCachedPlot(
         {
           n <- sym(colnames(in_data)[index])

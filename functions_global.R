@@ -106,7 +106,7 @@ list_to_query <- function(in_list) {
 
 update_translation <- function() {
   base <- xlsx::read.xlsx("./translations/source.xlsx", sheetIndex = 1, encoding = "UTF-8")
-  write.csv(base, "./translations/base.csv", row.names = FALSE, fileEncoding = "UTF-8")
+  write.csv(base, "./translations/csv/translation_en.csv", row.names = FALSE, fileEncoding = "UTF-8")
 }
 
 update_list <- function(in_list, named_values) {

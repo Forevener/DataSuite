@@ -38,6 +38,7 @@ hidden_box_plus <- function(..., class = "hidden_div", id = NULL) {
     )
   )
 }
+
 wide_box <- function(...) {
   fluidRow(
     box(

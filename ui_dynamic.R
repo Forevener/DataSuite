@@ -335,8 +335,10 @@ output$sdb_r_sidebar_settings <- renderUI({
 output$sdb_r_sidebar_language <- renderUI({
   radioGroupButtons(
     "si_language",
-    choiceNames = t(i18n$get_translations()["Русский", ]),
-    choiceValues = i18n$get_languages()[-1],
+    #choiceNames = t(i18n$get_translations()["Русский", ]),
+    #choiceValues = i18n$get_languages(),
+    choiceNames = c("English", "Русский"),
+    choiceValues = c("en", "ru"),
     selected = get_current_language(),
     direction = "vertical",
     checkIcon = list(

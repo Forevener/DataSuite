@@ -34,12 +34,12 @@ shinyServer(function(input, output, session) {
   })
 
   # Internationalization
-  i18n <- Translator$new(translation_csvs_path = "./translations")
+  i18n <- Translator$new(translation_csvs_path = "./translations/csv/")
   # Should specify config.yaml somewhere
 
   # Application settings
   settings_default <- list(
-    lang = "English",
+    lang = "en",
     p = 0.05,
     fa_cut = 0.3,
     fa_load = 0.5

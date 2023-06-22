@@ -1,4 +1,4 @@
-renv::restore(prompt = FALSE)
+#renv::restore(prompt = FALSE)
 
 # Manual installation
 install.packages(
