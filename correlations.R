@@ -113,7 +113,8 @@ ds.scatterplots <- function(method) {
       output[[n]] <- plotly::renderPlotly({
         plotly::plot_ly(data = in_data, x = ~get(colnames(in_data)[x]), y = ~get(colnames(in_data)[y]), type = 'scatter', mode = 'markers') %>%
           plotly::add_lines(x = ~get(colnames(in_data)[x]), y = fitted(fit)) %>%
-          plotly::layout(xaxis = list(title = data_names[x]), yaxis = list(title = data_names[y]), showlegend = FALSE)
+          plotly::layout(xaxis = list(title = data_names[x]), yaxis = list(title = data_names[y]), showlegend = FALSE) %>%
+          plotly::config(locale = get_current_language())
       })
     })
   })

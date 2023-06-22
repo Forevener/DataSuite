@@ -1,4 +1,5 @@
 # TODO: graceful UI reset on tab switch, plot size settings
+# TODO: p adjustments for all other analysis
 options(shiny.maxRequestSize=50*1024^2)
 shinyServer(function(input, output, session) {
   # Embed separate files

@@ -97,7 +97,8 @@ ds.distributionplots <- function() {
       output[[ply]] <- plotly::renderPlotly({
         plotly::plot_ly(data = in_data, x = ~get(colnames(in_data)[index]), type="histogram")%>%
           plotly::layout(xaxis = list(title = i18n$t("Значения")),
-                 yaxis = list(title = i18n$t("Количество")))
+                 yaxis = list(title = i18n$t("Количество")))%>%
+          plotly::config(locale = get_current_language())
       })
       output[[n]] <- renderCachedPlot(
         {

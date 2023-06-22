@@ -37,12 +37,15 @@ ds.cis <- function(method = "t") {
     ui = tags$div(id = "cis_plots")
   )
   if (multiple) {
-    header <- if (parametric) {
-      paste(i18n$t("Попарные сравнения независимых выборок с помощью"), i18n$t("t-критерия Стьюдента"))
-    } else if (method == "X") {
+    header <- if (method == "X") {
       i18n$t("Межгрупповые таблицы частот")
     } else {
-      paste(i18n$t("Попарные сравнения независимых выборок с помощью"), i18n$t("W-критерия Уилкоксона"))
+      pairwise_method_title <- if (parametric) {
+        i18n$t("t-критерия Стьюдента")
+      } else {
+        i18n$t("W-критерия Уилкоксона")
+      }
+      glue(i18n$t("Попарные сравнения независимых выборок с помощью {pairwise_method_title}"))
     }
     insertUI(
       selector = "#key_div_cis_details",
@@ -119,14 +122,14 @@ ds.cis <- function(method = "t") {
 
     if (multiple) {
       if (method != "X") {
-      # Calculate pairwise comparisons
+        # Calculate pairwise comparisons
         additional <- switch(method,
           "F" = pairwise.t.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value,
           "H" = pairwise.wilcox.test(in_data[[index]], ind_var, p.adjust.method = "BH")$p.value
         )
         additional[] <- format_if(additional, condition = paste0("{x}<=", settings()$p))
       } else {
-      # Output grouped frequencies
+        # Output grouped frequencies
         additional <- g_freq
       }
 
@@ -158,8 +161,7 @@ ds.cis <- function(method = "t") {
       g <- ggplot(in_data, aes(ind_var, in_data[[index]])) +
         geom_violin() +
         stat_summary(fun.y = mean, geom = "point", size = 2)
-    }
-    else {
+    } else {
       # Violin plots + quantiles
       g <- ggplot(in_data, aes(ind_var, in_data[[index]])) +
         geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))
