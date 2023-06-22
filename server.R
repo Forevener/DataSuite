@@ -374,7 +374,7 @@ shinyServer(function(input, output, session) {
     if ((length(input$si_var1_corr) < 1) || (length(input$si_var1_corr) < 1)) {
       showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
     } else {
-      ds_execute(ds.correlations("pearson"), showSelector = "div[class^=corr_box")
+      ds_execute(ds.correlations("pearson"), showSelector = "div[class^=corr_box_tables", hideSelector = "div[class^=corr_box_plots")
     }
   })
 
@@ -382,7 +382,7 @@ shinyServer(function(input, output, session) {
     if ((length(input$si_var1_corr) < 1) || (length(input$si_var1_corr) < 1)) {
       showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
     } else {
-      ds_execute(ds.correlations("kendall"), showSelector = "div[class^=corr_box")
+      ds_execute(ds.correlations("kendall"), showSelector = "div[class^=corr_box_tables", hideSelector = "div[class^=corr_box_plots")
     }
   })
 
@@ -390,7 +390,15 @@ shinyServer(function(input, output, session) {
     if ((length(input$si_var1_corr) < 1) || (length(input$si_var1_corr) < 1)) {
       showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
     } else {
-      ds_execute(ds.correlations("spearman"), showSelector = "div[class^=corr_box")
+      ds_execute(ds.correlations("spearman"), showSelector = "div[class^=corr_box_tables", hideSelector = "div[class^=corr_box_plots")
+    }
+  })
+
+  observeEvent(input$ab_cor_plots, {
+    if ((length(input$si_var1_corr) < 1) || (length(input$si_var1_corr) < 1)) {
+      showNotification(i18n$t("Не выбраны переменные для анализа"), type = "warning")
+    } else {
+      ds_execute(ds.scatterplots(), showSelector = "div[class^=corr_box_plots", hideSelector = "div[class^=corr_box_tables")
     }
   })
 

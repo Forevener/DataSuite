@@ -43,12 +43,13 @@ output$sdb_body <- renderUI({
     tabItem(
       "distribution",
       hidden_box(
-        actionButton("ab_frequency_tables", i18n$t("Частоты встречаемости")),
-        actionButton("ab_kolmogorovsmirnov_normality", i18n$t("Критерий Колмогорова-Смирнова")),
-        actionButton("ab_lilliefors", i18n$t("Критерий Лиллиефорса")),
-        actionButton("ab_shapirowilk", i18n$t("Критерий Шапиро-Уилка"))
+        title = i18n$t('Таблицы частот'),
+        width = 4,
+        actionButton("ab_frequency_tables", i18n$t("Частоты встречаемости"))
       ),
       hidden_box(
+        title = i18n$t('Графики распределения'),
+        width = 4,
         dropdownButton(
           icon = icon("wrench"),
           circle = FALSE,
@@ -58,6 +59,13 @@ output$sdb_body <- renderUI({
           radioButtons("rb_distplot_cat", i18n$t("Тип графиков для нечисловых переменных"), choices = list("Полосный", "Круговой") %isnameof% list("bar", "pie"))
         ),
         actionButton("ab_distplots", i18n$t("Графики распределения"))
+      ),
+      hidden_box(
+        title = i18n$t('Проверка нормальности'),
+        width = 4,
+        actionButton("ab_kolmogorovsmirnov_normality", i18n$t("Критерий Колмогорова-Смирнова")),
+        actionButton("ab_lilliefors", i18n$t("Критерий Лиллиефорса")),
+        actionButton("ab_shapirowilk", i18n$t("Критерий Шапиро-Уилка"))
       ),
       uiOutput("results_distribution")
     ),
@@ -164,14 +172,15 @@ output$sdb_body <- renderUI({
         ds_picker("si_adj_corr", i18n$t("Поправка на множественные измерения"), choices = list(i18n$t("Холм"), i18n$t("Хохберг"), i18n$t("Хоммель"), i18n$t("Бонферрони"), i18n$t("Бенджамини-Хохберг"), i18n$t("Бенджамини-Иекутиели"), i18n$t("Нет")) %isnameof% list("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "none")),
         actionButton("ab_cor_pearson", i18n$t("r-критерий Пирсона")),
         actionButton("ab_cor_kendall", i18n$t("тау-критерий Кендалла")),
-        actionButton("ab_cor_spearman", i18n$t("ро-критерий Спирмена"))
+        actionButton("ab_cor_spearman", i18n$t("ро-критерий Спирмена")),
+        actionButton("ab_cor_plots", i18n$t("Графики разброса"))
       ),
       fluidRow(hidden_box(
-        class = "corr_box", width = 12, title = i18n$t("Результаты"),
+        class = "corr_box_tables", width = 12, title = i18n$t("Результаты"),
         tags$div(id = "key_div_corr_tables", style = "overflow-x: auto")
       )),
       fluidRow(hidden_box(
-        class = "corr_box", width = 12, title = i18n$t("Графики"), collapsible = TRUE, collapsed = TRUE,
+        class = "corr_box_plots", width = 12, title = i18n$t("Графики"),
         tags$div(id = "key_div_corr_plots", style = "overflow-x: auto")
       ))
     ),
